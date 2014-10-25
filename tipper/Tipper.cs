@@ -44,19 +44,20 @@ namespace Tipper
             CLadder = new ContemporaryLadder(Teams);
         }
 
-        public void LearnFromScratchFromTo(int fromYear, int fromRound, int toYear, int toRound)
+        public Data LearnFromScratchFromTo(int fromYear, int fromRound, int toYear, int toRound)
         {
             Refresh(NUM_INPUTS, new List<int>() { DEFAULT_HIDDENS }, NUM_OUTPUTS);
-            LearnFromTo(fromYear, fromRound, toYear, toRound);
+            return LearnFromTo(fromYear, fromRound, toYear, toRound);
         }
 
-        public void LearnFromTo(RoundShell roundFrom, RoundShell roundTo)
+        public ArtificialNeuralNetwork.Data LearnFromTo(RoundShell roundFrom, RoundShell roundTo)
         {
-            LearnFromTo(roundFrom.Year, roundFrom.Number, roundTo.Year, roundTo.Number);
+            return LearnFromTo(roundFrom.Year, roundFrom.Number, roundTo.Year, roundTo.Number);
         }
 
-        public void LearnFromTo(int fromYear, int fromRound, int toYear, int toRound)
+        public ArtificialNeuralNetwork.Data LearnFromTo(int fromYear, int fromRound, int toYear, int toRound)
         {
+            List<string> references = new List<string>();
             List<List<double>> inputs = new List<List<double>>();
             List<List<double>> targets = new List<List<double>>();
             var rounds = League.GetRounds(fromYear, fromRound, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
@@ -113,10 +114,16 @@ namespace Tipper
                         Numbery.Normalise(m.AwayScore().Goals, Util.MAX_GOALS),
                         Numbery.Normalise(m.AwayScore().Points, Util.MAX_POINTS),
                     });
-
+                    references.Add(m.Home.APIName + " Vs " + m.Away.APIName);
                 }
             }
-            net.Train(inputs, targets);
+            ArtificialNeuralNetwork.Data data = new Data()
+            {
+                References = references,
+                Inputs = inputs,
+                Outputs = targets
+            };
+            return data;
         }
 
 
