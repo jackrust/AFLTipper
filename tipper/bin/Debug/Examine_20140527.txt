@@ -1,0 +1,18 @@
+Ticks:435335734
+i:1, 	j:1 	Mark: 36 	Ticks:435344359
+i:1, 	j:2 	Mark: 36 	Ticks:435362093
+i:1, 	j:3 	Mark: 40 	Ticks:435389593
+i:1, 	j:4 	Mark: 41 	Ticks:435428093
+i:1, 	j:5 	Mark: 42 	Ticks:435478546
+i:1, 	j:6 	Mark: 40 	Ticks:435541828
+i:1, 	j:7 	Mark: 44 	Ticks:435618468
+i:1, 	j:8 	Mark: 45 	Ticks:435709562
+i:2, 	j:1 	Mark: 36 	Ticks:435720296
+i:2, 	j:2 	Mark: 36 	Ticks:435764109
+i:2, 	j:3 	Mark: 36 	Ticks:435870234
+i:2, 	j:4 	Mark: 36 	Ticks:436073562
+i:2, 	j:5 	Mark: 36 	Ticks:436410703
+i:2, 	j:6 	Mark: 36 	Ticks:436928234
+i:2, 	j:7 	Mark: 36 	Ticks:472471093
+i:2, 	j:8 	Mark: 36 	Ticks:473769453
+
