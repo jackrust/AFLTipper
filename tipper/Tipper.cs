@@ -1,20 +1,18 @@
-﻿using ArtificialNeuralNetwork;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Utilities;
+using ArtificialNeuralNetwork;
 using AustralianRulesFootball;
+using Utilities;
 
 namespace Tipper
 {
     public class Tipper
     {
-        public static int NUM_INPUTS = 18;
-        public static int NUM_OUTPUTS = 4;
-        public static int DEFAULT_HIDDENS = 5;
-        public static int RELEVANT_ROUND_HISTORY = 7;
+        public static int NumInputs = 18;
+        public static int NumOutputs = 4;
+        public static int DefaultHiddens = 5;
+        public static int RelevantRoundHistory = 14;
         public List<Team> Teams;
         public Ladder Ladder;
         public RecursiveLadder RLadder;
@@ -26,7 +24,7 @@ namespace Tipper
         {
             Teams = Util.getTeams();
             League = League.Load();
-            Refresh(NUM_INPUTS, new List<int>() { DEFAULT_HIDDENS }, NUM_OUTPUTS);
+            Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
         }
 
         public void Refresh(int maxEpochs, double targetError, int inputs, List<int> hiddens, int outputs)
@@ -46,29 +44,29 @@ namespace Tipper
 
         public Data LearnFromScratchFromTo(int fromYear, int fromRound, int toYear, int toRound)
         {
-            Refresh(NUM_INPUTS, new List<int>() { DEFAULT_HIDDENS }, NUM_OUTPUTS);
+            Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
             return LearnFromTo(fromYear, fromRound, toYear, toRound);
         }
 
-        public ArtificialNeuralNetwork.Data LearnFromTo(RoundShell roundFrom, RoundShell roundTo)
+        public Data LearnFromTo(RoundShell roundFrom, RoundShell roundTo)
         {
             return LearnFromTo(roundFrom.Year, roundFrom.Number, roundTo.Year, roundTo.Number);
         }
 
-        public ArtificialNeuralNetwork.Data LearnFromTo(int fromYear, int fromRound, int toYear, int toRound)
+        public Data LearnFromTo(int fromYear, int fromRound, int toYear, int toRound)
         {
             List<string> references = new List<string>();
             List<List<double>> inputs = new List<List<double>>();
             List<List<double>> targets = new List<List<double>>();
             var rounds = League.GetRounds(fromYear, fromRound, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
 
-            for (var i = RELEVANT_ROUND_HISTORY; i < rounds.Count - 1; i++)
+            for (var i = RelevantRoundHistory; i < rounds.Count - 1; i++)
             {
                 var s = new Season();
                 var Ladder = new Ladder(Teams);
                 var RLadder = new RecursiveLadder(Teams);
                 var CLadder = new ContemporaryLadder(Teams);
-                for (var j = i - RELEVANT_ROUND_HISTORY; j < i; j++)
+                for (var j = i - RelevantRoundHistory; j < i; j++)
                 {
                     s.Rounds.Add(rounds[j]);
                     //Build Ladder
@@ -89,24 +87,24 @@ namespace Tipper
                         Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Away).ContemporaryLadderPoints(), GetMaxCLadderPoints(Ladder.Rows[0].Played())),
 
                         //Scores By Team
-                        Numbery.Normalise(s.GetMatches(0, i).Sum(x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals(s.GetMatches(0, i).Count())),
-                        Numbery.Normalise(s.GetMatches(0, i).Sum(x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints(s.GetMatches(0, i).Count())),
-                        Numbery.Normalise(s.GetMatches(0, i).Sum(x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals(s.GetMatches(0, i).Count())),
-                        Numbery.Normalise(s.GetMatches(0, i).Sum(x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints(s.GetMatches(0, i).Count())),
-                        Numbery.Normalise(s.GetMatches(0, i).Sum(x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals(s.GetMatches(0, i).Count())),
-                        Numbery.Normalise(s.GetMatches(0, i).Sum(x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints(s.GetMatches(0, i).Count())),
-                        Numbery.Normalise(s.GetMatches(0, i).Sum(x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals(s.GetMatches(0, i).Count())),
-                        Numbery.Normalise(s.GetMatches(0, i).Sum(x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints(s.GetMatches(0, i).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals(s.GetMatches(m.Home).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints(s.GetMatches(m.Home).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals(s.GetMatches(m.Away).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints(s.GetMatches(m.Away).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals(s.GetMatches(m.Home).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints(s.GetMatches(m.Home).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals(s.GetMatches(m.Away).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints(s.GetMatches(m.Away).Count())),
 
                         //Scores By Ground
-                        Numbery.Normalise(s.GetMatches(0, i).Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.HomeScore().Goals), 
-                            GetMaxSeasonGoals(s.GetMatches(0, i).Count(x => x.Ground.Equals(m.Ground)))), 
-                        Numbery.Normalise(s.GetMatches(0, i).Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.HomeScore().Points), 
-                            GetMaxSeasonPoints(s.GetMatches(0, i).Count(x => x.Ground.Equals(m.Ground)))),
-                        Numbery.Normalise(s.GetMatches(0, i).Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.AwayScore().Goals), 
-                            GetMaxSeasonGoals(s.GetMatches(0, i).Count(x => x.Ground.Equals(m.Ground)))),
-                        Numbery.Normalise(s.GetMatches(0, i).Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.AwayScore().Points), 
-                            GetMaxSeasonPoints(s.GetMatches(0, i).Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.HomeScore().Goals), 
+                            GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))), 
+                        Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.HomeScore().Points), 
+                            GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.AwayScore().Goals), 
+                            GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.AwayScore().Points), 
+                            GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
                     });
                     targets.Add(new List<double>() {
                         Numbery.Normalise(m.HomeScore().Goals, Util.MAX_GOALS),
@@ -114,10 +112,13 @@ namespace Tipper
                         Numbery.Normalise(m.AwayScore().Goals, Util.MAX_GOALS),
                         Numbery.Normalise(m.AwayScore().Points, Util.MAX_POINTS),
                     });
+                   /* targets.Add(new List<double>() {
+                        (Numbery.Normalise(m.HomeScore().Total(), 0, Util.MAX_SCORE, 0, 0.5)-Numbery.Normalise(m.AwayScore().Total(), 0, Util.MAX_SCORE, 0, 0.5)+0.5)
+                    });*/
                     references.Add(m.Home.APIName + " Vs " + m.Away.APIName);
                 }
             }
-            ArtificialNeuralNetwork.Data data = new Data()
+            Data data = new Data()
             {
                 References = references,
                 Inputs = inputs,
@@ -141,7 +142,7 @@ namespace Tipper
         public List<Match> Predict(int year, int round, bool print)
         {
             List<Match> results = new List<Match>();
-            var rounds = League.GetRounds(year, round-RELEVANT_ROUND_HISTORY, year, round).Where(x => x.Matches.Count > 0).ToList();
+            var rounds = League.GetRounds(year, round-RelevantRoundHistory, year, round).Where(x => x.Matches.Count > 0).ToList();
 
             var s = new Season();
             var Ladder = new Ladder(Teams);
