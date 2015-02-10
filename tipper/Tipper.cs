@@ -75,44 +75,78 @@ namespace Tipper
                     CLadder.addRound(rounds[j]);
                 }
 
-                foreach (var m in rounds[i+1].Matches)//predict one match ahead of collected data
+                foreach (var m in rounds[i + 1].Matches) //predict one match ahead of collected data
                 {
-                    inputs.Add(new List<double>() {
+                    inputs.Add(new List<double>()
+                    {
                         //Ladder input
-                        Numbery.Normalise(Ladder.GetRow(m.Home).LadderPoints(), GetMaxLadderPoints(Ladder.Rows[0].Played())), 
-                        Numbery.Normalise(Ladder.GetRow(m.Away).LadderPoints(), GetMaxLadderPoints(Ladder.Rows[0].Played())),
-                        Numbery.Normalise(RLadder.getRecursiveLadderRow(m.Home).RecursiveLadderPoints(), GetMaxRLadderPoints(Ladder.Rows[0].Played())), 
-                        Numbery.Normalise(RLadder.getRecursiveLadderRow(m.Away).RecursiveLadderPoints(), GetMaxRLadderPoints(Ladder.Rows[0].Played())),
-                        Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Home).ContemporaryLadderPoints(), GetMaxCLadderPoints(Ladder.Rows[0].Played())), 
-                        Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Away).ContemporaryLadderPoints(), GetMaxCLadderPoints(Ladder.Rows[0].Played())),
+                        /*Numbery.Normalise(Ladder.GetRow(m.Home).LadderPoints(),
+                            GetMaxLadderPoints(Ladder.Rows[0].Played())),
+                        Numbery.Normalise(Ladder.GetRow(m.Away).LadderPoints(),
+                            GetMaxLadderPoints(Ladder.Rows[0].Played())),
+                        Numbery.Normalise(RLadder.getRecursiveLadderRow(m.Home).RecursiveLadderPoints(),
+                            GetMaxRLadderPoints(Ladder.Rows[0].Played())),
+                        Numbery.Normalise(RLadder.getRecursiveLadderRow(m.Away).RecursiveLadderPoints(),
+                            GetMaxRLadderPoints(Ladder.Rows[0].Played())),
+                        Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Home).ContemporaryLadderPoints(),
+                            GetMaxCLadderPoints(Ladder.Rows[0].Played())),
+                        Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Away).ContemporaryLadderPoints(),
+                            GetMaxCLadderPoints(Ladder.Rows[0].Played())),*/
 
                         //Scores By Team
-                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals(s.GetMatches(m.Home).Count())),
-                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints(s.GetMatches(m.Home).Count())),
-                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals(s.GetMatches(m.Away).Count())),
-                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints(s.GetMatches(m.Away).Count())),
-                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals(s.GetMatches(m.Home).Count())),
-                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints(s.GetMatches(m.Home).Count())),
-                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals(s.GetMatches(m.Away).Count())),
-                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints(s.GetMatches(m.Away).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreFor(m.Home).Goals),
+                            GetMaxSeasonGoals(s.GetMatches(m.Home).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreFor(m.Home).Points),
+                            GetMaxSeasonPoints(s.GetMatches(m.Home).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreFor(m.Away).Goals),
+                            GetMaxSeasonGoals(s.GetMatches(m.Away).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreFor(m.Away).Points),
+                            GetMaxSeasonPoints(s.GetMatches(m.Away).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreAgainst(m.Home).Goals),
+                            GetMaxSeasonGoals(s.GetMatches(m.Home).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Home).Sum(x => x.ScoreAgainst(m.Home).Points),
+                            GetMaxSeasonPoints(s.GetMatches(m.Home).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreAgainst(m.Away).Goals),
+                            GetMaxSeasonGoals(s.GetMatches(m.Away).Count())),
+                        Numbery.Normalise(s.GetMatches(m.Away).Sum(x => x.ScoreAgainst(m.Away).Points),
+                            GetMaxSeasonPoints(s.GetMatches(m.Away).Count())),
 
                         //Scores By Ground
-                        Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.HomeScore().Goals), 
-                            GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))), 
-                        Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.HomeScore().Points), 
-                            GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
-                        Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.AwayScore().Goals), 
+                        Numbery.Normalise(
+                            s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreFor(m.Home).Goals),
                             GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
-                        Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.AwayScore().Points), 
+                        Numbery.Normalise(
+                            s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreFor(m.Home).Points),
                             GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(
+                            s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreFor(m.Away).Goals),
+                            GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(
+                            s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreFor(m.Away).Points),
+                            GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(
+                            s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreAgainst(m.Home).Goals),
+                            GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(
+                            s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreAgainst(m.Home).Points),
+                            GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(
+                            s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreAgainst(m.Away).Goals),
+                            GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                        Numbery.Normalise(
+                            s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreAgainst(m.Away).Points),
+                            GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+
+
                     });
-                    targets.Add(new List<double>() {
+                    targets.Add(new List<double>()
+                    {
                         Numbery.Normalise(m.HomeScore().Goals, Util.MAX_GOALS),
                         Numbery.Normalise(m.HomeScore().Points, Util.MAX_POINTS),
                         Numbery.Normalise(m.AwayScore().Goals, Util.MAX_GOALS),
                         Numbery.Normalise(m.AwayScore().Points, Util.MAX_POINTS),
                     });
-                   /* targets.Add(new List<double>() {
+                    /* targets.Add(new List<double>() {
                         (Numbery.Normalise(m.HomeScore().Total(), 0, Util.MAX_SCORE, 0, 0.5)-Numbery.Normalise(m.AwayScore().Total(), 0, Util.MAX_SCORE, 0, 0.5)+0.5)
                     });*/
                     references.Add(m.Home.APIName + " Vs " + m.Away.APIName);
@@ -142,7 +176,10 @@ namespace Tipper
         public List<Match> Predict(int year, int round, bool print)
         {
             List<Match> results = new List<Match>();
-            var rounds = League.GetRounds(year, round-RelevantRoundHistory, year, round).Where(x => x.Matches.Count > 0).ToList();
+            var rounds =
+                League.GetRounds(year, round - RelevantRoundHistory, year, round)
+                    .Where(x => x.Matches.Count > 0)
+                    .ToList();
 
             var s = new Season();
             var Ladder = new Ladder(Teams);
@@ -160,34 +197,73 @@ namespace Tipper
             //TODO League.GetCurrentSeason() should be pulled out
             foreach (var m in League.GetCurrentSeason().Rounds[round].Matches)
             {
-                List<double> test = new List<double>() {
+                List<double> test = new List<double>()
+                {
                     //Ladder Input
-                    Numbery.Normalise(Ladder.GetRow(m.Home).LadderPoints(), GetMaxLadderPoints(Ladder.Rows[0].Played())), 
+                    /*Numbery.Normalise(Ladder.GetRow(m.Home).LadderPoints(), GetMaxLadderPoints(Ladder.Rows[0].Played())),
                     Numbery.Normalise(Ladder.GetRow(m.Away).LadderPoints(), GetMaxLadderPoints(Ladder.Rows[0].Played())),
-                    Numbery.Normalise(RLadder.getRecursiveLadderRow(m.Home).RecursiveLadderPoints(), GetMaxRLadderPoints(Ladder.Rows[0].Played())), 
-                    Numbery.Normalise(RLadder.getRecursiveLadderRow(m.Away).RecursiveLadderPoints(), GetMaxRLadderPoints(Ladder.Rows[0].Played())),
-                    Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Home).ContemporaryLadderPoints(), GetMaxCLadderPoints(CLadder.Rows[0].Played())), 
-                    Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Away).ContemporaryLadderPoints(), GetMaxCLadderPoints(CLadder.Rows[0].Played())),
+                    Numbery.Normalise(RLadder.getRecursiveLadderRow(m.Home).RecursiveLadderPoints(),
+                        GetMaxRLadderPoints(Ladder.Rows[0].Played())),
+                    Numbery.Normalise(RLadder.getRecursiveLadderRow(m.Away).RecursiveLadderPoints(),
+                        GetMaxRLadderPoints(Ladder.Rows[0].Played())),
+                    Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Home).ContemporaryLadderPoints(),
+                        GetMaxCLadderPoints(CLadder.Rows[0].Played())),
+                    Numbery.Normalise(CLadder.getContemporaryLadderRow(m.Away).ContemporaryLadderPoints(),
+                        GetMaxCLadderPoints(CLadder.Rows[0].Played())),*/
+
+                    //History
+                    Numbery.Normalise(s.GetMatches().Last().ScoreFor(m.Home).Goals, Util.MAX_GOALS),
+                    Numbery.Normalise(s.GetMatches().Last().ScoreFor(m.Home).Points, Util.MAX_POINTS),
+                    Numbery.Normalise(s.GetMatches().Last().ScoreFor(m.Away).Goals, Util.MAX_GOALS),
+                    Numbery.Normalise(s.GetMatches().Last().ScoreFor(m.Away).Points, Util.MAX_POINTS),
+                    Numbery.Normalise(s.GetMatches().Last().ScoreAgainst(m.Home).Goals, Util.MAX_GOALS),
+                    Numbery.Normalise(s.GetMatches().Last().ScoreAgainst(m.Home).Points, Util.MAX_POINTS),
+                    Numbery.Normalise(s.GetMatches().Last().ScoreAgainst(m.Away).Goals, Util.MAX_GOALS),
+                    Numbery.Normalise(s.GetMatches().Last().ScoreAgainst(m.Away).Points, Util.MAX_POINTS),
 
                     //Scores By Team
-                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals(s.GetMatches().Count())),
-                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints(s.GetMatches().Count())),
-                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals(s.GetMatches().Count())),
-                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints(s.GetMatches().Count())),
-                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals(s.GetMatches().Count())),
-                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints(s.GetMatches().Count())),
-                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals(s.GetMatches().Count())),
-                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints(s.GetMatches().Count())),
+                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreFor(m.Home).Goals),
+                        GetMaxSeasonGoals(s.GetMatches().Count())),
+                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreFor(m.Home).Points),
+                        GetMaxSeasonPoints(s.GetMatches().Count())),
+                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreFor(m.Away).Goals),
+                        GetMaxSeasonGoals(s.GetMatches().Count())),
+                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreFor(m.Away).Points),
+                        GetMaxSeasonPoints(s.GetMatches().Count())),
+                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreAgainst(m.Home).Goals),
+                        GetMaxSeasonGoals(s.GetMatches().Count())),
+                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreAgainst(m.Home).Points),
+                        GetMaxSeasonPoints(s.GetMatches().Count())),
+                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreAgainst(m.Away).Goals),
+                        GetMaxSeasonGoals(s.GetMatches().Count())),
+                    Numbery.Normalise(s.GetMatches().Sum(x => x.ScoreAgainst(m.Away).Points),
+                        GetMaxSeasonPoints(s.GetMatches().Count())),
 
                     //Scores By Ground
-                    Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.HomeScore().Goals), 
-                        GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))), 
-                    Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.HomeScore().Points), 
+                    Numbery.Normalise(
+                        s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreFor(m.Home).Goals),
                         GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
-                    Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.AwayScore().Goals), 
+                    Numbery.Normalise(
+                        s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreFor(m.Home).Points),
+                        GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                    Numbery.Normalise(
+                        s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreFor(m.Away).Goals),
                         GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
-                    Numbery.Normalise(s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.AwayScore().Points), 
+                    Numbery.Normalise(
+                        s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreFor(m.Away).Points),
+                        GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                    Numbery.Normalise(
+                        s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreAgainst(m.Home).Goals),
                         GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                    Numbery.Normalise(
+                        s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreAgainst(m.Home).Points),
+                        GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                    Numbery.Normalise(
+                        s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreAgainst(m.Away).Goals),
+                        GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
+                    Numbery.Normalise(
+                        s.GetMatches().Where(x => x.Ground.Equals(m.Ground)).Sum(x => x.ScoreAgainst(m.Away).Points),
+                        GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground)))),
 
                 };
 
@@ -198,7 +274,7 @@ namespace Tipper
                     new Score(0, 0),
                     new Score(0, 0),
                     new Score(
-                        Numbery.Denormalise(result[0], Util.MAX_GOALS), 
+                        Numbery.Denormalise(result[0], Util.MAX_GOALS),
                         Numbery.Denormalise(result[1], Util.MAX_POINTS)
                         ),
                     m.Away,
@@ -211,16 +287,17 @@ namespace Tipper
                         ),
                     new Ground(), new DateTime()));
 
-                if(print)
-                    Console.WriteLine(m.Home.Mascot + " Vs " + m.Away.Mascot + ": " + 
-                        printlayer(new double[]{
-                            results.Last<Match>().HomeScore().Goals, 
-                            results.Last<Match>().HomeScore().Points, 
-                            results.Last<Match>().HomeScore().Total(),
-                            results.Last<Match>().AwayScore().Goals, 
-                            results.Last<Match>().AwayScore().Points,
-                            results.Last<Match>().AwayScore().Total()
-                        }));
+                if (print)
+                    Console.WriteLine(m.Home.Mascot + " Vs " + m.Away.Mascot + ": " +
+                                      printlayer(new double[]
+                                      {
+                                          results.Last<Match>().HomeScore().Goals,
+                                          results.Last<Match>().HomeScore().Points,
+                                          results.Last<Match>().HomeScore().Total(),
+                                          results.Last<Match>().AwayScore().Goals,
+                                          results.Last<Match>().AwayScore().Points,
+                                          results.Last<Match>().AwayScore().Total()
+                                      }));
             }
             return results;
         }
