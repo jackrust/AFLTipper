@@ -16,15 +16,42 @@ namespace Tipper
             Console.WriteLine("Creating Tipper...");
             var tipper = new Tipper();
             Console.WriteLine("Creating training data...");
-            var trainingData = tipper.LearnFromTo(2012, 24 - Tipper.RelevantRoundHistory, 2013, 24);
+            var trainingData = tipper.LearnFromTo(2012, 0, 2013, 24);
             Console.WriteLine("Creating testing data...");
-            var testingData = tipper.LearnFromTo(2013, 24 - Tipper.RelevantRoundHistory, 2014, 24);
+            var testingData = tipper.LearnFromTo(2013, 0, 2014, 24);
             Console.WriteLine("Creating Optimizer...");
             var optimizer = new Optimizer();
             Console.WriteLine("Optimizing...");
             var output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
             Console.WriteLine(output);
+
+
+            Console.WriteLine("Init Neural Network...");
+            trainingData = tipper.LearnFromTo(2013, 0, 2014, 24);
+            tipper.Net = CreateNetwork(trainingData, 1, 2, Network.TrainingAlgorithm.HoldBestSpiralOut);
+            Console.WriteLine("Tip 2015 round 1...");
+            tipper.Predict(2015, 1, true);
             Console.Read();
+        }
+
+        public static Network CreateNetwork(Data trainingData, int numLayers, int perLayer, Network.TrainingAlgorithm algorithm)
+        {
+            //Create hidden layers
+            var hidden = new List<int>();
+
+            for (var i = 0; i < numLayers; i++)
+            {
+                hidden.Add(perLayer);
+            }
+
+            //Create Network
+            var network = new Network(trainingData.Inputs[0].Count, hidden, trainingData.Outputs[0].Count);
+            //New network with 5 inputs, One hidden layer of 2 neurons, 1 output
+
+            //Train the network
+            network.Train(trainingData.Inputs, trainingData.Outputs, algorithm);
+
+            return network;
         }
 
         public static bool SuccessConditionGoalAndPoints(List<double> predicted, List<double> actual)
@@ -42,6 +69,23 @@ namespace Tipper
             var aaPoints = Numbery.Denormalise(actual[3], Util.MAX_POINTS);
             var ahScore = ahGoals * 6 + ahPoints;
             var aaScore = aaGoals * 6 + aaPoints;
+
+            if (phScore > paScore && ahScore > aaScore)
+                return true;
+            if (phScore < paScore && ahScore < aaScore)
+                return true;
+            if (phScore == paScore && ahScore == aaScore)
+                return true;
+            return false;
+        }
+
+        public static bool SuccessConditionScore(List<double> predicted, List<double> actual)
+        {
+            var phScore = Numbery.Denormalise(predicted[0], Util.MAX_SCORE);
+            var paScore = Numbery.Denormalise(predicted[1], Util.MAX_SCORE);
+
+            var ahScore = Numbery.Denormalise(actual[0], Util.MAX_SCORE);
+            var aaScore = Numbery.Denormalise(actual[1], Util.MAX_SCORE);
 
             if (phScore > paScore && ahScore > aaScore)
                 return true;
