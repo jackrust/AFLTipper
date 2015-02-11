@@ -15,14 +15,37 @@ namespace Tipper
             Console.WriteLine("Start");
             Console.WriteLine("Creating Tipper...");
             var tipper = new Tipper();
-            Console.WriteLine("Creating training data...");
-            var trainingData = tipper.LearnFromTo(2012, 0, 2013, 24);
-            Console.WriteLine("Creating testing data...");
-            var testingData = tipper.LearnFromTo(2013, 0, 2014, 24);
             Console.WriteLine("Creating Optimizer...");
             var optimizer = new Optimizer();
+            var trainingData = new Data();
+            var testingData = new Data();
+            var output = "";
+
+            /*Console.WriteLine("2012");
+            Console.WriteLine("Creating training data...");
+            trainingData = tipper.LearnFromTo(2010, 0, 2011, 24);
+            Console.WriteLine("Creating testing data...");
+            testingData = tipper.LearnFromTo(2012, 0, 2012, 24);
             Console.WriteLine("Optimizing...");
-            var output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
+            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
+            Console.WriteLine(output);
+
+            Console.WriteLine("2013");
+            Console.WriteLine("Creating training data...");
+            trainingData = tipper.LearnFromTo(2011, 0, 2012, 24);
+            Console.WriteLine("Creating testing data...");
+            testingData = tipper.LearnFromTo(2013, 0, 2013, 24);
+            Console.WriteLine("Optimizing...");
+            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
+            Console.WriteLine(output);*/
+
+            Console.WriteLine("2014");
+            Console.WriteLine("Creating training data...");
+            trainingData = tipper.LearnFromTo(2012, 0, 2013, 24);
+            Console.WriteLine("Creating testing data...");
+            testingData = tipper.LearnFromTo(2014, 0, 2014, 24);
+            Console.WriteLine("Optimizing...");
+            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
             Console.WriteLine(output);
 
 
@@ -56,17 +79,17 @@ namespace Tipper
 
         public static bool SuccessConditionGoalAndPoints(List<double> predicted, List<double> actual)
         {
-            var phGoals = Numbery.Denormalise(predicted[0], Util.MAX_GOALS);
-            var phPoints = Numbery.Denormalise(predicted[1], Util.MAX_POINTS);
-            var paGoals = Numbery.Denormalise(predicted[2], Util.MAX_GOALS);
-            var paPoints = Numbery.Denormalise(predicted[3], Util.MAX_POINTS);
+            var phGoals = Numbery.Denormalise(predicted[0], Util.MaxGoals);
+            var phPoints = Numbery.Denormalise(predicted[1], Util.MaxPoints);
+            var paGoals = Numbery.Denormalise(predicted[2], Util.MaxGoals);
+            var paPoints = Numbery.Denormalise(predicted[3], Util.MaxPoints);
             var phScore = phGoals * 6 + phPoints;
             var paScore = paGoals * 6 + paPoints;
 
-            var ahGoals = Numbery.Denormalise(actual[0], Util.MAX_GOALS);
-            var ahPoints = Numbery.Denormalise(actual[1], Util.MAX_POINTS);
-            var aaGoals = Numbery.Denormalise(actual[2], Util.MAX_GOALS);
-            var aaPoints = Numbery.Denormalise(actual[3], Util.MAX_POINTS);
+            var ahGoals = Numbery.Denormalise(actual[0], Util.MaxGoals);
+            var ahPoints = Numbery.Denormalise(actual[1], Util.MaxPoints);
+            var aaGoals = Numbery.Denormalise(actual[2], Util.MaxGoals);
+            var aaPoints = Numbery.Denormalise(actual[3], Util.MaxPoints);
             var ahScore = ahGoals * 6 + ahPoints;
             var aaScore = aaGoals * 6 + aaPoints;
 
@@ -81,11 +104,11 @@ namespace Tipper
 
         public static bool SuccessConditionScore(List<double> predicted, List<double> actual)
         {
-            var phScore = Numbery.Denormalise(predicted[0], Util.MAX_SCORE);
-            var paScore = Numbery.Denormalise(predicted[1], Util.MAX_SCORE);
+            var phScore = Numbery.Denormalise(predicted[0], Util.MaxScore);
+            var paScore = Numbery.Denormalise(predicted[1], Util.MaxScore);
 
-            var ahScore = Numbery.Denormalise(actual[0], Util.MAX_SCORE);
-            var aaScore = Numbery.Denormalise(actual[1], Util.MAX_SCORE);
+            var ahScore = Numbery.Denormalise(actual[0], Util.MaxScore);
+            var aaScore = Numbery.Denormalise(actual[1], Util.MaxScore);
 
             if (phScore > paScore && ahScore > aaScore)
                 return true;
