@@ -14,6 +14,8 @@ namespace Tipper
             if (args == null) throw new ArgumentNullException("args");
             Console.WriteLine("Start");
             Console.WriteLine("Creating Tipper...");
+            var tipperScore = new TipperScore();
+            var tipperGoalsPoints = new TipperGoalsPoints();
             var tipper = new Tipper();
             Console.WriteLine("Creating Optimizer...");
             var optimizer = new Optimizer();
@@ -21,39 +23,39 @@ namespace Tipper
             var testingData = new Data();
             var output = "";
 
-            /*Console.WriteLine("2012");
-            Console.WriteLine("Creating training data...");
-            trainingData = tipper.LearnFromTo(2010, 0, 2011, 24);
-            Console.WriteLine("Creating testing data...");
-            testingData = tipper.LearnFromTo(2012, 0, 2012, 24);
-            Console.WriteLine("Optimizing...");
-            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
-            Console.WriteLine(output);
-
             Console.WriteLine("2013");
             Console.WriteLine("Creating training data...");
-            trainingData = tipper.LearnFromTo(2011, 0, 2012, 24);
-            Console.WriteLine("Creating testing data...");
-            testingData = tipper.LearnFromTo(2013, 0, 2013, 24);
-            Console.WriteLine("Optimizing...");
-            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
-            Console.WriteLine(output);*/
-
-            Console.WriteLine("2014");
-            Console.WriteLine("Creating training data...");
-            trainingData = tipper.LearnFromTo(2012, 0, 2013, 24);
+            trainingData = tipper.LearnFromTo(2009, 0, 2013, 24);
             Console.WriteLine("Creating testing data...");
             testingData = tipper.LearnFromTo(2014, 0, 2014, 24);
             Console.WriteLine("Optimizing...");
             output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
             Console.WriteLine(output);
 
+            /*Console.WriteLine("2014 - Score");
+            Console.WriteLine("Creating training data...");
+            trainingData = tipperScore.LearnFromTo(2011, 0, 2013, 24);
+            Console.WriteLine("Creating testing data...");
+            testingData = tipperScore.LearnFromTo(2014, 0, 2014, 24);
+            Console.WriteLine("Optimizing...");
+            output = optimizer.Optimize(trainingData, testingData, SuccessConditionScore);
+            Console.WriteLine(output);*/
 
-            Console.WriteLine("Init Neural Network...");
-            trainingData = tipper.LearnFromTo(2013, 0, 2014, 24);
-            tipper.Net = CreateNetwork(trainingData, 1, 2, Network.TrainingAlgorithm.HoldBestSpiralOut);
-            Console.WriteLine("Tip 2015 round 1...");
-            tipper.Predict(2015, 1, true);
+            /*Console.WriteLine("2014 - Goals points");
+            Console.WriteLine("Creating training data...");
+            trainingData = tipperGoalsPoints.LearnFromTo(2011, 0, 2013, 24);
+            Console.WriteLine("Creating testing data...");
+            testingData = tipperGoalsPoints.LearnFromTo(2014, 0, 2014, 24);
+            Console.WriteLine("Optimizing...");
+            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
+            Console.WriteLine(output);*/
+
+
+            //Console.WriteLine("Init Neural Network...");
+            //trainingData = tipper.LearnFromTo(2013, 0, 2014, 24);
+            //tipper.Net = CreateNetwork(trainingData, 1, 2, Network.TrainingAlgorithm.HoldBestSpiralOut);
+            //Console.WriteLine("Tip 2015 round 1...");
+            //tipper.Predict(2015, 1, true);
             Console.Read();
         }
 
