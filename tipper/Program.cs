@@ -23,7 +23,7 @@ namespace Tipper
             var testingData = new Data();
             var output = "";
 
-            Console.WriteLine("2013");
+            Console.WriteLine("2014");
             Console.WriteLine("Creating training data...");
             trainingData = tipper.LearnFromTo(2009, 0, 2013, 24);
             Console.WriteLine("Creating testing data...");
@@ -43,19 +43,26 @@ namespace Tipper
 
             /*Console.WriteLine("2014 - Goals points");
             Console.WriteLine("Creating training data...");
-            trainingData = tipperGoalsPoints.LearnFromTo(2011, 0, 2013, 24);
+            trainingData = tipperGoalsPoints.LearnFromTo(2009, 0, 2013, 24);
             Console.WriteLine("Creating testing data...");
             testingData = tipperGoalsPoints.LearnFromTo(2014, 0, 2014, 24);
             Console.WriteLine("Optimizing...");
             output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
             Console.WriteLine(output);*/
 
-
-            //Console.WriteLine("Init Neural Network...");
-            //trainingData = tipper.LearnFromTo(2013, 0, 2014, 24);
-            //tipper.Net = CreateNetwork(trainingData, 1, 2, Network.TrainingAlgorithm.HoldBestSpiralOut);
-            //Console.WriteLine("Tip 2015 round 1...");
-            //tipper.Predict(2015, 1, true);
+/*
+            Console.WriteLine("Init Neural Network...");
+            trainingData = tipper.LearnFromTo(2009, 0, 2013, 24);
+            Console.WriteLine("Create network...");
+            tipper.Net = CreateNetwork(trainingData, 1, 5, Network.TrainingAlgorithm.HoldBestSpiralOut);
+            Console.WriteLine("Tip 2015 round 1...");
+            for (var i = 1; i <= 24; i++)
+            {
+                var tips = tipper.Predict(2014, i, false);
+                var mark = tipper.MarkRound(2014, i, tips);
+                Console.WriteLine("{0}/{1}", mark, tips.Count);
+            }*/
+            
             Console.Read();
         }
 
@@ -70,7 +77,7 @@ namespace Tipper
             }
 
             //Create Network
-            var network = new Network(trainingData.Inputs[0].Count, hidden, trainingData.Outputs[0].Count);
+            var network = new FeedForwardNetwork(trainingData.Inputs[0].Count, hidden, trainingData.Outputs[0].Count);
             //New network with 5 inputs, One hidden layer of 2 neurons, 1 output
 
             //Train the network

@@ -33,7 +33,7 @@ namespace Tipper
 
         public void Refresh(int inputs, List<int> hiddens, int outputs)
         {
-            Net = new Network(inputs, hiddens, outputs);
+            Net = new FeedForwardNetwork(inputs, hiddens, outputs);
         }
 
         public Data LearnFromScratchFromTo(int fromYear, int fromRound, int toYear, int toRound)
@@ -133,8 +133,8 @@ namespace Tipper
         private static List<double> BuildInputs(Season s, Match m)
         {
             const int shortTerm = 4;
-            const int midTerm = 8;
-            const int longTerm = 12;
+            const int midTerm = 6;
+            const int longTerm = 8;
 
             var input = new List<double>();
             //Scores By Team - 8
@@ -464,6 +464,12 @@ namespace Tipper
         public int MarkRound(int round, List<Match> tips)
         {
             var matches = League.GetCurrentSeason().Rounds[round].Matches;
+            return tips.Count != matches.Count ? 0 : matches.Sum(t => tips.Count(t1 => t.GetLosingTeam().Equals(t1.GetLosingTeam())));
+        }
+
+        public int MarkRound(int year, int round, List<Match> tips)
+        {
+            var matches = League.GetSeason(year).Rounds[round].Matches;
             return tips.Count != matches.Count ? 0 : matches.Sum(t => tips.Count(t1 => t.GetLosingTeam().Equals(t1.GetLosingTeam())));
         }
 
