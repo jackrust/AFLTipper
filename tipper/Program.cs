@@ -29,41 +29,25 @@ namespace Tipper
             Console.WriteLine("Creating testing data...");
             testingData = tipper.LearnFromTo(2014, 0, 2014, 24);
             Console.WriteLine("Optimizing...");
-            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
+            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints, Deconvert);
             Console.WriteLine(output);
-
-            /*Console.WriteLine("2014 - Score");
-            Console.WriteLine("Creating training data...");
-            trainingData = tipperScore.LearnFromTo(2011, 0, 2013, 24);
-            Console.WriteLine("Creating testing data...");
-            testingData = tipperScore.LearnFromTo(2014, 0, 2014, 24);
-            Console.WriteLine("Optimizing...");
-            output = optimizer.Optimize(trainingData, testingData, SuccessConditionScore);
-            Console.WriteLine(output);*/
-
-            /*Console.WriteLine("2014 - Goals points");
-            Console.WriteLine("Creating training data...");
-            trainingData = tipperGoalsPoints.LearnFromTo(2009, 0, 2013, 24);
-            Console.WriteLine("Creating testing data...");
-            testingData = tipperGoalsPoints.LearnFromTo(2014, 0, 2014, 24);
-            Console.WriteLine("Optimizing...");
-            output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints);
-            Console.WriteLine(output);*/
-
-/*
-            Console.WriteLine("Init Neural Network...");
-            trainingData = tipper.LearnFromTo(2009, 0, 2013, 24);
-            Console.WriteLine("Create network...");
-            tipper.Net = CreateNetwork(trainingData, 1, 5, Network.TrainingAlgorithm.HoldBestSpiralOut);
-            Console.WriteLine("Tip 2015 round 1...");
-            for (var i = 1; i <= 24; i++)
-            {
-                var tips = tipper.Predict(2014, i, false);
-                var mark = tipper.MarkRound(2014, i, tips);
-                Console.WriteLine("{0}/{1}", mark, tips.Count);
-            }*/
             
-            Console.Read();
+
+
+            /*
+            Console.WriteLine("Init Neural Network...");
+            trainingData = tipper.LearnFromTo(2010, 0, 2014, 24);
+            Console.WriteLine("Create network...");
+            tipper.Net = CreateNetwork(trainingData, 1, 6, Network.TrainingAlgorithm.HoldBestSpiralOut);
+            Console.WriteLine("Tip 2015 round 1...");
+            for (var i = 1; i <= 1; i++)
+            {
+                var tips = tipper.Predict(2015, i, true);
+                //var mark = tipper.MarkRound(2015, i, tips);
+                //Console.WriteLine("{0}/{1}", mark, tips.Count);
+            }
+            */
+           Console.Read();
         }
 
         public static Network CreateNetwork(Data trainingData, int numLayers, int perLayer, Network.TrainingAlgorithm algorithm)
@@ -109,6 +93,17 @@ namespace Tipper
             if (phScore == paScore && ahScore == aaScore)
                 return true;
             return false;
+        }
+
+        public static List<double> Deconvert(List<double> input)
+        {
+            var hGoals = Numbery.Denormalise(input[0], Util.MaxGoals);
+            var hPoints = Numbery.Denormalise(input[1], Util.MaxPoints);
+            var aGoals = Numbery.Denormalise(input[2], Util.MaxGoals);
+            var aPoints = Numbery.Denormalise(input[3], Util.MaxPoints);
+            return new List<double>(){
+                hGoals, hPoints, aGoals, aPoints
+            };
         }
 
         public static bool SuccessConditionScore(List<double> predicted, List<double> actual)
