@@ -76,15 +76,15 @@ namespace Tipper
             var phPoints = Numbery.Denormalise(predicted[1], Util.MaxPoints);
             var paGoals = Numbery.Denormalise(predicted[2], Util.MaxGoals);
             var paPoints = Numbery.Denormalise(predicted[3], Util.MaxPoints);
-            var phScore = phGoals * 6 + phPoints;
-            var paScore = paGoals * 6 + paPoints;
+            var phScore = phGoals * 6 +phPoints;
+            var paScore = paGoals * 6 +paPoints;
 
             var ahGoals = Numbery.Denormalise(actual[0], Util.MaxGoals);
             var ahPoints = Numbery.Denormalise(actual[1], Util.MaxPoints);
             var aaGoals = Numbery.Denormalise(actual[2], Util.MaxGoals);
             var aaPoints = Numbery.Denormalise(actual[3], Util.MaxPoints);
-            var ahScore = ahGoals * 6 + ahPoints;
-            var aaScore = aaGoals * 6 + aaPoints;
+            var ahScore = ahGoals * 6 +ahPoints;
+            var aaScore = aaGoals * 6 +aaPoints;
 
             if (phScore > paScore && ahScore > aaScore)
                 return true;

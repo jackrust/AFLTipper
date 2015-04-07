@@ -130,502 +130,149 @@ namespace Tipper
             return results;
         }
 
-
+        public static double ExtractInput(List<Match> s, Func<Match, bool> wherePredicate, int takeLength, Func<Match, double> sumSelector, Func<double, double> maxFunc)
+        {
+            var value = s
+                .Where(wherePredicate)
+                .OrderByDescending(x => x.Date)
+                .Take(takeLength)
+                .Sum(sumSelector);
+            var max = maxFunc(
+                s
+                    .Where(wherePredicate)
+                    .OrderByDescending(x => x.Date)
+                    .Take(takeLength)
+                    .Count());
+            return Numbery.Normalise(value, max);
+        }
 
         public static List<double> BuildInputs(Season s, Match m)
         {
+            const int previous = 1;
+            const int shortTerm = 3;
             const int midTerm = 5;
             const int longTerm = 7;
+            const int longerTerm = 9;
+
+            const int relevantYearsDifference = -6;
+
+            var matches = s.GetMatches();
+
 
             var input = new List<double>();
-            //Scores By Team - 8
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                        .Sum(x => x.ScoreFor(m.Home).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Home))
-                            .OrderByDescending(x => x.Date)
-                            .Take(longTerm)
-                            .Count(x => x.HasTeam(m.Home)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                        .Sum(x => x.ScoreFor(m.Home).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Home))
-                            .OrderByDescending(x => x.Date)
-                            .Take(longTerm)
-                            .Count(x => x.HasTeam(m.Home)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                        .Sum(x => x.ScoreFor(m.Away).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Away))
-                            .OrderByDescending(x => x.Date)
-                            .Take(longTerm)
-                            .Count(x => x.HasTeam(m.Away)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                        .Sum(x => x.ScoreFor(m.Away).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Away))
-                            .OrderByDescending(x => x.Date)
-                            .Take(longTerm)
-                            .Count(x => x.HasTeam(m.Away)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                        .Sum(x => x.ScoreAgainst(m.Home).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Home))
-                            .OrderByDescending(x => x.Date)
-                            .Take(longTerm)
-                            .Count(x => x.HasTeam(m.Home)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                        .Sum(x => x.ScoreAgainst(m.Home).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Home))
-                            .OrderByDescending(x => x.Date)
-                            .Take(longTerm)
-                            .Count(x => x.HasTeam(m.Home)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                        .Sum(x => x.ScoreAgainst(m.Away).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Away))
-                            .OrderByDescending(x => x.Date)
-                            .Take(longTerm)
-                            .Count(x => x.HasTeam(m.Away)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                        .Sum(x => x.ScoreAgainst(m.Away).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Away))
-                            .OrderByDescending(x => x.Date)
-                            .Take(longTerm)
-                            .Count(x => x.HasTeam(m.Away)))));
+            //Scores By Team longer. w -> 0.66
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), longerTerm, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), longerTerm, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
 
-            //Scores By Team Recent - 8
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreFor(m.Home).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Home))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(m.Home)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreFor(m.Home).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Home))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(m.Home)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreFor(m.Away).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Away))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(m.Away)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreFor(m.Away).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Away))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(m.Away)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreAgainst(m.Home).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Home))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(m.Home)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreAgainst(m.Home).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Home))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(m.Home)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreAgainst(m.Away).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Away))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(m.Away)))));
-            input.Add(
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreAgainst(m.Away).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(m.Away))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(m.Away)))));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), longerTerm, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), longerTerm, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), longerTerm, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), longerTerm, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
 
-            //Scores By Ground int he last 2 years- 8
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.Ground.Equals(m.Ground) && x.Date > m.Date.AddYears(-2)).Sum(x => x.ScoreFor(m.Home).Goals),
-                GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(-3)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.Ground.Equals(m.Ground) && x.Date > m.Date.AddYears(-2)).Sum(x => x.ScoreFor(m.Home).Points),
-                GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(-2)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.Ground.Equals(m.Ground) && x.Date > m.Date.AddYears(-2)).Sum(x => x.ScoreFor(m.Away).Goals),
-                GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(-2)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.Ground.Equals(m.Ground) && x.Date > m.Date.AddYears(-2)).Sum(x => x.ScoreFor(m.Away).Points),
-                GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(-2)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.Ground.Equals(m.Ground) && x.Date > m.Date.AddYears(-2)).Sum(x => x.ScoreAgainst(m.Home).Goals),
-                GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(-2)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.Ground.Equals(m.Ground) && x.Date > m.Date.AddYears(-2)).Sum(x => x.ScoreAgainst(m.Home).Points),
-                GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(-2)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.Ground.Equals(m.Ground) && x.Date > m.Date.AddYears(-2)).Sum(x => x.ScoreAgainst(m.Away).Goals),
-                GetMaxSeasonGoals(s.GetMatches().Count(x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(-2)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.Ground.Equals(m.Ground) && x.Date > m.Date.AddYears(-2)).Sum(x => x.ScoreAgainst(m.Away).Points),
-                GetMaxSeasonPoints(s.GetMatches().Count(x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(-2)))));
+            //Scores By Team short. w -> 0.41
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
+
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
+
+            //Scores By Ground
+            input.Add(ExtractInput(matches, (x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(relevantYearsDifference)), longTerm * 2, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(relevantYearsDifference)), longTerm * 2, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference)), longTerm * 2, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference)), longTerm * 2, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
+
+            input.Add(ExtractInput(matches, (x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(relevantYearsDifference)), longTerm * 2, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(relevantYearsDifference)), longTerm * 2, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference)), longTerm * 2, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference)), longTerm * 2, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
 
             //Scores by Day - 8
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Where(x => x.Date.DayOfWeek == m.Date.DayOfWeek).Sum(x => x.ScoreFor(m.Home).Goals),
-                GetMaxSeasonGoals(
-                    s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Count(x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Where(x => x.Date.DayOfWeek == m.Date.DayOfWeek).Sum(x => x.ScoreFor(m.Home).Points),
-                GetMaxSeasonPoints(
-                    s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Count(x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Where(x => x.Date.DayOfWeek == m.Date.DayOfWeek).Sum(x => x.ScoreFor(m.Away).Goals),
-                GetMaxSeasonGoals(
-                    s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Count(x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Where(x => x.Date.DayOfWeek == m.Date.DayOfWeek).Sum(x => x.ScoreFor(m.Away).Points),
-                GetMaxSeasonPoints(
-                    s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Count(x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                    .Where(x => x.Date.DayOfWeek == m.Date.DayOfWeek)
-                    .Sum(x => x.ScoreAgainst(m.Home).Goals),
-                GetMaxSeasonGoals(
-                    s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Count(x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                    .Where(x => x.Date.DayOfWeek == m.Date.DayOfWeek)
-                    .Sum(x => x.ScoreAgainst(m.Home).Points),
-                GetMaxSeasonPoints(
-                    s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Count(x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                    .Where(x => x.Date.DayOfWeek == m.Date.DayOfWeek)
-                    .Sum(x => x.ScoreAgainst(m.Away).Goals),
-                GetMaxSeasonGoals(
-                    s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Count(x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away)))));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm)
-                    .Where(x => x.Date.DayOfWeek == m.Date.DayOfWeek)
-                    .Sum(x => x.ScoreAgainst(m.Away).Points),
-                GetMaxSeasonPoints(
-                    s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm).Count(x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away)))));
+            input.Add(ExtractInput(matches, (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away)), longerTerm, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away)), longerTerm, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
+
+            input.Add(ExtractInput(matches, (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home)), longerTerm, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home)), longerTerm, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away)), longerTerm, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away)), longerTerm, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
+
+            //Recent Opponents
+            var recentOpponentsHome = matches.Where(mtch => mtch.HasTeam(m.Home)).OrderByDescending(x => x.Date).Take(midTerm).Select(mtch => mtch.GetOpposition(m.Home)).ToList();
+            var recentOpponentsAway = matches.Where(mtch => mtch.HasTeam(m.Away)).OrderByDescending(x => x.Date).Take(midTerm).Select(mtch => mtch.GetOpposition(m.Away)).ToList();
+
+            //Recent Opponents
+            input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(recentOpponentsHome).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(recentOpponentsHome).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), longerTerm, (x => x.ScoreFor(recentOpponentsAway).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), longerTerm, (x => x.ScoreFor(recentOpponentsAway).Points), GetMaxSeasonPoints));
+
+            input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), longerTerm, (x => x.ScoreAgainst(recentOpponentsHome).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), longerTerm, (x => x.ScoreAgainst(recentOpponentsHome).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), longerTerm, (x => x.ScoreAgainst(recentOpponentsAway).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), longerTerm, (x => x.ScoreAgainst(recentOpponentsAway).Points), GetMaxSeasonPoints));
+
+
+            //Recent Shared Opponents
+            var recentMatchesHome = matches.Where(mtch => mtch.HasTeam(m.Home) && !mtch.HasTeam(m.Away)).OrderByDescending(mtch => mtch.Date).Take(longerTerm).ToList();
+            var recentMatchesAway = matches.Where(mtch => mtch.HasTeam(m.Away) && !mtch.HasTeam(m.Home)).OrderByDescending(mtch => mtch.Date).Take(longerTerm).ToList();
+            var recentMatchesSharedOpponentHome = recentMatchesHome.Where(hmtch => hmtch.HasTeam(recentMatchesAway.Select(amtch => amtch.GetOpposition(m.Away)).ToList())).ToList();
+            var recentMatchesSharedOpponentAway = recentMatchesAway.Where(amtch => amtch.HasTeam(recentMatchesHome.Select(hmtch => hmtch.GetOpposition(m.Home)).ToList())).ToList();
+
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
+
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
+
+            //Recent Shared Opponents
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), midTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), midTerm, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), midTerm, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), midTerm, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
+
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), midTerm, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), midTerm, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), midTerm, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), midTerm, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
+
+            //Recent Shared Opponents
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), longerTerm, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), longerTerm, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
+
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), longerTerm, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), longerTerm, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), longerTerm, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
+            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), longerTerm, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
 
             //Streak by Team - 2
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm).Count(x => x.ScoreFor(m.Home).Total() > x.ScoreAgainst(m.Home).Total()),midTerm));
-            input.Add(Numbery.Normalise(
-                s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm).Count(x => x.ScoreFor(m.Away).Total() > x.ScoreAgainst(m.Away).Total()), midTerm));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home)), longTerm, (x => x.ScoreFor(m.Home).Total() > x.ScoreAgainst(m.Home).Total() ? 1 : 0), SimpleCount));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away)), longTerm, (x => x.ScoreFor(m.Away).Total() > x.ScoreAgainst(m.Away).Total() ? 1 : 0), SimpleCount));
 
+            //Experience at Ground
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Home) && x.Date > m.Date.AddYears(relevantYearsDifference)), longerTerm * 2, (x => x.Ground.Equals(m.Ground) ? 1 : 0), SimpleCount));
+            input.Add(ExtractInput(matches, (x => x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference)), longerTerm * 2, (x => x.Ground.Equals(m.Ground) ? 1 : 0), SimpleCount));
 
-            /*//Streak Wins
-            var streak = 0;
-            streak = 0;
-            foreach (var match in s.GetMatches().Where(x => x.HasTeam(m.Home))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm))
-            {
-                if (match.IsWinningTeam(m.Home))
-                    streak++;
-                else
-                    break;
-            }
-            input.Add(Numbery.Normalise(streak, longTerm));
-            streak = 0;
-            foreach (var match in s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm))
-            {
-                if (match.IsWinningTeam(m.Away))
-                    streak++;
-                else
-                    break;
-            }
-            input.Add(Numbery.Normalise(streak, longTerm));
-            //Streak Loses
-            streak = 0;
-            foreach (var match in s.GetMatches().Where(x => x.HasTeam(m.Home))
-                .OrderByDescending(x => x.Date)
-                .Take(longTerm))
-            {
-                if (match.IsWinningTeam(m.Home))
-                    break;
-                else
-                    streak++;
-            }
-            input.Add(Numbery.Normalise(streak, longTerm));
-            streak = 0;
-            foreach (var match in s.GetMatches().Where(x => x.HasTeam(m.Away))
-                        .OrderByDescending(x => x.Date)
-                        .Take(longTerm))
-            {
-                if (match.IsWinningTeam(m.Away))
-                    break;
-                else
-                    streak++;
-            }
-            input.Add(Numbery.Normalise(streak, longTerm));*/
-
-            //Relative Goals by Opponent worth
-            //Teams who have recently played against Home
-           /* var hOppositions = s.GetMatches().Where(y => y.HasTeam(m.Home)).OrderByDescending(x => x.Date)
-                        .Take(midTerm).Select(z => z.GetOpposition(m.Home)).ToList();
-            //Teams who have recently played against Away
-            var aOppositions = s.GetMatches().Where(y => y.HasTeam(m.Away)).OrderByDescending(x => x.Date)
-                        .Take(midTerm).Select(z => z.GetOpposition(m.Away)).ToList();
-
-            var matches = s.GetMatches().Where(x => x.HasTeam(hOppositions)).ToList();
-            matches = matches.OrderByDescending(x => x.Date)
-                        .Take(midTerm).ToList();
-
-            
-            input.Add( //Goals For Teams (Who recently played against home)
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(hOppositions))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreFor(hOppositions).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(hOppositions))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(hOppositions)))));
-            input.Add( //Points For Teams (Who recently played against home)
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(hOppositions))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreFor(hOppositions).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(hOppositions))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(hOppositions)))));
-            input.Add( //Goals For Teams (Who recently played against away)
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(aOppositions))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreFor(aOppositions).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(aOppositions))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(aOppositions)))));
-            input.Add( //Points For Teams (Who recently played against away)
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(aOppositions))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreFor(aOppositions).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(aOppositions))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(aOppositions)))));
-            input.Add( //Goals Against Teams (Who recently played against home)
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(hOppositions))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreAgainst(hOppositions).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(hOppositions))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(hOppositions)))));
-            input.Add( //Points Against Teams (Who recently played against home)
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(hOppositions))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreAgainst(hOppositions).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(hOppositions))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(hOppositions)))));
-            input.Add( //Goals Against Teams (Who recently played against away)
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(aOppositions))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreAgainst(aOppositions).Goals),
-                    GetMaxSeasonGoals(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(aOppositions))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(aOppositions)))));
-            input.Add( //Points Against Teams (Who recently played against away)
-                Numbery.Normalise(
-                    s.GetMatches()
-                        .Where(x => x.HasTeam(aOppositions))
-                        .OrderByDescending(x => x.Date)
-                        .Take(midTerm)
-                        .Sum(x => x.ScoreAgainst(aOppositions).Points),
-                    GetMaxSeasonPoints(
-                        s.GetMatches()
-                            .Where(x => x.HasTeam(aOppositions))
-                            .OrderByDescending(x => x.Date)
-                            .Take(midTerm)
-                            .Count(x => x.HasTeam(aOppositions)))));*/
+            //Days between games
+            var previousGameHome = matches.Where(x => x.HasTeam(m.Home)).OrderByDescending(x => x.Date).FirstOrDefault();
+            var previousGameAway = matches.Where(x => x.HasTeam(m.Away)).OrderByDescending(x => x.Date).FirstOrDefault();
+            var datediffHome = previousGameHome == null ? GetMaxDaysBetweenGames() : (m.Date - previousGameHome.Date).Days;
+            var datediffAway = previousGameAway == null ? GetMaxDaysBetweenGames() : (m.Date - previousGameAway.Date).Days;
+            input.Add(Numbery.Normalise(datediffHome, GetMaxDaysBetweenGames()));
+            input.Add(Numbery.Normalise(datediffAway, GetMaxDaysBetweenGames()));
 
             return input;
         }
@@ -667,6 +314,15 @@ namespace Tipper
             return Util.MaxPoints * rounds;
         }
 
+        public static double SimpleCount(double rounds)
+        {
+            return rounds;
+        }
+
+        private static int GetMaxDaysBetweenGames()
+        {
+            return 21;//TODO: find the actual max in season
+        }
 
         public static String Printlayer(double[] vals)
         {
