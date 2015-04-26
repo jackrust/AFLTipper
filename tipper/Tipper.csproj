@@ -38,6 +38,9 @@
     <Reference Include="AustralianRulesFootball">
       <HintPath>..\..\Library\AustralianRulesFootball\bin\Debug\AustralianRulesFootball.dll</HintPath>
     </Reference>
+    <Reference Include="BureauOfMeteorology">
+      <HintPath>..\..\Library\BureauOfMeteorology\bin\Debug\BureauOfMeteorology.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.EnterpriseServices" />
@@ -254,6 +257,12 @@
       <CachedAppSettingsObjectName>Settings</CachedAppSettingsObjectName>
       <CachedSettingsPropName>tipper_au_com_afl_xml_MobileWebServices</CachedSettingsPropName>
     </WebReferenceUrl>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Universal\Universal.csproj">
+      <Project>{6310FB3B-91D2-4956-974C-B3B028ADB403}</Project>
+      <Name>Universal</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

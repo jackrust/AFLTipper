@@ -33,7 +33,7 @@ namespace Tipper
 
         public void Refresh(int inputs, List<int> hiddens, int outputs)
         {
-            Net = new FeedForwardNetwork(inputs, hiddens, outputs);
+            Net = new Network(inputs, hiddens, outputs);
         }
 
         public Data LearnFromScratchFromTo(int fromYear, int fromRound, int toYear, int toRound)
@@ -113,7 +113,7 @@ namespace Tipper
                         Numbery.Denormalise(result[2], Util.MaxGoals),
                         Numbery.Denormalise(result[3], Util.MaxPoints)
                         ),
-                    new Ground(), new DateTime()));
+                    m.Ground, m.Date));
 
                 if (print)
                     Console.WriteLine(m.Home.Mascot + " Vs " + m.Away.Mascot + ": " +
@@ -208,6 +208,27 @@ namespace Tipper
             var recentOpponentsHome = matches.Where(mtch => mtch.HasTeam(m.Home)).OrderByDescending(x => x.Date).Take(midTerm).Select(mtch => mtch.GetOpposition(m.Home)).ToList();
             var recentOpponentsAway = matches.Where(mtch => mtch.HasTeam(m.Away)).OrderByDescending(x => x.Date).Take(midTerm).Select(mtch => mtch.GetOpposition(m.Away)).ToList();
 
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), midTerm, (x => x.ScoreFor(recentOpponentsHome).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), midTerm, (x => x.ScoreFor(recentOpponentsHome).Points), GetMaxSeasonPoints));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), midTerm, (x => x.ScoreFor(recentOpponentsAway).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), midTerm, (x => x.ScoreFor(recentOpponentsAway).Points), GetMaxSeasonPoints));
+
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), midTerm, (x => x.ScoreAgainst(recentOpponentsHome).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), midTerm, (x => x.ScoreAgainst(recentOpponentsHome).Points), GetMaxSeasonPoints));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), midTerm, (x => x.ScoreAgainst(recentOpponentsAway).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), midTerm, (x => x.ScoreAgainst(recentOpponentsAway).Points), GetMaxSeasonPoints));
+
+            ////Recent Opponents
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(recentOpponentsHome).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(recentOpponentsHome).Points), GetMaxSeasonPoints));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(recentOpponentsAway).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(recentOpponentsAway).Points), GetMaxSeasonPoints));
+
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(recentOpponentsHome).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(recentOpponentsHome).Points), GetMaxSeasonPoints));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(recentOpponentsAway).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsAway) && !mtch.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(recentOpponentsAway).Points), GetMaxSeasonPoints));
+
             //Recent Opponents
             input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(recentOpponentsHome).Goals), GetMaxSeasonGoals));
             input.Add(ExtractInput(matches, (mtch => mtch.HasTeam(recentOpponentsHome) && !mtch.HasTeam(m.Home)), longerTerm, (x => x.ScoreFor(recentOpponentsHome).Points), GetMaxSeasonPoints));
@@ -226,15 +247,15 @@ namespace Tipper
             var recentMatchesSharedOpponentHome = recentMatchesHome.Where(hmtch => hmtch.HasTeam(recentMatchesAway.Select(amtch => amtch.GetOpposition(m.Away)).ToList())).ToList();
             var recentMatchesSharedOpponentAway = recentMatchesAway.Where(amtch => amtch.HasTeam(recentMatchesHome.Select(hmtch => hmtch.GetOpposition(m.Home)).ToList())).ToList();
 
-            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
-            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
-            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
-            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
+            //input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints));
+            //input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints));
 
-            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
-            input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
-            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
-            input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
+            //input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), shortTerm, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints));
+            //input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals));
+            //input.Add(ExtractInput(recentMatchesSharedOpponentAway, (x => x.HasTeam(m.Away)), shortTerm, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints));
 
             //Recent Shared Opponents
             input.Add(ExtractInput(recentMatchesSharedOpponentHome, (x => x.HasTeam(m.Home)), midTerm, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals));

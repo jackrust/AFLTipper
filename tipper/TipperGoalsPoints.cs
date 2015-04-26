@@ -33,7 +33,7 @@ namespace Tipper
 
         public void Refresh(int inputs, List<int> hiddens, int outputs)
         {
-            Net = new FeedForwardNetwork(inputs, hiddens, outputs);
+            Net = new Network(inputs, hiddens, outputs);
         }
 
         public Data LearnFromScratchFromTo(int fromYear, int fromRound, int toYear, int toRound)
@@ -113,7 +113,7 @@ namespace Tipper
                         Numbery.Denormalise(result[2], Util.MaxGoals),
                         Numbery.Denormalise(result[3], Util.MaxPoints)
                         ),
-                    new Ground(), new DateTime()));
+                    m.Ground, m.Date));
 
                 if (print)
                     Console.WriteLine(m.Home.Mascot + " Vs " + m.Away.Mascot + ": " +
