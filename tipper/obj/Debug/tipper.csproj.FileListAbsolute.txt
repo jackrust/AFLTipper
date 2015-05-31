@@ -21,8 +21,8 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\U
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\obj\Debug\Tipper.csprojResolveAssemblyReference.cache
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\obj\Debug\tipper.exe
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\obj\Debug\tipper.pdb
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\ArtificialNeuralNetwork.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\BureauOfMeteorology.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\BureauOfMeteorology.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\Universal.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\Universal.pdb
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\ArtificialNeuralNetwork.pdb

@@ -2,4 +2,3 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\Universal\bin\Debu
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\Universal\bin\Debug\Universal.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\Universal\obj\Debug\Universal.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\Universal\obj\Debug\Universal.pdb
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\Universal\obj\Debug\Universal.csprojResolveAssemblyReference.cache

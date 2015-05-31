@@ -1,9 +1,0 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <soap:Body>
-    <LadderResponse xmlns="http://xml.afl.com.au">
-      <TTL>2014-05-20T21:38:05.1462213+10:00</TTL>
-      <LadderList />
-    </LadderResponse>
-  </soap:Body>
-</soap:Envelope>

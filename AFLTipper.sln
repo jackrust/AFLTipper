@@ -11,8 +11,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities.Tests", "..\Libra
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AustralianRulesFootball", "..\Library\AustralianRulesFootball\AustralianRulesFootball.csproj", "{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticOptimizer", "..\Library\GeneticOptimizer\GeneticOptimizer.csproj", "{2BBD59D7-BE3D-494A-9D2A-B2C0243C0491}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BureauOfMeteorology", "..\Library\BureauOfMeteorology\BureauOfMeteorology.csproj", "{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universal", "Universal\Universal.csproj", "{6310FB3B-91D2-4956-974C-B3B028ADB403}"
@@ -43,10 +41,6 @@ Global
 		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2BBD59D7-BE3D-494A-9D2A-B2C0243C0491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2BBD59D7-BE3D-494A-9D2A-B2C0243C0491}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2BBD59D7-BE3D-494A-9D2A-B2C0243C0491}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2BBD59D7-BE3D-494A-9D2A-B2C0243C0491}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Release|Any CPU.ActiveCfg = Release|Any CPU

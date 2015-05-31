@@ -1,3 +1,0 @@
-Ticks:49611484
-Layers:1, 	Nodes:1 	Mark: 52 	Ticks:367703
-
