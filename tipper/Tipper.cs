@@ -74,29 +74,23 @@ namespace Tipper
 
         public Data LearnFromTo(int fromYear, int fromRound, int toYear, int toRound, int minMargin = 0, int minTotalScore = 0)
         {
-            var references = new List<string>();
-            var inputs = new List<List<double>>();
-            var targets = new List<List<double>>();
+            var data = new Data();
             var rounds = League.GetRounds(0, 0, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
             foreach (var m in rounds.Where(r => (r.Year == fromYear && r.Number >= fromRound) || (r.Year > fromYear)).SelectMany(r => r.Matches))//.Where(m => m.Margin() >= minMargin && m.TotalScore() >= minTotalScore))
             {
+                var datapoint = new DataPoint();
                 var season = new Season(toYear, rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).ToList());
-                inputs.Add(BuildInputs(season, m));
-                targets.Add(new List<double>()
+                datapoint.Inputs = (BuildInputs(season, m));
+                datapoint.Outputs = (new List<double>()
                 {
                     Numbery.Normalise(m.HomeScore().Goals, Util.MaxGoals),
                     Numbery.Normalise(m.HomeScore().Points, Util.MaxPoints),
                     Numbery.Normalise(m.AwayScore().Goals, Util.MaxGoals),
                     Numbery.Normalise(m.AwayScore().Points, Util.MaxPoints),
                 });
-                references.Add(m.Home.ApiName + " Vs " + m.Away.ApiName);
+                datapoint.Reference = (m.Home.ApiName + " Vs " + m.Away.ApiName);
+                data.DataPoints.Add(datapoint);
             }
-            var data = new Data()
-            {
-                References = references,
-                Inputs = inputs,
-                Outputs = targets
-            };
             return data;
         }
 
