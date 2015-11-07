@@ -37,9 +37,9 @@ namespace Tipper
                     case ("O"):
                         TestOptimizer();
                         break;
-                    //case ("L"):
-                        //RunLulu();
-                        //break;
+                    case ("L"):
+                        RunLulu();
+                        break;
                     case ("E"):
                         Testing();
                         break;
@@ -56,6 +56,60 @@ namespace Tipper
 
         }
 
+        //Network(1,1,50, Lulu) % = 0.670748299319728
+        private static void RunLulu()
+        {
+            var loop = true;
+            var date = DateTime.Now;//.Subtract(new TimeSpan(5, 0, 0, 0));
+            Console.WriteLine("Hi, I'm Lulu");
+
+
+            Console.WriteLine("I'm just looking up the latest AFL stats...");
+            //TODO: Get Latest Results from FinalSirenAPI
+
+            Console.WriteLine("Waking up now...");
+            //TODO: Check if ANN exists forcreating a new one
+            var tipper = new Tipper();
+            var data = tipper.LearnFromTo(2008, 0, date);
+            data.SuccessCondition = SuccessConditionGoalAndPointsPrint;
+            var testingData = new Data() { DataPoints = data.DataPoints.GetRange(0, data.DataPoints.Count / 2) };
+            var trainingData = new Data() { DataPoints = data.DataPoints.GetRange(data.DataPoints.Count / 2, data.DataPoints.Count / 2) };
+
+            var network = new Network(trainingData.DataPoints[0].Inputs.Count, new List<int>() {1},
+                trainingData.DataPoints[0].Outputs.Count);
+            if (Filey.FindFile("Lulu/", "Lulu.ann") != null)
+            {
+                network = Network.Load("Lulu/Lulu.ann");
+            }
+            else
+            {
+                network = new Network(trainingData.DataPoints[0].Inputs.Count, new List<int>() {1},
+                    trainingData.DataPoints[0].Outputs.Count);
+                network.MaxEpochs = 50;
+                network.Id = "Lulu";
+                network.Directory = "Lulu/";
+                network.Train(trainingData.Inputs(), trainingData.Outputs());
+            }
+
+            var successes = testingData.Inputs().Select(t => network.Run(t)).Where((result, i) => data.SuccessCondition(result, testingData.DataPoints[i].Outputs, false)).Count();
+            Console.WriteLine("Network({0},{1},{2}, {3}) % = {4}", network.HLayers.Count, network.HLayers[0].Count, network.MaxEpochs, network.Id, ((double)successes / (double)testingData.DataPoints.Count));
+
+            Console.WriteLine("Going through and reestimating ");
+            //TODO: restimate Seasson
+
+            Console.WriteLine("Tipping...");
+            tipper.Net = network;
+            //tipper.PredictNext(date, true);
+
+            //For each round until the end of the season
+            foreach (var r in tipper.League.GetCurrentSeason().Rounds.Where(r => r.Matches.TrueForAll(m => m.Date > date)))
+            {
+                Console.WriteLine("");
+                Console.WriteLine("Round{0}...",r.Number);
+                tipper.Predict(r, true);
+            }
+        }
+
         private static void TestBrain()
         {
             Console.WriteLine("Start");
@@ -68,7 +122,7 @@ namespace Tipper
 
             Console.WriteLine("Creating training data...");
             var data = tipper.LearnFromTo(2008, 0, 2015, 13);
-            data.SuccessCondition = SuccessConditionGoalAndPoints;
+            data.SuccessCondition = SuccessConditionGoalAndPointsPrint;
             Console.WriteLine("Creating testing data...");
 
             Console.WriteLine("Mulling...");
@@ -96,7 +150,7 @@ namespace Tipper
             Console.WriteLine("Init Neural Network...");
             var trainingData = tipper.LearnFromTo(2010, 0, date);
             Console.WriteLine("Create network...");
-            tipper.Net = CreateNetwork(trainingData, 1, 6, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
+            tipper.Net = Network.CreateNetwork(trainingData, 1, 6, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
             Console.WriteLine("Tip 2015 round...");
             var tips = tipper.PredictNext(date, true);
 
@@ -331,29 +385,34 @@ namespace Tipper
         #endregion
 
 
-
-
-        public static Network CreateNetwork(Data trainingData, int numLayers, int perLayer, TrainingAlgorithmFactory.TrainingAlgorithmType algorithm)
+        public static bool SuccessConditionGoalAndPoints(List<double> predicted, List<double> actual)
         {
-            //Create hidden layers
-            var hidden = new List<int>();
+            var phGoals = Numbery.Denormalise(predicted[0], Util.MaxGoals);
+            var phPoints = Numbery.Denormalise(predicted[1], Util.MaxPoints);
+            var paGoals = Numbery.Denormalise(predicted[2], Util.MaxGoals);
+            var paPoints = Numbery.Denormalise(predicted[3], Util.MaxPoints);
+            var phScore = phGoals * 6 + phPoints;
+            var paScore = paGoals * 6 + paPoints;
 
-            for (var i = 0; i < numLayers; i++)
-            {
-                hidden.Add(perLayer);
-            }
+            var ahGoals = Numbery.Denormalise(actual[0], Util.MaxGoals);
+            var ahPoints = Numbery.Denormalise(actual[1], Util.MaxPoints);
+            var aaGoals = Numbery.Denormalise(actual[2], Util.MaxGoals);
+            var aaPoints = Numbery.Denormalise(actual[3], Util.MaxPoints);
+            var ahScore = ahGoals * 6 + ahPoints;
+            var aaScore = aaGoals * 6 + aaPoints;
 
-            //Create Network
-            var network = new Network(trainingData.DataPoints[0].Inputs.Count, hidden, trainingData.DataPoints[0].Outputs.Count);
-            //New network with 5 inputs, One hidden layer of 2 neurons, 1 output
+            //Console.WriteLine("[{0}, {1} Vs {2}, {3}]", phScore, paScore, ahScore, aaScore);
 
-            //Train the network
-            network.Train(trainingData.Inputs(), trainingData.Outputs(), algorithm);
-
-            return network;
+            if (phScore > paScore && ahScore > aaScore)
+                return true;
+            if (phScore < paScore && ahScore < aaScore)
+                return true;
+            if (phScore == paScore && ahScore == aaScore)
+                return true;
+            return false;
         }
 
-        public static bool SuccessConditionGoalAndPoints(List<double> predicted, List<double> actual)
+        public static bool SuccessConditionGoalAndPointsPrint(List<double> predicted, List<double> actual, bool print)
         {
             var phGoals = Numbery.Denormalise(predicted[0], Util.MaxGoals);
             var phPoints = Numbery.Denormalise(predicted[1], Util.MaxPoints);
@@ -369,7 +428,8 @@ namespace Tipper
             var ahScore = ahGoals * 6 +ahPoints;
             var aaScore = aaGoals * 6 +aaPoints;
 
-            Console.WriteLine("[{0}, {1} Vs {2}, {3}]", phScore, paScore, ahScore, aaScore);
+            if(print)
+                Console.WriteLine("[{0}, {1} Vs {2}, {3}]", phScore, paScore, ahScore, aaScore);
 
             if (phScore > paScore && ahScore > aaScore)
                 return true;
