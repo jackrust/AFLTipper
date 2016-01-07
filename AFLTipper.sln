@@ -13,11 +13,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AustralianRulesFootball", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BureauOfMeteorology", "..\Library\BureauOfMeteorology\BureauOfMeteorology.csproj", "{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universal", "Universal\Universal.csproj", "{6310FB3B-91D2-4956-974C-B3B028ADB403}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Brain", "..\Library\Brain\Brain.csproj", "{308A0405-852C-4E19-88B0-6F02606AC4EB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AustralianRulesFootballTipper", "..\Library\AustralianRulesFootballTipper\AustralianRulesFootballTipper.csproj", "{30A89201-0789-48CF-A7AE-84432CA6BD3D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universal", "..\Library\Universal\Universal.csproj", "{6310FB3B-91D2-4956-974C-B3B028ADB403}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticAlgorithm", "..\Library\GeneticAlgorithm\GeneticAlgorithm.csproj", "{75B276CE-0BDD-42F4-93DA-B87BE576BE61}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneticArtificialNeuralNetwork", "..\Library\GeneticArtificialNeuralNetwork\GeneticArtificialNeuralNetwork.csproj", "{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,18 +51,22 @@ Global
 		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Release|Any CPU.Build.0 = Release|Any CPU
 		{308A0405-852C-4E19-88B0-6F02606AC4EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{308A0405-852C-4E19-88B0-6F02606AC4EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{308A0405-852C-4E19-88B0-6F02606AC4EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{308A0405-852C-4E19-88B0-6F02606AC4EB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{30A89201-0789-48CF-A7AE-84432CA6BD3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{30A89201-0789-48CF-A7AE-84432CA6BD3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{30A89201-0789-48CF-A7AE-84432CA6BD3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{30A89201-0789-48CF-A7AE-84432CA6BD3D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75B276CE-0BDD-42F4-93DA-B87BE576BE61}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75B276CE-0BDD-42F4-93DA-B87BE576BE61}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75B276CE-0BDD-42F4-93DA-B87BE576BE61}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75B276CE-0BDD-42F4-93DA-B87BE576BE61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

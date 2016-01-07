@@ -31,3 +31,7 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\obj\Debug\t
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\HtmlAgilityPack.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\HtmlAgilityPack.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\HtmlAgilityPack.xml
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\GeneticAlgorithm.dll
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\GeneticArtificialNeuralNetwork.dll
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\GeneticAlgorithm.pdb
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\GeneticArtificialNeuralNetwork.pdb

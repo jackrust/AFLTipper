@@ -263,7 +263,15 @@
       <Project>{308A0405-852C-4E19-88B0-6F02606AC4EB}</Project>
       <Name>Brain</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Universal\Universal.csproj">
+    <ProjectReference Include="..\..\Library\GeneticAlgorithm\GeneticAlgorithm.csproj">
+      <Project>{75B276CE-0BDD-42F4-93DA-B87BE576BE61}</Project>
+      <Name>GeneticAlgorithm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Library\GeneticArtificialNeuralNetwork\GeneticArtificialNeuralNetwork.csproj">
+      <Project>{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}</Project>
+      <Name>GeneticArtificialNeuralNetwork</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Library\Universal\Universal.csproj">
       <Project>{6310FB3B-91D2-4956-974C-B3B028ADB403}</Project>
       <Name>Universal</Name>
     </ProjectReference>

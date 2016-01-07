@@ -94,7 +94,7 @@ namespace Tipper
             return data;
         }
 
-        public object PredictNext(DateTime date, bool print)
+        public List<Match> PredictNext(DateTime date, bool print)
         {
             var round = GetRoundFromDate(date);
             return Predict(date.Year, round.Number+1, print);
