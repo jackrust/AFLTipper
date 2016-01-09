@@ -259,10 +259,6 @@
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\Brain\Brain.csproj">
-      <Project>{308A0405-852C-4E19-88B0-6F02606AC4EB}</Project>
-      <Name>Brain</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Library\GeneticAlgorithm\GeneticAlgorithm.csproj">
       <Project>{75B276CE-0BDD-42F4-93DA-B87BE576BE61}</Project>
       <Name>GeneticAlgorithm</Name>

@@ -23,35 +23,32 @@ namespace Tipper
                 if (command == null) continue;
                 switch (command.ToUpper())
                 {
-                    case ("T"):
-                        TipNextRound();
-                        break;
-                    case ("T7"):
-                        Tip();
-                        break;
-                    case ("B"):
-                        TestBrain();
-                        break;
-                    case ("Q"):
-                        loop = false;
-                        break;
-                    case ("O"):
-                        TestOptimizer();
-                        break;
-                    case ("L"):
-                        RunLulu();
-                        break;
-                    case ("E"):
-                        Testing();
-                        break;
-                    case ("?"):
-                        ListOptions();
-                        break;
                     case ("F"):
                         TestFunction();
                         break;
                     case ("G"):
                         //GeneticAlgorithmTest();
+                        break;
+                    case ("L"):
+                        RunLulu();
+                        break;
+                    case ("N"):
+                        TipNextRound();
+                        break;
+                    case ("O"):
+                        TestOptimizer();
+                        break;
+                    case ("Q"):
+                        loop = false;
+                        break;
+                    case ("S"):
+                        TipSpecific();
+                        break;
+                    case ("T"):
+                        Testing();
+                        break;
+                    case ("?"):
+                        ListOptions();
                         break;
                 }
             }
@@ -60,18 +57,19 @@ namespace Tipper
 
         public static void ListOptions()
         {
-            Console.WriteLine("[T]ip next round");
-            Console.WriteLine("[B]rain");
-            Console.WriteLine("[O]ptimise");
-            Console.WriteLine("T[E]sting");
-            Console.WriteLine("[S]erialize");
             Console.WriteLine("[F]unction");
             Console.WriteLine("[G]enetic algorithm");
             Console.WriteLine("[L]ulu");
+            Console.WriteLine("Tip [N]ext round");
+            Console.WriteLine("[O]ptimise");
             Console.WriteLine("[Q]uit");
+            Console.WriteLine("Tip [S]pecific");
+            Console.WriteLine("[T]esting");
             Console.WriteLine("[?] Show options");
         }
         #endregion
+
+
 
         #region Genetic Algorithm
         /*private static void GeneticAlgorithmTest()
@@ -162,37 +160,6 @@ namespace Tipper
         }
         #endregion
 
-        #region Brain
-        private static void TestBrain()
-        {
-            Console.WriteLine("Start");
-            Console.WriteLine("Creating Tipper...");
-            var tipper = new Tipper();
-            Console.WriteLine("Creating Optimizer...");
-            var brain = new Brain.Brain();
-
-            Console.WriteLine("2014");
-
-            Console.WriteLine("Creating training data...");
-            var data = tipper.LearnFromTo(2008, 0, 2015, 13);
-            data.SuccessCondition = SuccessConditionGoalAndPointsPrint;
-            Console.WriteLine("Creating testing data...");
-
-            Console.WriteLine("Mulling...");
-            brain.Data = data;
-            var output = brain.Mull();
-            Network.Save(output);
-
-            Console.WriteLine("Best...");
-            Console.WriteLine(output.HLayers.Count);
-            Console.WriteLine(output.HLayers[0].Count);
-
-
-
-            Console.Read();
-        }
-        #endregion
-
         #region Tip next round
         private static void TipNextRound()
         {
@@ -212,100 +179,8 @@ namespace Tipper
         }
         #endregion
 
-        #region Testing
-        private static void Testing()
-        {
-            Console.WriteLine("Start");
-            Console.WriteLine("Creating Tipper...");
-            var tipper = new Tipper();
-            var trainingData1 = new Data();
-            var testingData1 = new Data();
-            var trainingData2 = new Data();
-            var testingData2 = new Data();
-            var badData = new Data();
-            var goodData = new Data();
-            var output = "";
-            var name = "";
-            var successes = 0;
-
-            trainingData1 = tipper.LearnFromTo(2009, 0, 2012, 24);
-            testingData1 = tipper.LearnFromTo(2013, 1, 2013, 24);
-
-            trainingData2 = tipper.LearnFromTo(2013, 1, 2013, 24);
-            testingData2 = tipper.LearnFromTo(2014, 1, 2014, 24);
-
-            //Build
-            Console.WriteLine("First...");
-            Network network = new Network(trainingData1.DataPoints.Count, new List<int>() { 6 }, trainingData1.DataPoints[0].Outputs.Count);
-            name = network.Id;
-            network.Train(trainingData1.Inputs(), trainingData1.Outputs());
-            Network.Save(network);
-
-            successes = testingData1.Inputs().Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
-            Console.WriteLine("Normal % = " + ((double)successes / (double)testingData1.DataPoints.Count));
-
-            
-
-            //Seperate bad and good data
-            for (var i = 0; i < trainingData1.DataPoints.Count; i++)
-            {
-                var result = network.Run(trainingData1.DataPoints[i].Inputs);
-                if (SuccessConditionGoalAndPoints(result, trainingData1.DataPoints[i].Outputs))
-                {
-                    goodData.DataPoints.Add(trainingData1.DataPoints[i]);
-                }
-                else
-                {
-                    badData.DataPoints.Add(trainingData1.DataPoints[i]);
-                }
-
-            }
-
-            Console.WriteLine("Good...");
-            //Network goodNetwork = new Network(goodData.Inputs[0].Count, new List<int>() { 6 }, goodData.Outputs[0].Count);
-            Network goodNetwork = network;
-            goodNetwork.Train(goodData.Inputs(), goodData.Outputs());
-            successes = testingData1.Inputs().Select(t => goodNetwork.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
-            Console.WriteLine("Good % = " + ((double)successes / (double)testingData1.DataPoints.Count));
-
-            Console.WriteLine("Bad...");
-            //Network badNetwork = new Network(badData.Inputs[0].Count, new List<int>() { 6 }, badData.Outputs[0].Count);
-            Network badNetwork = network;
-            badNetwork.Train(badData.Inputs(), badData.Outputs());
-            successes = testingData1.Inputs().Select(t => badNetwork.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
-            Console.WriteLine("Bad % = " + ((double)successes / (double)testingData1.DataPoints.Count));
-
-
-            /*
-            //Test
-            successes = testingData1.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.Outputs[i])).Count();
-            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData1.Inputs.Count));
-
-            //Pack
-            Network.Save(network);
-            
-
-            //Unpack
-            network = Network.Load("0b4d7a36-94ad-4609-a082-aa040e158c6f.txt");
-            successes = testingData1.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.Outputs[i])).Count();
-            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData1.Inputs.Count));
-            
-
-            //Retrain
-            network.Train(trainingData2.Inputs, trainingData2.Outputs);
-
-            //Test
-            successes = testingData2.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData2.Outputs[i])).Count();
-            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData2.Inputs.Count));
-
-            Network.Save(network);
-            */
-            Console.Read();
-        }
-        #endregion
-
         #region Tip
-        private static void Tip()
+        private static void TipSpecific()
         {
             Console.WriteLine("Start");
             Console.WriteLine("Creating Tipper...");
@@ -334,18 +209,18 @@ namespace Tipper
             var output = "";
 
             optimizer.LowerLimitLayers = 1;
-            optimizer.UpperLimitLayers = 1;
+            optimizer.UpperLimitLayers = 2;
             optimizer.LowerLimitNeuronsInLayer = 1;
-            optimizer.UpperLimitNeuronsInLayer = 7;
+            optimizer.UpperLimitNeuronsInLayer = 3;
             //optimizer.LowerLimitEpochs = 50;
             //optimizer.LowerLimitEpochs = 50;
 
             Console.WriteLine("2014");
 
             Console.WriteLine("Creating training data...");
-            var trainingData = tipper.LearnFromTo(2012, 0, 2014, 24);
+            var trainingData = tipper.LearnFromTo(2008, 0, 2010, 24);
             Console.WriteLine("Creating testing data...");
-            var testingData = tipper.LearnFromTo(2008, 0, 2011, 24);
+            var testingData = tipper.LearnFromTo(2011, 0, 2015, 24);
 
             Console.WriteLine("Optimizing...");
             output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints, Deconvert);
@@ -424,6 +299,98 @@ namespace Tipper
         public static double produceAll(List<double> all)
         {
             return all.Aggregate(1.0, (current, a) => current * a);
+        }
+        #endregion
+
+        #region Testing
+        private static void Testing()
+        {
+            Console.WriteLine("Start");
+            Console.WriteLine("Creating Tipper...");
+            var tipper = new Tipper();
+            var trainingData1 = new Data();
+            var testingData1 = new Data();
+            var trainingData2 = new Data();
+            var testingData2 = new Data();
+            var badData = new Data();
+            var goodData = new Data();
+            var output = "";
+            var name = "";
+            var successes = 0;
+
+            trainingData1 = tipper.LearnFromTo(2009, 0, 2012, 24);
+            testingData1 = tipper.LearnFromTo(2013, 1, 2013, 24);
+
+            trainingData2 = tipper.LearnFromTo(2013, 1, 2013, 24);
+            testingData2 = tipper.LearnFromTo(2014, 1, 2014, 24);
+
+            //Build
+            Console.WriteLine("First...");
+            Network network = new Network(trainingData1.DataPoints.Count, new List<int>() { 6 }, trainingData1.DataPoints[0].Outputs.Count);
+            name = network.Id;
+            network.Train(trainingData1.Inputs(), trainingData1.Outputs());
+            Network.Save(network);
+
+            successes = testingData1.Inputs().Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
+            Console.WriteLine("Normal % = " + ((double)successes / (double)testingData1.DataPoints.Count));
+
+
+
+            //Seperate bad and good data
+            for (var i = 0; i < trainingData1.DataPoints.Count; i++)
+            {
+                var result = network.Run(trainingData1.DataPoints[i].Inputs);
+                if (SuccessConditionGoalAndPoints(result, trainingData1.DataPoints[i].Outputs))
+                {
+                    goodData.DataPoints.Add(trainingData1.DataPoints[i]);
+                }
+                else
+                {
+                    badData.DataPoints.Add(trainingData1.DataPoints[i]);
+                }
+
+            }
+
+            Console.WriteLine("Good...");
+            //Network goodNetwork = new Network(goodData.Inputs[0].Count, new List<int>() { 6 }, goodData.Outputs[0].Count);
+            Network goodNetwork = network;
+            goodNetwork.Train(goodData.Inputs(), goodData.Outputs());
+            successes = testingData1.Inputs().Select(t => goodNetwork.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
+            Console.WriteLine("Good % = " + ((double)successes / (double)testingData1.DataPoints.Count));
+
+            Console.WriteLine("Bad...");
+            //Network badNetwork = new Network(badData.Inputs[0].Count, new List<int>() { 6 }, badData.Outputs[0].Count);
+            Network badNetwork = network;
+            badNetwork.Train(badData.Inputs(), badData.Outputs());
+            successes = testingData1.Inputs().Select(t => badNetwork.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
+            Console.WriteLine("Bad % = " + ((double)successes / (double)testingData1.DataPoints.Count));
+
+
+            /*
+            //Test
+            successes = testingData1.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.Outputs[i])).Count();
+            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData1.Inputs.Count));
+
+            //Pack
+            Network.Save(network);
+            
+
+            //Unpack
+            network = Network.Load("0b4d7a36-94ad-4609-a082-aa040e158c6f.txt");
+            successes = testingData1.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.Outputs[i])).Count();
+            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData1.Inputs.Count));
+            
+
+            //Retrain
+            network.Train(trainingData2.Inputs, trainingData2.Outputs);
+
+            //Test
+            successes = testingData2.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData2.Outputs[i])).Count();
+            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData2.Inputs.Count));
+
+            Network.Save(network);
+            */
+            Console.Read();
         }
         #endregion
 
