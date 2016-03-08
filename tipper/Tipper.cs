@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ArtificialNeuralNetwork;
+using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
 using Utilities;
 
@@ -75,7 +76,7 @@ namespace Tipper
                     Numbery.Normalise(m.AwayScore().Goals, Util.MaxGoals),
                     Numbery.Normalise(m.AwayScore().Points, Util.MaxPoints),
                 });
-                datapoint.Reference = (m.Home.ApiName + " Vs " + m.Away.ApiName);
+                datapoint.Reference = m;
                 data.DataPoints.Add(datapoint);
             }
             return data;
@@ -137,189 +138,45 @@ namespace Tipper
             return results;
         }
 
-
-
-        private static IEnumerable<double> ExtractTeamScoreInputSet(Match m, List<Match> matches, int term)
+        public Data BuildFullDataSet()
         {
-            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home));
-            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
-        }
-
-        private static IEnumerable<double> ExtractGroundScoreInputSet(Match m, List<Match> matches, int term)
-        {
-            const int relevantYearsDifference = -12;
-
-            Func<Match, bool> homeWherePredicate =
-                (x =>
-                    x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(relevantYearsDifference));
-            Func<Match, bool> awayWherePredicate =
-                (x =>
-                    x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
-        }
-
-        private static IEnumerable<double> ExtractStateScoreInputSet(Match m, List<Match> matches, int term)
-        {
-            const int relevantYearsDifference = -12;
-            Func<Match, bool> homeWherePredicate =
-                (x =>
-                    x.Ground.State.Equals(m.Ground.State) && x.HasTeam(m.Home) &&
-                    x.Date > m.Date.AddYears(relevantYearsDifference));
-            Func<Match, bool> awayWherePredicate =
-                (x =>
-                    x.Ground.State.Equals(m.Ground.State) && x.HasTeam(m.Away) &&
-                    x.Date > m.Date.AddYears(relevantYearsDifference));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
-        }
-
-        private static IEnumerable<double> ExtractDayScoreInputSet(Match m, List<Match> matches, int term)
-        {
-            Func<Match, bool> homeWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home));
-            Func<Match, bool> awayWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
-        }
-
-        private static IEnumerable<double> ExtractOpponentScoreSet(Match m, List<Match> matches,
-            int term)
-        {
-            const int numOpponents = 6;
-            var recentOpponentsHome =
-                matches.Where(mtch => mtch.HasTeam(m.Home))
-                    .OrderByDescending(x => x.Date)
-                    .Take(numOpponents)
-                    .Select(mtch => mtch.GetOpposition(m.Home))
-                    .ToList();
-            var recentOpponentsAway =
-                matches.Where(mtch => mtch.HasTeam(m.Away))
-                    .OrderByDescending(x => x.Date)
-                    .Take(numOpponents)
-                    .Select(mtch => mtch.GetOpposition(m.Away))
-                    .ToList();
-
-            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(recentOpponentsHome) && !x.HasTeam(m.Home));
-            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(recentOpponentsAway) && !x.HasTeam(m.Away));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
-        }
-
-        private static IEnumerable<double> ExtractSharedOpponentScoreSet(Match m, List<Match> matches,
-            int longTerm)
-        {
-            const int numOpponents = 15;
-            var recentMatchesHome =
-                matches.Where(mtch => mtch.HasTeam(m.Home) && !mtch.HasTeam(m.Away))
-                    .OrderByDescending(mtch => mtch.Date)
-                    .Take(numOpponents)
-                    .ToList();
-            var recentMatchesAway =
-                matches.Where(mtch => mtch.HasTeam(m.Away) && !mtch.HasTeam(m.Home))
-                    .OrderByDescending(mtch => mtch.Date)
-                    .Take(numOpponents)
-                    .ToList();
-
-            Func<Match, bool> homeWherePredicate =
-                (x => x.HasTeam(m.Home) && x.HasTeam(recentMatchesAway.Select(y => y.GetOpposition(m.Away)).ToList()));
-            Func<Match, bool> awayWherePredicate =
-                (x => x.HasTeam(m.Away) && x.HasTeam(recentMatchesHome.Select(y => y.GetOpposition(m.Home)).ToList()));
-            return ExtractInputSet(m, matches, longTerm, homeWherePredicate, awayWherePredicate);
-        }
-
-        private static IEnumerable<double> ExtractInputSet(Match m, List<Match> matches, int term,
-            Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
-        {
-            var inputSet = new List<double>
+            var data = new Data();
+            const int fromYear = 0;
+            const int fromRound = 0;
+            const int toYear = 2015;
+            const int toRound = 24;
+            var rounds = League.GetRounds(0, 0, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
+            foreach (
+                var m in
+                    rounds.Where(r => (r.Year == fromYear && r.Number >= fromRound) || (r.Year > fromYear)).SelectMany(r => r.Matches))
             {
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals),
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints),
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals),
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints)
-            };
-
-            return inputSet;
+                
+                var season = new Season(toYear, rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).ToList());
+                data.DataPoints.Add(AFLDataInterpreter.BuildDataPoint(season, m));
+            }
+            return data;
         }
 
-        public static double ExtractInput(List<Match> s, Func<Match, bool> wherePredicate, int takeLength,
-            Func<Match, double> sumSelector, Func<double, double> maxFunc)
-        {
-            var value = s
-                .Where(wherePredicate)
-                .OrderByDescending(x => x.Date)
-                .Take(takeLength)
-                .Sum(sumSelector);
-            var max = maxFunc(
-                s
-                    .Where(wherePredicate)
-                    .OrderByDescending(x => x.Date)
-                    .Take(takeLength)
-                    .Count());
-            return Numbery.Normalise(value, max);
-        }
+        
+
 
         public static List<double> BuildInputs(Season s, Match m)
         {
-            const int shortTerm = 3;
-            const int longTerm = 10;
-            const int longerTerm = 15;
-            const int longestTerm = 20;
-
-            var matches = s.GetMatches();
-
-
-            var input = new List<double>();
-
-
-            //Scores By Team
-            foreach (var term in new List<int> {longTerm, shortTerm})
+            List<List<int>> interpretation = new List<List<int>>
             {
-                input.AddRange(ExtractTeamScoreInputSet(m, matches, term));
-            }
+                new List<int> {1, 19},
+                new List<int> {5, 19},
+                new List<int> {29},
+                new List<int> {5, 11, 19},
+                new List<int> {11},
+                new List<int> {1, 19}
+            };
 
-            //Scores By Ground
-            foreach (var term in new List<int> {longestTerm, shortTerm})
-            {
-                input.AddRange(ExtractGroundScoreInputSet(m, matches, term));
-            }
-
-            //Scores By State longerTerm
-            foreach (var term in new List<int> {longestTerm, shortTerm})
-            {
-                input.AddRange(ExtractStateScoreInputSet(m, matches, term));
-            }
-
-            //Scores by Day
-            foreach (var term in new List<int> {longerTerm, shortTerm})
-            {
-                input.AddRange(ExtractDayScoreInputSet(m, matches, term));
-            }
-
-            //Recent Opponents
-            foreach (var term in new List<int> {longerTerm})
-            {
-                input.AddRange(ExtractOpponentScoreSet(m, matches, term));
-            }
-
-            //Recent Shared Opponents
-            foreach (var term in new List<int> {longTerm})
-            {
-                input.AddRange(ExtractSharedOpponentScoreSet(m, matches, term));
-            }
+            var input = AFLDataInterpreter.BuildInputs(s, m, interpretation);
 
             return input;
         }
 
-        public static double GetMaxSeasonGoals(double rounds)
-        {
-            return Util.MaxGoals*rounds;
-        }
-
-        public static double GetMaxSeasonPoints(double rounds)
-        {
-            return Util.MaxPoints*rounds;
-        }
 
         public static String Printlayer(double[] vals)
         {

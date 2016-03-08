@@ -1,0 +1,116 @@
+===============
+Generation:    1
+===============
+Actor:         
+Money:   19.15
+Generations:   1
+Subset:        False,False,False,False,False,False,True,False,False,False,False,False,False,False,False,False,False,True,True,False,False,False,True,True,True,True,False,False,False,False
+Time to train: 1491162
+Time to test:  5
+...
+Actor:         
+Money:   8.36999999999999
+Generations:   1
+Subset:        False,False,False,True,True,True,False,False,False,True,False,False,False,True,False,False,False,False,True,True,False,True,False,False,True,True,False,True,True,False
+Time to train: 4128620
+Time to test:  7
+...
+Actor:         
+Money:   6.01
+Generations:   1
+Subset:        True,False,False,True,False,True,False,False,True,False,True,False,False,True,False,True,False,False,True,False,True,False,False,True,False,True,False,False,True,False
+Time to train: 2596516
+Time to test:  293014
+...
+Actor:         
+Money:   5.31
+Generations:   1
+Subset:        False,False,False,True,True,True,True,False,False,False,True,False,True,False,False,True,False,False,True,False,False,True,True,False,False,False,False,False,True,False
+Time to train: 981556
+Time to test:  16
+...
+Actor:         
+Money:   2.52
+Generations:   1
+Subset:        True,False,False,True,False,False,False,True,False,False,True,False,False,False,False,False,True,False,False,True,False,False,False,False,False,False,False,False,True,False
+Time to train: 1154746
+Time to test:  5
+...
+Actor:         
+Money:   2.26
+Generations:   1
+Subset:        False,False,False,True,False,False,True,False,False,False,False,False,False,False,False,False,False,False,False,True,True,False,False,False,True,False,False,False,False,False
+Time to train: 273771
+Time to test:  4
+...
+Actor:         
+Money:   1.99
+Generations:   1
+Subset:        False,False,True,False,True,True,False,True,True,True,False,True,True,False,False,False,False,False,False,False,True,False,False,True,True,True,True,False,False,True
+Time to train: 2856899
+Time to test:  26
+...
+Actor:         
+Money:   1.00000000000002
+Generations:   1
+Subset:        False,True,False,True,False,False,True,False,True,True,True,False,True,True,False,False,True,False,True,False,True,True,False,False,False,False,False,False,False,False
+Time to train: 4108683
+Time to test:  7
+...
+Actor:         
+Money:   0
+Generations:   1
+Subset:        False,False,False,True,True,True,True,True,False,True,False,False,True,False,False,False,False,True,False,False,False,False,False,True,False,False,True,True,False,False
+Time to train: 237
+Time to test:  2
+...
+Actor:         
+Money:   0
+Generations:   1
+Subset:        True,False,False,False,True,False,True,False,True,False,False,False,True,True,False,False,False,False,False,False,False,False,True,True,True,False,False,True,False,False
+Time to train: 207
+Time to test:  2
+...
+Actor:         
+Money:   -0.999999999999996
+Generations:   1
+Subset:        False,False,False,True,False,True,False,True,True,False,True,False,False,True,True,False,True,True,False,False,True,True,True,False,True,True,False,False,False,False
+Time to train: 7812487
+Time to test:  14
+...
+Actor:         
+Money:   -2.04
+Generations:   1
+Subset:        True,True,True,False,False,True,False,False,True,True,True,False,True,True,False,True,False,True,False,False,True,False,True,True,False,False,False,False,False,False
+Time to train: 5554808
+Time to test:  8
+...
+Actor:         
+Money:   -5.71
+Generations:   1
+Subset:        False,False,False,True,True,True,False,False,True,False,False,False,False,True,False,True,False,True,False,True,True,True,False,True,False,False,False,True,True,False
+Time to train: 4804813
+Time to test:  7
+...
+Actor:         
+Money:   -12.65
+Generations:   1
+Subset:        False,True,False,False,False,False,True,False,False,False,False,True,True,True,False,True,False,False,False,True,False,True,False,True,True,False,False,False,False,True
+Time to train: 3500888
+Time to test:  7
+...
+Actor:         
+Money:   -13.99
+Generations:   1
+Subset:        False,True,True,False,False,False,False,False,False,False,True,True,True,False,False,True,False,False,False,False,False,False,False,False,True,False,False,False,False,False
+Time to train: 1472579
+Time to test:  5
+...
+Actor:         
+Money:   -15.88
+Generations:   1
+Subset:        True,False,False,True,True,False,False,True,True,False,False,True,True,False,True,False,False,True,False,False,False,False,False,False,False,False,False,False,False,False
+Time to train: 2374309
+Time to test:  6
+...
+

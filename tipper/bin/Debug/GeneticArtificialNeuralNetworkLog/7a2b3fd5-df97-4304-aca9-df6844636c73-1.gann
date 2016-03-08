@@ -1,0 +1,109 @@
+===============
+Generation:    1
+===============
+Actor:         
+SuccessRate:   73.0496453900709
+Generations:   1
+Subset:        True,False,False,True,False,True,False,False,True,False,True,False,False,True,False,True,False,False,True,False,True,False,False,True,False,True,False,False,True,False
+Time to train: 1659187
+Time to test:  14
+...
+Actor:         
+SuccessRate:   72.3404255319149
+Generations:   1
+Subset:        False,True,False,False,False,False,False,False,False,True,True,False,False,False,False,False,False,False,False,False,False,False,True,True,False,False,False,True,False,False
+Time to train: 425627
+Time to test:  6
+...
+Actor:         
+SuccessRate:   70.9219858156028
+Generations:   1
+Subset:        False,False,False,True,True,True,False,True,True,False,False,True,False,False,False,True,False,False,True,False,True,True,True,False,False,True,False,True,False,False
+Time to train: 1885725
+Time to test:  13
+...
+Actor:         
+SuccessRate:   70.4491725768322
+Generations:   1
+Subset:        False,False,False,False,False,False,True,False,True,True,True,False,True,False,False,False,True,False,False,False,False,False,True,False,True,False,True,False,False,True
+Time to train: 1140319
+Time to test:  10
+...
+Actor:         
+SuccessRate:   70.2127659574468
+Generations:   1
+Subset:        False,False,True,False,True,False,False,True,True,False,False,True,False,False,True,False,False,True,True,False,False,False,True,False,True,True,False,False,False,True
+Time to train: 28800986
+Time to test:  176
+...
+Actor:         
+SuccessRate:   70.2127659574468
+Generations:   1
+Subset:        False,True,False,False,True,False,False,False,True,True,False,False,False,True,False,False,False,False,False,True,False,False,False,False,False,True,False,False,False,False
+Time to train: 610026
+Time to test:  8
+...
+Actor:         
+SuccessRate:   69.0307328605201
+Generations:   1
+Subset:        True,False,True,False,True,False,False,False,False,False,True,True,True,True,False,True,False,True,True,True,True,True,False,True,False,False,False,True,True,True
+Time to train: 3232313
+Time to test:  18
+...
+Actor:         
+SuccessRate:   68.0851063829787
+Generations:   1
+Subset:        True,False,True,True,False,False,False,False,False,False,False,True,False,True,False,False,False,False,True,False,True,False,True,False,False,False,True,False,True,True
+Time to train: 1333813
+Time to test:  13
+...
+Actor:         
+SuccessRate:   67.8486997635934
+Generations:   1
+Subset:        False,False,True,True,False,True,True,True,True,True,False,True,False,True,False,False,False,False,True,True,True,True,True,False,False,False,False,False,True,False
+Time to train: 2450159
+Time to test:  15
+...
+Actor:         
+SuccessRate:   67.1394799054374
+Generations:   1
+Subset:        False,True,False,True,True,True,False,False,False,False,True,False,False,True,False,False,True,False,False,True,True,False,False,False,True,False,False,True,False,False
+Time to train: 1369194
+Time to test:  12
+...
+Actor:         
+SuccessRate:   54.3735224586288
+Generations:   1
+Subset:        False,True,True,False,False,False,True,False,False,False,False,False,True,False,False,False,True,False,True,False,False,False,True,True,False,True,True,True,False,False
+Time to train: 237
+Time to test:  2
+...
+Actor:         
+SuccessRate:   54.3735224586288
+Generations:   1
+Subset:        False,False,True,False,True,True,True,False,True,False,True,True,False,True,True,False,False,True,False,False,True,False,True,False,True,False,True,True,True,False
+Time to train: 240
+Time to test:  3
+...
+Actor:         
+SuccessRate:   54.3735224586288
+Generations:   1
+Subset:        True,True,True,False,False,False,False,False,False,True,False,True,False,False,True,False,False,False,True,False,False,True,True,True,True,False,False,False,True,False
+Time to train: 24205
+Time to test:  4
+...
+Actor:         
+SuccessRate:   54.3735224586288
+Generations:   1
+Subset:        True,False,False,False,True,True,True,False,False,True,False,False,False,False,False,True,False,True,False,True,False,False,False,False,False,False,False,True,False,False
+Time to train: 223
+Time to test:  1
+...
+Actor:         
+SuccessRate:   54.3735224586288
+Generations:   1
+Subset:        False,False,True,True,False,False,False,True,True,True,True,False,True,True,True,True,True,True,True,False,True,True,False,False,False,True,False,False,True,True
+Time to train: 232
+Time to test:  3
+...
+

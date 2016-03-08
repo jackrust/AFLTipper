@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ArtificialNeuralNetwork;
+using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
 using Utilities;
 
@@ -61,7 +62,7 @@ namespace Tipper
                     Numbery.Normalise(m.HomeScore().Total(), Util.MaxScore),
                     Numbery.Normalise(m.AwayScore().Total(), Util.MaxScore),
                 };
-                datapoint.Reference =m.Home.ApiName + " Vs " + m.Away.ApiName;
+                datapoint.Reference = m;
                 data.DataPoints.Add(datapoint);
             }
             return data;

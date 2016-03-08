@@ -55,6 +55,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AFLDataInterpreter.cs" />
+    <Compile Include="Betting\BettingActorGenes.cs" />
+    <Compile Include="Betting\BettingActor.cs" />
+    <Compile Include="Betting\BettingRule.cs" />
     <Compile Include="TipperScore.cs" />
     <Compile Include="TipperGoalsPoints.cs" />
     <Compile Include="Program.cs" />
