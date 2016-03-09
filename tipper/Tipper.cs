@@ -13,28 +13,25 @@ namespace Tipper
         public static int NumInputs = 18;
         public static int NumOutputs = 4;
         public static int DefaultHiddens = 5;
-        public static int RelevantRoundHistory = 14;
-        public List<Team> Teams;
         public League League;
         public Network Net;
 
         public Tipper()
         {
-            Teams = Util.GetTeams();
             League = League.Load();
-            Refresh(NumInputs, new List<int>() {DefaultHiddens}, NumOutputs);
+            Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
         }
 
-        public void Refresh(int inputs, List<int> hiddens, int outputs)
+        private void Refresh(int inputs, List<int> hiddens, int outputs)
         {
             Net = new Network(inputs, hiddens, outputs);
         }
 
-        public Data LearnFromTo(int fromYear, int fromRound, DateTime date)
+        public Data GetMatchDataBetween(int fromYear, int fromRound, DateTime date)
         {
-            Refresh(NumInputs, new List<int>() {DefaultHiddens}, NumOutputs);
+            Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
             var round = GetRoundFromDate(date);
-            return LearnFromTo(fromYear, fromRound, date.Year, round.Number);
+            return GetMatchDataBetween(fromYear, fromRound, date.Year, round.Number);
         }
 
         private Round GetRoundFromDate(DateTime date)
@@ -55,20 +52,18 @@ namespace Tipper
             return round;
         }
 
-        public Data LearnFromTo(int fromYear, int fromRound, int toYear, int toRound, int minMargin = 0,
-            int minTotalScore = 0)
+        public Data GetMatchDataBetween(int fromYear, int fromRound, int toYear, int toRound)
         {
             var data = new Data();
             var rounds = League.GetRounds(0, 0, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
-            foreach (
-                var m in
-                    rounds.Where(r => (r.Year == fromYear && r.Number >= fromRound) || (r.Year > fromYear))
-                        .SelectMany(r => r.Matches))
-                //.Where(m => m.Margin() >= minMargin && m.TotalScore() >= minTotalScore))
+            var matches = rounds.Where(r => (r.Year == fromYear && r.Number >= fromRound) || (r.Year > fromYear))
+                .SelectMany(r => r.Matches);
+            foreach (var m in matches)
             {
                 var datapoint = new DataPoint();
-                var season = new Season(toYear, rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).ToList());
-                datapoint.Inputs = (BuildInputs(season, m));
+                var history =
+                    rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).ToList();
+                datapoint.Inputs = (BuildInputs(history, m));
                 datapoint.Outputs = (new List<double>()
                 {
                     Numbery.Normalise(m.HomeScore().Goals, Util.MaxGoals),
@@ -88,11 +83,6 @@ namespace Tipper
             return Predict(date.Year, round.Number + 1, print);
         }
 
-        public List<Match> Predict(RoundShell round, bool print)
-        {
-            return Predict(round.Year, round.Number, print);
-        }
-
         public List<Match> Predict(int year, int round, bool print)
         {
             var results = new List<Match>();
@@ -100,8 +90,9 @@ namespace Tipper
 
             foreach (var m in rounds.Where(r => (r.Year == year && r.Number == round)).SelectMany(r => r.Matches))
             {
-                var s = new Season(year, rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).ToList());
-                var test = BuildInputs(s, m);
+                var history =
+                    rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).ToList();
+                var test = BuildInputs(history, m);
 
                 var result = Net.Run(test);
                 results.Add(new Match(
@@ -148,35 +139,23 @@ namespace Tipper
             var rounds = League.GetRounds(0, 0, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
             foreach (
                 var m in
-                    rounds.Where(r => (r.Year == fromYear && r.Number >= fromRound) || (r.Year > fromYear)).SelectMany(r => r.Matches))
+                    rounds.Where(r => (r.Year == fromYear && r.Number >= fromRound) || (r.Year > fromYear))
+                        .SelectMany(r => r.Matches))
             {
-                
-                var season = new Season(toYear, rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).ToList());
-                data.DataPoints.Add(AFLDataInterpreter.BuildDataPoint(season, m));
+
+                var history =
+                    rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).ToList();
+                data.DataPoints.Add(AFLDataInterpreter.BuildDataPoint(history, m));
             }
             return data;
         }
 
-        
-
-
-        public static List<double> BuildInputs(Season s, Match m)
+        public static List<double> BuildInputs(List<Match> history, Match m)
         {
-            List<List<int>> interpretation = new List<List<int>>
-            {
-                new List<int> {1, 19},
-                new List<int> {5, 19},
-                new List<int> {29},
-                new List<int> {5, 11, 19},
-                new List<int> {11},
-                new List<int> {1, 19}
-            };
-
-            var input = AFLDataInterpreter.BuildInputs(s, m, interpretation);
-
+            var input = AFLDataInterpreter.BuildInputs(history, m,
+                AFLDataInterpreter.Interpretations.BespokeLegacyInterpretation);
             return input;
         }
-
 
         public static String Printlayer(double[] vals)
         {

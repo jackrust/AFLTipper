@@ -9,28 +9,57 @@ namespace Tipper
 {
     public class AFLDataInterpreter
     {
-        public static List<int> DefaultInterpretationSet = new List<int> {1, 5, 11, 19, 29};
-        public static List<List<int>> DefaultInterpretation = new List<List<int>>
+        public struct InterpretationSubsets
         {
-            DefaultInterpretationSet,
-            DefaultInterpretationSet,
-            DefaultInterpretationSet,
-            DefaultInterpretationSet,
-            DefaultInterpretationSet,
-            DefaultInterpretationSet
-        };
-
-        #region DataPoint
-        public static DataPoint BuildDataPoint(Season season, Match m)
-        {
-            return BuildDataPoint(season, m, DefaultInterpretation);
+            public static List<int> DefaultInterpretationSubset = new List<int> { 1, 5, 11, 19, 29 };
         }
 
-        public static DataPoint BuildDataPoint(Season season, Match m, List<List<int>> inputInpertretation)
+        public struct Interpretations
+        {
+            public static List<List<int>> LatestBestInterpretation = new List<List<int>>
+            {
+                new List<int> {1},
+                new List<int>(),
+                new List<int> {5, 29},
+                new List<int> {29},
+                new List<int> {29},
+                new List<int> {1, 5, 19}
+            };
+
+            public static List<List<int>> BespokeLegacyInterpretation = new List<List<int>>
+            {
+                new List<int> {1, 19},
+                new List<int> {5, 19},
+                new List<int> {29},
+                new List<int> {5, 11, 19},
+                new List<int> {11},
+                new List<int> {1, 19}
+            };
+
+            public static List<List<int>> DefaultInterpretation = new List<List<int>>
+            {
+                InterpretationSubsets.DefaultInterpretationSubset,
+                InterpretationSubsets.DefaultInterpretationSubset,
+                InterpretationSubsets.DefaultInterpretationSubset,
+                InterpretationSubsets.DefaultInterpretationSubset,
+                InterpretationSubsets.DefaultInterpretationSubset,
+                InterpretationSubsets.DefaultInterpretationSubset
+            };
+        }
+        
+        
+
+        #region DataPoint
+        public static DataPoint BuildDataPoint(List<Match> history, Match m)
+        {
+            return BuildDataPoint(history, m, Interpretations.DefaultInterpretation);
+        }
+
+        public static DataPoint BuildDataPoint(List<Match> history, Match m, List<List<int>> inputInpertretation)
         {
             var datapoint = new DataPoint
             {
-                Inputs = (BuildInputs(season, m, inputInpertretation)),
+                Inputs = (BuildInputs(history, m, inputInpertretation)),
                 Outputs = BuildOutputs(m),
                 Reference = m
             };
@@ -39,45 +68,44 @@ namespace Tipper
         #endregion
 
         #region Inputs
-        public static List<double> BuildInputs(Season s, Match m, List<List<int>> interpretation)
+        public static List<double> BuildInputs(List<Match> history, Match m, List<List<int>> interpretation)
         {
-            var matches = s.GetMatches();
             var input = new List<double>();
 
             //Scores By Team
             foreach (var term in interpretation[0])
             {
-                input.AddRange(ExtractTeamScoreInputSet(m, matches, term));
+                input.AddRange(ExtractTeamScoreInputSet(m, history, term));
             }
 
             //Scores By Ground
             foreach (var term in interpretation[1])
             {
-                input.AddRange(ExtractGroundScoreInputSet(m, matches, term));
+                input.AddRange(ExtractGroundScoreInputSet(m, history, term));
             }
 
             //Scores By State longerTerm
             foreach (var term in interpretation[2])
             {
-                input.AddRange(ExtractStateScoreInputSet(m, matches, term));
+                input.AddRange(ExtractStateScoreInputSet(m, history, term));
             }
 
             //Scores by Day
             foreach (var term in interpretation[3])
             {
-                input.AddRange(ExtractDayScoreInputSet(m, matches, term));
+                input.AddRange(ExtractDayScoreInputSet(m, history, term));
             }
 
             //Recent Opponents
             foreach (var term in interpretation[4])
             {
-                input.AddRange(ExtractOpponentScoreSet(m, matches, term));
+                input.AddRange(ExtractOpponentScoreSet(m, history, term));
             }
 
             //Recent Shared Opponents
             foreach (var term in interpretation[5])
             {
-                input.AddRange(ExtractSharedOpponentScoreSet(m, matches, term));
+                input.AddRange(ExtractSharedOpponentScoreSet(m, history, term));
             }
 
             return input;

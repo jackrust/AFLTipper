@@ -34,9 +34,6 @@ namespace Tipper
                     case ("G"):
                         GeneticAlgorithmTest();
                         break;
-                    case ("L"):
-                        RunLulu();
-                        break;
                     case ("N"):
                         TipNextRound();
                         break;
@@ -442,57 +439,6 @@ namespace Tipper
         }
         #endregion
 
-        #region Lulu
-        //Network(1,1,50, Lulu) % = 0.670748299319728
-        private static void RunLulu()
-        {
-            var date = DateTime.Now;//.Subtract(new TimeSpan(5, 0, 0, 0));
-            Console.WriteLine("Hi, I'm Lulu");
-
-
-            Console.WriteLine("I'm just looking up the latest AFL stats...");
-            //TODO: Get Latest Results from FinalSirenAPI
-
-            Console.WriteLine("Waking up now...");
-            //TODO: Check if ANN exists forcreating a new one
-            var tipper = new Tipper();
-            var data = tipper.LearnFromTo(2008, 0, date);
-            data.SuccessCondition = SuccessConditionGoalAndPointsPrint;
-            var testingData = new Data() { DataPoints = data.DataPoints.GetRange(0, data.DataPoints.Count / 2) };
-            var trainingData = new Data() { DataPoints = data.DataPoints.GetRange(data.DataPoints.Count / 2, data.DataPoints.Count / 2) };
-
-            Network network;
-            if (Filey.FindFile("Lulu/", "Lulu.ann") != null)
-            {
-                network = Network.Load("Lulu/Lulu.ann");
-            }
-            else
-            {
-                network = new Network(trainingData.DataPoints[0].Inputs.Count, new List<int>() {1},
-                    trainingData.DataPoints[0].Outputs.Count) {MaxEpochs = 50, Id = "Lulu", Directory = "Lulu/"};
-                network.Train(trainingData.Inputs(), trainingData.Outputs());
-            }
-
-            var successes = testingData.Inputs().Select(t => network.Run(t)).Where((result, i) => data.SuccessCondition(result, testingData.DataPoints[i].Outputs, false)).Count();
-            Console.WriteLine("Network({0},{1},{2}, {3}) % = {4}", network.HLayers.Count, network.HLayers[0].Count, network.MaxEpochs, network.Id, ((double)successes / (double)testingData.DataPoints.Count));
-
-            Console.WriteLine("Going through and reestimating ");
-            //TODO: restimate Seasson
-
-            Console.WriteLine("Tipping...");
-            tipper.Net = network;
-            //tipper.PredictNext(date, true);
-
-            //For each round until the end of the season
-            foreach (var r in tipper.League.GetCurrentSeason().Rounds.Where(r => r.Matches.TrueForAll(m => m.Date > date)))
-            {
-                Console.WriteLine("");
-                Console.WriteLine("Round{0}...",r.Number);
-                tipper.Predict(r, true);
-            }
-        }
-        #endregion
-
         #region Tip next round
         private static void TipNextRound()
         {
@@ -502,7 +448,7 @@ namespace Tipper
             var date = DateTime.Now;
 
             Console.WriteLine("Init Neural Network...");
-            var trainingData = tipper.LearnFromTo(2010, 0, date);
+            var trainingData = tipper.GetMatchDataBetween(2010, 0, date);
             Console.WriteLine("Create network...");
             tipper.Net = Network.CreateNetwork(trainingData, 1, 6, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
             Console.WriteLine("Tip 2015 round...");
@@ -543,9 +489,9 @@ namespace Tipper
             Console.WriteLine("Init Neural Network...");
             Network network = new Network(88, new List<int>{1}, 4);
             Console.WriteLine("Creating training data...");
-            var trainingData = tipper.LearnFromTo(2009, 0, 2011, 24);
+            var trainingData = tipper.GetMatchDataBetween(2009, 0, 2011, 24);
             Console.WriteLine("Creating testing data...");
-            var testingData = tipper.LearnFromTo(2015, 0, 2015, 24);
+            var testingData = tipper.GetMatchDataBetween(2015, 0, 2015, 24);
 
             Console.WriteLine("Training Neural Network...");
             network.Train(trainingData.Inputs(), trainingData.Outputs());
@@ -595,9 +541,9 @@ namespace Tipper
             Console.WriteLine("2014");
 
             Console.WriteLine("Creating training data...");
-            var trainingData = tipper.LearnFromTo(2009, 0, 2014, 24);
+            var trainingData = tipper.GetMatchDataBetween(2009, 0, 2014, 24);
             Console.WriteLine("Creating testing data...");
-            var testingData = tipper.LearnFromTo(2015, 0, 2015, 24);
+            var testingData = tipper.GetMatchDataBetween(2015, 0, 2015, 24);
 
             Console.WriteLine("Optimizing...");
             output = optimizer.Optimize(trainingData, testingData, SuccessConditionGoalAndPoints, Deconvert);
@@ -615,7 +561,7 @@ namespace Tipper
             var successes = 0;
 
             //var testingData1 = tipper.LearnFromTo(2008, 0, 2010, 24);
-            var testingData1 = tipper.LearnFromTo(2009, 0, 2014, 24);
+            var testingData1 = tipper.GetMatchDataBetween(2009, 0, 2014, 24);
 
             //Build
             //Network network = Network.Load("Network/504a8765-2855-4348-be32-9482d7b537ca.ann");//1-1
@@ -695,11 +641,11 @@ namespace Tipper
             var name = "";
             var successes = 0;
 
-            trainingData1 = tipper.LearnFromTo(2010, 0, 2014, 24);
-            testingData1 = tipper.LearnFromTo(2015, 1, 2015, 24);
+            trainingData1 = tipper.GetMatchDataBetween(2010, 0, 2014, 24);
+            testingData1 = tipper.GetMatchDataBetween(2015, 1, 2015, 24);
 
-            trainingData2 = tipper.LearnFromTo(2013, 1, 2013, 24);
-            testingData2 = tipper.LearnFromTo(2014, 1, 2014, 24);
+            trainingData2 = tipper.GetMatchDataBetween(2013, 1, 2013, 24);
+            testingData2 = tipper.GetMatchDataBetween(2014, 1, 2014, 24);
 
             //Build
             Console.WriteLine("First...");
