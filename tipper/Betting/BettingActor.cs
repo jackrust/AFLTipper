@@ -4,36 +4,43 @@ using System.Diagnostics;
 using System.Linq;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
+using GeneticAlgorithm;
 using GeneticArtificialNeuralNetwork;
 using Utilities;
 
 namespace Tipper.Betting
 {
-    public class BettingActor : NetworkActor
+    public class BettingActor : Actor
     {
         public double Money { get; set; }
         public List<BettingRule> Rules { get; set; }
+        public NetworkActor NetworkActor;
+        public long TimeToTest;
 
-        public BettingActor() : base(){}
-
-        public BettingActor(DataFacadeGrouped facade, IReadOnlyCollection<int> hiddens, int outputs)
-            : base(facade, hiddens, outputs)
+        public BettingActor(NetworkActor networkActor)
         {
+            Rules = new List<BettingRule>();
+            NetworkActor = networkActor;
         }
 
-        public override void Test(Data data)
+        public void Train(Data data)
         {
+            NetworkActor.Train(data);
+        }
+
+        public void Test(Data data)
+        {
+            var successes = 0;
             var stopwatch = new Stopwatch();
             stopwatch.Start();
 
-            Facade.SetData(data);
-            var subset = Facade.GetData();
-            var successes = 0;
+            NetworkActor.Facade.SetData(data);
+            var subset = NetworkActor.Facade.GetData();
 
             for(var i = 0; i < subset.Inputs().Count; i++)
             {
                 var input = subset.DataPoints[i].Inputs;
-                var output = Network.Run(input);
+                var output = NetworkActor.Network.Run(input);
                 var wager = CalculateWager(output);
                 Money -= wager;
                 var success = subset.SuccessCondition(output, subset.DataPoints[i].Outputs, false);
@@ -50,8 +57,7 @@ namespace Tipper.Betting
                     Money += wager*odds;
                 }
             }
-            SuccessRate = 100 * (double)successes / subset.DataPoints.Count;
-
+            //Console.WriteLine("successes = " + (double)successes / (double)subset.Inputs().Count);
             stopwatch.Stop();
             TimeToTest = stopwatch.ElapsedMilliseconds;
         }
@@ -66,11 +72,10 @@ namespace Tipper.Betting
             var phScore = phGoals * 6 + phPoints;
             var paScore = paGoals * 6 + paPoints;
             var margin = Math.Abs(phScore - paScore);
-            var ordered = Rules.OrderByDescending(x => x.Priority);
+            var ordered = Rules.OrderByDescending(x => x.Priority).ToList();
             foreach (var rule in ordered)
             {
-                if (rule.Scenario(margin))
-                    wager = rule.Wager;
+                wager = rule.Scenario(margin);
             }
             return wager;
         }
@@ -78,6 +83,11 @@ namespace Tipper.Betting
         public override double GetFitness()
         {
             return Money;
+        }
+
+        public static BettingActor GetBestGuessBettingActor()
+        {
+            return new BettingActor(null);//new BettingActor(NetworkActor.BestGuessNetworkActor());
         }
     }
 }
