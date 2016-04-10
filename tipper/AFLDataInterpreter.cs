@@ -7,8 +7,9 @@ using Utilities;
 
 namespace Tipper
 {
-    public class AFLDataInterpreter
+    public abstract class AFLDataInterpreter
     {
+        #region inperpretations
         public struct InterpretationSubsets
         {
             public static List<int> DefaultInterpretationSubset = new List<int> { 1, 5, 11, 19, 29 };
@@ -18,12 +19,28 @@ namespace Tipper
         {
             public static List<List<int>> LatestBestInterpretation = new List<List<int>>
             {
-                new List<int> {1},
-                new List<int>(),
-                new List<int> {5, 29},
-                new List<int> {29},
-                new List<int> {29},
-                new List<int> {1, 5, 19}
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 }
+            };
+
+            public static List<List<int>> BespokeLegacyInterpretationV1 = new List<List<int>>
+            {
+                //False,True,True,True,False,
+                //False,False,True,True,True,
+                //True,True,False,True,False,
+                //False,False,False,True,False,
+                //False,True,True,False,True,
+                //False,False,True,False,True
+                new List<int> {5, 11, 19},
+                new List<int> {11, 19, 29},
+                new List<int> {1, 5, 19},
+                new List<int> {19},
+                new List<int> {5, 11, 29},
+                new List<int> {11, 29}
             };
 
             public static List<List<int>> BespokeLegacyInterpretation = new List<List<int>>
@@ -46,21 +63,20 @@ namespace Tipper
                 InterpretationSubsets.DefaultInterpretationSubset
             };
         }
-        
-        
+        #endregion
 
         #region DataPoint
-        public static DataPoint BuildDataPoint(List<Match> history, Match m)
+        public DataPoint BuildDataPoint(List<Match> history, Match m)
         {
             return BuildDataPoint(history, m, Interpretations.DefaultInterpretation);
         }
 
-        public static DataPoint BuildDataPoint(List<Match> history, Match m, List<List<int>> inputInpertretation)
+        public DataPoint BuildDataPoint(List<Match> history, Match m, List<List<int>> inputInpertretation)
         {
             var datapoint = new DataPoint
             {
                 Inputs = (BuildInputs(history, m, inputInpertretation)),
-                Outputs = BuildOutputs(m),
+                Outputs = BuildOutputs(m).ToList(),
                 Reference = m
             };
             return datapoint;
@@ -68,7 +84,7 @@ namespace Tipper
         #endregion
 
         #region Inputs
-        public static List<double> BuildInputs(List<Match> history, Match m, List<List<int>> interpretation)
+        public List<double> BuildInputs(List<Match> history, Match m, List<List<int>> interpretation)
         {
             var input = new List<double>();
 
@@ -111,14 +127,14 @@ namespace Tipper
             return input;
         }
 
-        private static IEnumerable<double> ExtractTeamScoreInputSet(Match m, List<Match> matches, int term)
+        private IEnumerable<double> ExtractTeamScoreInputSet(Match m, List<Match> matches, int term)
         {
             Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home));
             Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away));
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        private static IEnumerable<double> ExtractGroundScoreInputSet(Match m, List<Match> matches, int term)
+        private IEnumerable<double> ExtractGroundScoreInputSet(Match m, List<Match> matches, int term)
         {
             const int relevantYearsDifference = -12;
 
@@ -131,7 +147,7 @@ namespace Tipper
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        private static IEnumerable<double> ExtractStateScoreInputSet(Match m, List<Match> matches, int term)
+        private IEnumerable<double> ExtractStateScoreInputSet(Match m, List<Match> matches, int term)
         {
             const int relevantYearsDifference = -12;
             Func<Match, bool> homeWherePredicate =
@@ -145,14 +161,14 @@ namespace Tipper
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        private static IEnumerable<double> ExtractDayScoreInputSet(Match m, List<Match> matches, int term)
+        private IEnumerable<double> ExtractDayScoreInputSet(Match m, List<Match> matches, int term)
         {
             Func<Match, bool> homeWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home));
             Func<Match, bool> awayWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away));
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        private static IEnumerable<double> ExtractOpponentScoreSet(Match m, List<Match> matches,
+        private IEnumerable<double> ExtractOpponentScoreSet(Match m, List<Match> matches,
             int term)
         {
             const int numOpponents = 6;
@@ -174,7 +190,7 @@ namespace Tipper
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        private static IEnumerable<double> ExtractSharedOpponentScoreSet(Match m, List<Match> matches,
+        private IEnumerable<double> ExtractSharedOpponentScoreSet(Match m, List<Match> matches,
             int longTerm)
         {
             const int numOpponents = 15;
@@ -190,29 +206,15 @@ namespace Tipper
                     .ToList();
 
             Func<Match, bool> homeWherePredicate =
-                (x => x.HasTeam(m.Home) && x.HasTeam(recentMatchesAway.Select(y => y.GetOpposition(m.Away)).ToList()));
+                (x => x.HasTeam(m.Home) &&
+                      x.HasTeam(recentMatchesAway.Select(y => y.GetOpposition(m.Away)).ToList()));
             Func<Match, bool> awayWherePredicate =
                 (x => x.HasTeam(m.Away) && x.HasTeam(recentMatchesHome.Select(y => y.GetOpposition(m.Home)).ToList()));
             return ExtractInputSet(m, matches, longTerm, homeWherePredicate, awayWherePredicate);
         }
 
-        private static IEnumerable<double> ExtractInputSet(Match m, List<Match> matches, int term,
-            Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
-        {
-            var inputSet = new List<double>
-            {
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreFor(m.Home).Goals), GetMaxSeasonGoals),
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreFor(m.Home).Points), GetMaxSeasonPoints),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreFor(m.Away).Goals), GetMaxSeasonGoals),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreFor(m.Away).Points), GetMaxSeasonPoints),
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreAgainst(m.Home).Goals), GetMaxSeasonGoals),
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreAgainst(m.Home).Points), GetMaxSeasonPoints),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreAgainst(m.Away).Goals), GetMaxSeasonGoals),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreAgainst(m.Away).Points), GetMaxSeasonPoints)
-            };
-
-            return inputSet;
-        }
+        protected abstract IEnumerable<double> ExtractInputSet(Match m, List<Match> matches, int term,
+            Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate);
 
         public static double ExtractInput(List<Match> s, Func<Match, bool> wherePredicate, int takeLength,
             Func<Match, double> sumSelector, Func<double, double> maxFunc)
@@ -233,19 +235,20 @@ namespace Tipper
         #endregion
 
         #region Outputs
-        public static List<double> BuildOutputs(Match m)
-        {
-            return (new List<double>()
-            {
-                Numbery.Normalise(m.HomeScore().Goals, Util.MaxGoals),
-                Numbery.Normalise(m.HomeScore().Points, Util.MaxPoints),
-                Numbery.Normalise(m.AwayScore().Goals, Util.MaxGoals),
-                Numbery.Normalise(m.AwayScore().Points, Util.MaxPoints)
-            });
-        }
+        public abstract IEnumerable<double> BuildOutputs(Match m);
         #endregion
 
         #region constants
+        public static double GetMaxSeasonMargin(double rounds)
+        {
+            return Util.MaxMargin * rounds;
+        }
+
+        public static double GetMaxSeasonTotal(double rounds)
+        {
+            return Util.MaxScore * rounds;
+        }
+
         public static double GetMaxSeasonGoals(double rounds)
         {
             return Util.MaxGoals * rounds;
