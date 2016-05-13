@@ -1,0 +1,50 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "..\Library\Utilities\Utilities.csproj", "{643F220E-6E85-4B40-B43C-0DE8900A65E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities.Tests", "..\Library\Utilities.Tests\Utilities.Tests.csproj", "{FDDDB129-1E38-4846-95E4-143319AC84F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BureauOfMeteorology", "..\Library\BureauOfMeteorology\BureauOfMeteorology.csproj", "{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Universal", "..\Library\Universal\Universal.csproj", "{6310FB3B-91D2-4956-974C-B3B028ADB403}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AustralianRulesFootball", "AustralianRulesFootball\AustralianRulesFootball.csproj", "{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AFLStatisticsService", "AFLStatisticsService\AFLStatisticsService.csproj", "{2365D600-71E6-4272-A882-FE8BEBA79410}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{643F220E-6E85-4B40-B43C-0DE8900A65E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{643F220E-6E85-4B40-B43C-0DE8900A65E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{643F220E-6E85-4B40-B43C-0DE8900A65E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{643F220E-6E85-4B40-B43C-0DE8900A65E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FDDDB129-1E38-4846-95E4-143319AC84F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FDDDB129-1E38-4846-95E4-143319AC84F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FDDDB129-1E38-4846-95E4-143319AC84F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FDDDB129-1E38-4846-95E4-143319AC84F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C5A4FFD-CE03-43D7-BBB7-4D25EA57B6A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6310FB3B-91D2-4956-974C-B3B028ADB403}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2365D600-71E6-4272-A882-FE8BEBA79410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2365D600-71E6-4272-A882-FE8BEBA79410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2365D600-71E6-4272-A882-FE8BEBA79410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2365D600-71E6-4272-A882-FE8BEBA79410}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

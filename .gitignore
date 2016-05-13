@@ -1,21 +1,51 @@
-#ignore thumbnails created by windows
-Thumbs.db
-#Ignore files build by Visual Studio
+#Junk Files
+*.DS_Store
+[Tt]humbs.db
+
+#Visual Studio Files
+[Oo]bj
+[Bb]in
+[Dd]ebug
+[Bb]uild/
 *.user
+*.suo
+*.exe
+*.pdb
 *.aps
-*.pch
-*.vspscc
 *_i.c
 *_p.c
 *.ncb
-*.suo
+*.tlb
+*.tlh
+*.[Cc]ache
 *.bak
-*.cache
+*.ncb
 *.ilk
 *.log
-[Bb]in
-[Dd]ebug*/
+*.lib
 *.sbr
-obj/
-[Rr]elease*/
+*.sdf
+ipch/
+*.dbmdl
+*.csproj.user
+*.cache
+*.swp
+*.vspscc
+*.vssscc
+*.bak.*
+*.bak
+
+#Tools
+_ReSharper.*
 _ReSharper*/
+*.resharper
+*.resharper.user
+[Nn][Dd]epend[Oo]ut*/
+Ankh.NoLoad
+
+#Other
+.svn
+
+# Include DLLs if they're in the NuGet packages directory
+!/packages/*/lib/*.dll
+!/packages/*/lib/*/*.dll

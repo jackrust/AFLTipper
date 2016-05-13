@@ -563,7 +563,7 @@ namespace Tipper
             var tipper2015 = new Tipper();
 
             Console.WriteLine("Init Neural Network...");
-            var trainingData = tipper2015.GetMatchDataBetween(2008, 0, 2014, 23);
+            var trainingData = tipper2015.GetMatchDataBetween(2008, 0, 2015, 0);
             var testingData = tipper2015.GetMatchDataBetween(2015, 0, 2015, 23);
             trainingData.SuccessCondition = SuccessConditionTotalPrint;
             testingData.SuccessCondition = SuccessConditionTotalPrint;

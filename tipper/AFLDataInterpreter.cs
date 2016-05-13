@@ -24,6 +24,7 @@ namespace Tipper
                 new List<int> { 1, 5, 11, 19, 29 },
                 new List<int> { 1, 5, 11, 19, 29 },
                 new List<int> { 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 },
                 new List<int> { 1, 5, 11, 19, 29 }
             };
 
@@ -55,6 +56,7 @@ namespace Tipper
 
             public static List<List<int>> DefaultInterpretation = new List<List<int>>
             {
+                InterpretationSubsets.DefaultInterpretationSubset,
                 InterpretationSubsets.DefaultInterpretationSubset,
                 InterpretationSubsets.DefaultInterpretationSubset,
                 InterpretationSubsets.DefaultInterpretationSubset,
@@ -123,6 +125,20 @@ namespace Tipper
             {
                 input.AddRange(ExtractSharedOpponentScoreSet(m, history, term));
             }
+
+
+            //v2
+            //IsFinal
+            /*foreach (var term in interpretation[6])
+            {
+                input.AddRange(ExtractFinalsPerformance(m, history, term));
+            }
+
+            //% experience at ground
+            foreach (var term in interpretation[7])
+            {
+                input.AddRange(ExtractExperienceAtGround(m, history, term));
+            }*/
 
             return input;
         }
@@ -211,6 +227,20 @@ namespace Tipper
             Func<Match, bool> awayWherePredicate =
                 (x => x.HasTeam(m.Away) && x.HasTeam(recentMatchesHome.Select(y => y.GetOpposition(m.Home)).ToList()));
             return ExtractInputSet(m, matches, longTerm, homeWherePredicate, awayWherePredicate);
+        }
+
+        private IEnumerable<double> ExtractFinalsPerformance(Match m, List<Match> matches, int term)
+        {
+            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.IsFinal == m.IsFinal);
+            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.IsFinal == m.IsFinal);
+            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
+        }
+
+        private IEnumerable<double> ExtractExperienceAtGround(Match m, List<Match> matches, int term)
+        {
+            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.IsFinal == m.IsFinal);
+            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.IsFinal == m.IsFinal);
+            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
         protected abstract IEnumerable<double> ExtractInputSet(Match m, List<Match> matches, int term,

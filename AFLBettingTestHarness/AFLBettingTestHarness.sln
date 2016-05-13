@@ -1,0 +1,38 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AustralianRulesFootball", "..\Library\AustralianRulesFootball\AustralianRulesFootball.csproj", "{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AustralianRulesFootballBettingOdds", "..\Library\AustralianRulesFootballBettingOdds\AustralianRulesFootballBettingOdds.csproj", "{0DA7F623-9E11-4815-975C-4EE203826336}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utilities", "..\Library\Utilities\Utilities.csproj", "{643F220E-6E85-4B40-B43C-0DE8900A65E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AFLBettingTestHarness", "AFLBettingTestHarness\AFLBettingTestHarness.csproj", "{201AAAD9-E463-46B5-9CDA-91A8E4B106E8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0DA7F623-9E11-4815-975C-4EE203826336}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0DA7F623-9E11-4815-975C-4EE203826336}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0DA7F623-9E11-4815-975C-4EE203826336}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0DA7F623-9E11-4815-975C-4EE203826336}.Release|Any CPU.Build.0 = Release|Any CPU
+		{643F220E-6E85-4B40-B43C-0DE8900A65E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{643F220E-6E85-4B40-B43C-0DE8900A65E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{643F220E-6E85-4B40-B43C-0DE8900A65E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{643F220E-6E85-4B40-B43C-0DE8900A65E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{201AAAD9-E463-46B5-9CDA-91A8E4B106E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{201AAAD9-E463-46B5-9CDA-91A8E4B106E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{201AAAD9-E463-46B5-9CDA-91A8E4B106E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{201AAAD9-E463-46B5-9CDA-91A8E4B106E8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

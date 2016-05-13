@@ -15,7 +15,6 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\t
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\tipper.exe
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\tipper.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\ArtificialNeuralNetwork.dll
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\AustralianRulesFootball.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\BureauOfMeteorology.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\Universal.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\Utilities.dll
