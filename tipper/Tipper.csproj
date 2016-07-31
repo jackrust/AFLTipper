@@ -35,9 +35,6 @@
     <Reference Include="ArtificialNeuralNetwork">
       <HintPath>..\..\Library\ArtificialNeuralNetwork\obj\Debug\ArtificialNeuralNetwork.dll</HintPath>
     </Reference>
-    <Reference Include="AustralianRulesFootball">
-      <HintPath>..\..\Library\AustralianRulesFootball\bin\Debug\AustralianRulesFootball.dll</HintPath>
-    </Reference>
     <Reference Include="BureauOfMeteorology">
       <HintPath>..\..\Library\BureauOfMeteorology\bin\Debug\BureauOfMeteorology.dll</HintPath>
     </Reference>
@@ -274,6 +271,10 @@
     <ProjectReference Include="..\..\Library\Universal\Universal.csproj">
       <Project>{6310FB3B-91D2-4956-974C-B3B028ADB403}</Project>
       <Name>Universal</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
+      <Project>{61fbb7c9-f3a6-4972-81e1-6a5be0a176e3}</Project>
+      <Name>AustralianRulesFootball</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

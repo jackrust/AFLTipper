@@ -53,6 +53,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="API\AFLAPI.cs" />
+    <Compile Include="API\FinalSirenAPI.cs" />
+    <Compile Include="API\OddsCSV.cs" />
+    <Compile Include="API\WebsiteAPI.cs" />
     <Compile Include="MongoDB.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -60,6 +64,16 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Library\Utilities\Utilities.csproj">
+      <Project>{643F220E-6E85-4B40-B43C-0DE8900A65E5}</Project>
+      <Name>Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
+      <Project>{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}</Project>
+      <Name>AustralianRulesFootball</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

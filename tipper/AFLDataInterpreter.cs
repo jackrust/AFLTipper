@@ -9,6 +9,8 @@ namespace Tipper
 {
     public abstract class AFLDataInterpreter
     {
+        public int DataExpiryDays = 730;
+
         #region inperpretations
         public struct InterpretationSubsets
         {
@@ -145,8 +147,8 @@ namespace Tipper
 
         private IEnumerable<double> ExtractTeamScoreInputSet(Match m, List<Match> matches, int term)
         {
-            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home));
-            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away));
+            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.Date > m.Date.AddDays(-DataExpiryDays));
+            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.Date > m.Date.AddDays(-DataExpiryDays));
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
@@ -156,10 +158,10 @@ namespace Tipper
 
             Func<Match, bool> homeWherePredicate =
                 (x =>
-                    x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(relevantYearsDifference));
+                    x.Ground.Equals(m.Ground) && x.HasTeam(m.Home) && x.Date > m.Date.AddYears(relevantYearsDifference) && x.Date > m.Date.AddDays(-DataExpiryDays));
             Func<Match, bool> awayWherePredicate =
                 (x =>
-                    x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference));
+                    x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference) && x.Date > m.Date.AddDays(-DataExpiryDays));
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
@@ -169,18 +171,18 @@ namespace Tipper
             Func<Match, bool> homeWherePredicate =
                 (x =>
                     x.Ground.State.Equals(m.Ground.State) && x.HasTeam(m.Home) &&
-                    x.Date > m.Date.AddYears(relevantYearsDifference));
+                    x.Date > m.Date.AddYears(relevantYearsDifference) && x.Date > m.Date.AddDays(-DataExpiryDays));
             Func<Match, bool> awayWherePredicate =
                 (x =>
                     x.Ground.State.Equals(m.Ground.State) && x.HasTeam(m.Away) &&
-                    x.Date > m.Date.AddYears(relevantYearsDifference));
+                    x.Date > m.Date.AddYears(relevantYearsDifference) && x.Date > m.Date.AddDays(-DataExpiryDays));
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
         private IEnumerable<double> ExtractDayScoreInputSet(Match m, List<Match> matches, int term)
         {
-            Func<Match, bool> homeWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home));
-            Func<Match, bool> awayWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away));
+            Func<Match, bool> homeWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home) && x.Date > m.Date.AddDays(-DataExpiryDays));
+            Func<Match, bool> awayWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away) && x.Date > m.Date.AddDays(-DataExpiryDays));
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
@@ -201,8 +203,14 @@ namespace Tipper
                     .Select(mtch => mtch.GetOpposition(m.Away))
                     .ToList();
 
-            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(recentOpponentsHome) && !x.HasTeam(m.Home));
-            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(recentOpponentsAway) && !x.HasTeam(m.Away));
+            Func<Match, bool> homeWherePredicate = 
+                (x => x.HasTeam(recentOpponentsHome) && 
+                      !x.HasTeam(m.Home) &&
+                      x.Date > m.Date.AddDays(-DataExpiryDays));
+            Func<Match, bool> awayWherePredicate = 
+                (x => x.HasTeam(recentOpponentsAway) &&
+                      !x.HasTeam(m.Away) &&
+                      x.Date > m.Date.AddDays(-DataExpiryDays));
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
@@ -223,13 +231,16 @@ namespace Tipper
 
             Func<Match, bool> homeWherePredicate =
                 (x => x.HasTeam(m.Home) &&
-                      x.HasTeam(recentMatchesAway.Select(y => y.GetOpposition(m.Away)).ToList()));
+                      x.HasTeam(recentMatchesAway.Select(y => y.GetOpposition(m.Away)).ToList()) &&
+                      x.Date > m.Date.AddDays(-DataExpiryDays));
             Func<Match, bool> awayWherePredicate =
-                (x => x.HasTeam(m.Away) && x.HasTeam(recentMatchesHome.Select(y => y.GetOpposition(m.Home)).ToList()));
+                (x => x.HasTeam(m.Away) && 
+                      x.HasTeam(recentMatchesHome.Select(y => y.GetOpposition(m.Home)).ToList()) &&
+                      x.Date > m.Date.AddDays(-DataExpiryDays));
             return ExtractInputSet(m, matches, longTerm, homeWherePredicate, awayWherePredicate);
         }
 
-        private IEnumerable<double> ExtractFinalsPerformance(Match m, List<Match> matches, int term)
+        /*private IEnumerable<double> ExtractFinalsPerformance(Match m, List<Match> matches, int term)
         {
             Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.IsFinal == m.IsFinal);
             Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.IsFinal == m.IsFinal);
@@ -241,7 +252,7 @@ namespace Tipper
             Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.IsFinal == m.IsFinal);
             Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.IsFinal == m.IsFinal);
             return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
-        }
+        }*/
 
         protected abstract IEnumerable<double> ExtractInputSet(Match m, List<Match> matches, int term,
             Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate);

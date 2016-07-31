@@ -573,7 +573,9 @@ namespace Tipper
             Console.WriteLine("Create network...");
             //var example = Network.Load("Network/10900fb3-ed76-4c7c-846e-56a4951527fe.ann");
             //tipper2015.Net = Network.CreateNetwork(trainingData, example.HLayers.Count, example.HLayers[0].Count, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
-            tipper2015.Net = Network.Load("Network/6b376a71-5cb0-41ca-95fb-02daf1db536f.ann");
+            //tipper2015.Net = Network.Load("Network/6b376a71-5cb0-41ca-95fb-02daf1db536f.ann"); //Long tail data
+            tipper2015.Net = Network.Load("Network/4ca2e83a-a2a8-4c74-a922-364a574583c3.ann"); //short tail data
+            Console.WriteLine("Network: " + tipper2015.Net.Id);
             tipper2015.Net.Train(trainingData.Inputs(), trainingData.Outputs());
 
             Console.WriteLine("Test network 2016");
@@ -596,11 +598,13 @@ namespace Tipper
             trainingData.SuccessCondition = SuccessConditionGoalAndPointsPrint;
             //c4922938-c259-4006-b433-d4dc8faf8053
             Console.WriteLine("Create network...");
-            //var example = Network.Load("Network/10900fb3-ed76-4c7c-846e-56a4951527fe.ann");
+            //example = Network.Load("Network/10900fb3-ed76-4c7c-846e-56a4951527fe.ann");
             //tipper2016.Net = Network.CreateNetwork(trainingData, example.HLayers.Count, example.HLayers[0].Count, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
-            tipper2015.Net = Network.Load("Network/c4922938-c259-4006-b433-d4dc8faf8053.ann");
+            //tipper2016.Net = Network.Load("Network/c4922938-c259-4006-b433-d4dc8faf8053.ann"); //Long tail data
+            tipper2016.Net = Network.Load("Network/cfbce082-917f-49b6-bf43-f3584b21d514.ann"); //Short tail data
+            Console.WriteLine("Network: " + tipper2016.Net.Id);
             Console.WriteLine("Test network 2016");
-            successes = testingData.Inputs().Select(t => tipper2015.Net.Run(t)).Where((result, i) => testingData.SuccessCondition(result, testingData.DataPoints[i].Outputs, false)).Count();
+            successes = testingData.Inputs().Select(t => tipper2016.Net.Run(t)).Where((result, i) => testingData.SuccessCondition(result, testingData.DataPoints[i].Outputs, false)).Count();
             successRate = 100 * (double)successes / testingData.DataPoints.Count;
             Console.WriteLine("Success rate: {0:N2}", successRate);
 
@@ -608,7 +612,7 @@ namespace Tipper
             foreach (var r in tipper2016.League.Seasons.Where(s => s.Year == 2016).SelectMany(s => s.Rounds).ToList())
             {
                 Console.WriteLine("Tip Round {0} ...", r.Number);
-                tipper2015.PredictWinner(r.Year, r.Number, true);
+                tipper2016.PredictWinner(r.Year, r.Number, true);
             }
             Console.Read();
         }
