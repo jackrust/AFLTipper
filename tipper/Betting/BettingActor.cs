@@ -43,7 +43,7 @@ namespace Tipper.Betting
                 var output = NetworkActor.Network.Run(input);
                 var wager = CalculateWager(output);
                 Money -= wager;
-                var success = subset.SuccessCondition(output, subset.DataPoints[i].Outputs, false);
+                var success = subset.SuccessCondition(output, subset.DataPoints[i].Outputs, null);
                 if (success)
                 {
                     successes++;

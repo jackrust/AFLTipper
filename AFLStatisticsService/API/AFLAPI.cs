@@ -1,21 +1,23 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using AustralianRulesFootball;
+using ScreenScraper;
 using Match = AustralianRulesFootball.Match;
 
 namespace AFLStatisticsService.API
 {
-    internal class AFLAPI
+    internal class AFLAPI : AflStatisticsApi
     {
         private const string Website = "http://www.afl.com.au/";
         private const string Results = Website + "/fixture";
         private const int ResultTableIndex = 1;
 
-        public static int GetNumRounds(int year)
+        public override int GetNumRounds(int year)
         {
             var numRounds = 0;
-            var parameters = new Dictionary<string, string> {};
+            var parameters = new Dictionary<string, string>();
             var page = WebsiteAPI.GetPage(Results, parameters);
             var roundList = WebsiteAPI.SplitOn(page, "<select", "</select", "name=\"roundId\"")[0];
 
@@ -31,8 +33,9 @@ namespace AFLStatisticsService.API
             return numRounds;
         }
 
-        public static Round GetRoundResults(int year, int roundNo)
+        public override Round GetRoundResults(int year, int roundNo)
         {
+            var isFinal = numHomeandAwayRounds[year] > roundNo;
             var roundString = roundNo < 10 ? "0" + roundNo : "" + roundNo;
             var parameters = new Dictionary<string, string> { { "roundId", "CD_R" + year + "014" + roundString } };
             var page = WebsiteAPI.GetPage(Results, parameters);
@@ -51,6 +54,8 @@ namespace AFLStatisticsService.API
                     var details = WebsiteAPI.SplitOn(rows[i], "<td", "</td", 4);
                     if (details.Count > 1)
                     {
+                        throw new Exception("AFLAPI doesn't load match statistics");
+
                         //Teams
                         var teams = WebsiteAPI.SplitOn(details[0], "<span class=\"team\"", "</span", 19);
                         var home = teams[0].TrimEnd('v').TrimEnd(' ');
@@ -80,16 +85,17 @@ namespace AFLStatisticsService.API
                     }
                 }
             }
-            return new Round(Convert.ToInt32(year), roundNo, matches);
+            return new Round(Convert.ToInt32(year), roundNo, isFinal, matches);
         }
 
-        private static string ExtractFromXml(string str)
+        public override List<Player> GetAllPlayers(int year)
         {
-            var sFlag = str.IndexOf(">", StringComparison.Ordinal);
-            var eFlag = str.IndexOf("<", sFlag, StringComparison.Ordinal);
-            if (sFlag > -1 && eFlag > -1)
-                return str.Substring(sFlag + 1, eFlag - (sFlag + 1));
-            return "";
+            throw new NotImplementedException();
+        }
+
+        public List<Player> GetAllPlayers()
+        {
+            return new List<Player>();
         }
     }
 }

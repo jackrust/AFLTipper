@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
 using Utilities;
@@ -10,7 +9,7 @@ namespace Tipper
     public class AFLDataInterpreterGoalsAndPoints : AFLDataInterpreter
     {
         #region Inputs
-        protected override IEnumerable<double> ExtractInputSet(Match m, List<Match> matches, int term,
+        protected override IEnumerable<double> ExtractInputSetForScore(Match m, List<Match> matches, int term,
             Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
         {
             var inputSet = new List<double>
@@ -28,6 +27,11 @@ namespace Tipper
             return inputSet;
         }
 
+        protected override IEnumerable<double> ExtractInputSetForShots(Match m, List<Match> matches, int term,
+            Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
+        {
+            throw new Exception("ExtractInputSetForShots not implemented for goals & points");
+        }
         #endregion
 
         #region Outputs

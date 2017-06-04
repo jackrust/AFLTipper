@@ -9,7 +9,7 @@ namespace Tipper
 {
     public abstract class AFLDataInterpreter
     {
-        public int DataExpiryDays = 730;
+        public int DataExpiryDays = 720;//TODO: what an arbitrary number (730)
 
         #region inperpretations
         public struct InterpretationSubsets
@@ -25,9 +25,17 @@ namespace Tipper
                 new List<int> { 1, 5, 11, 19, 29 },
                 new List<int> { 1, 5, 11, 19, 29 },
                 new List<int> { 1, 5, 11, 19, 29 },
-                new List<int> { 5, 11, 19, 29 },
                 new List<int> { 1, 5, 11, 19, 29 },
                 new List<int> { 1, 5, 11, 19, 29 }
+            };
+
+            public static List<List<int>> BespokeLegacyInterpretationV2 = new List<List<int>>
+            {
+                new List<int> {3, 5, 8, 13},
+                new List<int> {3, 5},
+                new List<int> {3, 5},
+                new List<int> {13, 21},
+                new List<int> {3, 5, 8, 13, 21}
             };
 
             public static List<List<int>> BespokeLegacyInterpretationV1 = new List<List<int>>
@@ -42,7 +50,6 @@ namespace Tipper
                 new List<int> {11, 19, 29},
                 new List<int> {1, 5, 19},
                 new List<int> {19},
-                new List<int> {5, 11, 29},
                 new List<int> {11, 29}
             };
 
@@ -52,13 +59,11 @@ namespace Tipper
                 new List<int> {5, 19},
                 new List<int> {29},
                 new List<int> {5, 11, 19},
-                new List<int> {11},
                 new List<int> {1, 19}
             };
 
             public static List<List<int>> DefaultInterpretation = new List<List<int>>
             {
-                InterpretationSubsets.DefaultInterpretationSubset,
                 InterpretationSubsets.DefaultInterpretationSubset,
                 InterpretationSubsets.DefaultInterpretationSubset,
                 InterpretationSubsets.DefaultInterpretationSubset,
@@ -91,68 +96,101 @@ namespace Tipper
         public List<double> BuildInputs(List<Match> history, Match m, List<List<int>> interpretation)
         {
             var input = new List<double>();
+            
+            //V1 - measure by Score
 
             //Scores By Team
+            if (interpretation.Count < 1)
+                return input;
             foreach (var term in interpretation[0])
             {
-                input.AddRange(ExtractTeamScoreInputSet(m, history, term));
+                input.AddRange(ExtractTeamScoreInputSet(m, history, term, ExtractInputSetForScore));
             }
 
             //Scores By Ground
+            if (interpretation.Count < 2)
+                return input;
             foreach (var term in interpretation[1])
             {
-                input.AddRange(ExtractGroundScoreInputSet(m, history, term));
+                input.AddRange(ExtractGroundScoreInputSet(m, history, term, ExtractInputSetForScore));
             }
 
             //Scores By State longerTerm
+            if (interpretation.Count < 3)
+                return input;
             foreach (var term in interpretation[2])
             {
-                input.AddRange(ExtractStateScoreInputSet(m, history, term));
+                input.AddRange(ExtractStateScoreInputSet(m, history, term, ExtractInputSetForScore));
             }
 
             //Scores by Day
+            if (interpretation.Count < 4)
+                return input;
             foreach (var term in interpretation[3])
             {
-                input.AddRange(ExtractDayScoreInputSet(m, history, term));
-            }
-
-            //Recent Opponents
-            foreach (var term in interpretation[4])
-            {
-                input.AddRange(ExtractOpponentScoreSet(m, history, term));
+                input.AddRange(ExtractDayScoreInputSet(m, history, term, ExtractInputSetForScore));
             }
 
             //Recent Shared Opponents
+            if (interpretation.Count < 5)
+                return input;
+            foreach (var term in interpretation[4])
+            {
+                input.AddRange(ExtractSharedOpponentScoreSet(m, history, term, ExtractInputSetForScore));
+            }
+
+            //v2 - measure by Shots
+            /*
+            //Shots By Team
+            if (interpretation.Count < 6)
+                return input;
             foreach (var term in interpretation[5])
             {
-                input.AddRange(ExtractSharedOpponentScoreSet(m, history, term));
+                input.AddRange(ExtractTeamScoreInputSet(m, history, term, ExtractInputSetForShots));
             }
-
-
-            //v2
-            //IsFinal
-            /*foreach (var term in interpretation[6])
+            //Scores By Ground
+            if (interpretation.Count < 7)
+                return input;
+            foreach (var term in interpretation[6])
             {
-                input.AddRange(ExtractFinalsPerformance(m, history, term));
+                input.AddRange(ExtractGroundScoreInputSet(m, history, term, ExtractInputSetForShots));
             }
 
-            //% experience at ground
+            //Scores By State longerTerm
+            if (interpretation.Count < 8)
+                return input;
             foreach (var term in interpretation[7])
             {
-                input.AddRange(ExtractExperienceAtGround(m, history, term));
-            }*/
+                input.AddRange(ExtractStateScoreInputSet(m, history, term, ExtractInputSetForShots));
+            }
 
+            //Scores by Day
+            if (interpretation.Count < 9)
+                return input;
+            foreach (var term in interpretation[8])
+            {
+                input.AddRange(ExtractDayScoreInputSet(m, history, term, ExtractInputSetForShots));
+            }
+
+            //Recent Shared Opponents
+            if (interpretation.Count < 10)
+                return input;
+            foreach (var term in interpretation[9])
+            {
+                input.AddRange(ExtractSharedOpponentScoreSet(m, history, term, ExtractInputSetForShots));
+            }
+            */
             return input;
         }
 
-        private IEnumerable<double> ExtractTeamScoreInputSet(Match m, List<Match> matches, int term)
+        private IEnumerable<double> ExtractTeamScoreInputSet(Match m, List<Match> matches, int term, Func<Match, List<Match>, int, Func<Match, bool>, Func<Match, bool>, IEnumerable<double>> extrator)
         {
             Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.Date > m.Date.AddDays(-DataExpiryDays));
             Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.Date > m.Date.AddDays(-DataExpiryDays));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
+            return extrator(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        private IEnumerable<double> ExtractGroundScoreInputSet(Match m, List<Match> matches, int term)
+        private IEnumerable<double> ExtractGroundScoreInputSet(Match m, List<Match> matches, int term, Func<Match, List<Match>, int, Func<Match, bool>, Func<Match, bool>, IEnumerable<double>> extrator)
         {
             const int relevantYearsDifference = -12;
 
@@ -162,12 +200,12 @@ namespace Tipper
             Func<Match, bool> awayWherePredicate =
                 (x =>
                     x.Ground.Equals(m.Ground) && x.HasTeam(m.Away) && x.Date > m.Date.AddYears(relevantYearsDifference) && x.Date > m.Date.AddDays(-DataExpiryDays));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
+            return extrator(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        private IEnumerable<double> ExtractStateScoreInputSet(Match m, List<Match> matches, int term)
+        private IEnumerable<double> ExtractStateScoreInputSet(Match m, List<Match> matches, int term, Func<Match, List<Match>, int, Func<Match, bool>, Func<Match, bool>, IEnumerable<double>> extrator)
         {
-            const int relevantYearsDifference = -12;
+            const int relevantYearsDifference = -6;
             Func<Match, bool> homeWherePredicate =
                 (x =>
                     x.Ground.State.Equals(m.Ground.State) && x.HasTeam(m.Home) &&
@@ -176,14 +214,14 @@ namespace Tipper
                 (x =>
                     x.Ground.State.Equals(m.Ground.State) && x.HasTeam(m.Away) &&
                     x.Date > m.Date.AddYears(relevantYearsDifference) && x.Date > m.Date.AddDays(-DataExpiryDays));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
+            return extrator(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        private IEnumerable<double> ExtractDayScoreInputSet(Match m, List<Match> matches, int term)
+        private IEnumerable<double> ExtractDayScoreInputSet(Match m, List<Match> matches, int term, Func<Match, List<Match>, int, Func<Match, bool>, Func<Match, bool>, IEnumerable<double>> extrator)
         {
             Func<Match, bool> homeWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Home) && x.Date > m.Date.AddDays(-DataExpiryDays));
             Func<Match, bool> awayWherePredicate = (x => x.Date.DayOfWeek == m.Date.DayOfWeek && x.HasTeam(m.Away) && x.Date > m.Date.AddDays(-DataExpiryDays));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
+            return extrator(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
         private IEnumerable<double> ExtractOpponentScoreSet(Match m, List<Match> matches,
@@ -211,13 +249,13 @@ namespace Tipper
                 (x => x.HasTeam(recentOpponentsAway) &&
                       !x.HasTeam(m.Away) &&
                       x.Date > m.Date.AddDays(-DataExpiryDays));
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
+            return ExtractInputSetForScore(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
         private IEnumerable<double> ExtractSharedOpponentScoreSet(Match m, List<Match> matches,
-            int longTerm)
+            int term, Func<Match, List<Match>, int, Func<Match, bool>, Func<Match, bool>, IEnumerable<double>> extrator)
         {
-            const int numOpponents = 15;
+            const int numOpponents = 24;
             var recentMatchesHome =
                 matches.Where(mtch => mtch.HasTeam(m.Home) && !mtch.HasTeam(m.Away))
                     .OrderByDescending(mtch => mtch.Date)
@@ -237,24 +275,13 @@ namespace Tipper
                 (x => x.HasTeam(m.Away) && 
                       x.HasTeam(recentMatchesHome.Select(y => y.GetOpposition(m.Home)).ToList()) &&
                       x.Date > m.Date.AddDays(-DataExpiryDays));
-            return ExtractInputSet(m, matches, longTerm, homeWherePredicate, awayWherePredicate);
+            return extrator(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
-        /*private IEnumerable<double> ExtractFinalsPerformance(Match m, List<Match> matches, int term)
-        {
-            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.IsFinal == m.IsFinal);
-            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.IsFinal == m.IsFinal);
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
-        }
-
-        private IEnumerable<double> ExtractExperienceAtGround(Match m, List<Match> matches, int term)
-        {
-            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.IsFinal == m.IsFinal);
-            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.IsFinal == m.IsFinal);
-            return ExtractInputSet(m, matches, term, homeWherePredicate, awayWherePredicate);
-        }*/
-
-        protected abstract IEnumerable<double> ExtractInputSet(Match m, List<Match> matches, int term,
+        protected abstract IEnumerable<double> ExtractInputSetForScore(Match m, List<Match> matches, int term,
+            Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate);        
+        
+        protected abstract IEnumerable<double> ExtractInputSetForShots(Match m, List<Match> matches, int term,
             Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate);
 
         public static double ExtractInput(List<Match> s, Func<Match, bool> wherePredicate, int takeLength,

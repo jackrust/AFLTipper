@@ -7,7 +7,7 @@ using Utilities;
 
 namespace Tipper
 {
-    public class AFLDataInterpreterTotal : AFLDataInterpreter
+    public class AFLDataInterpreterMargin : AFLDataInterpreter
     {
         #region Inputs
         protected override IEnumerable<double> ExtractInputSetForScore(Match m, List<Match> matches, int term,
@@ -45,8 +45,7 @@ namespace Tipper
         {
             return (new List<double>()
             {
-                Numbery.Normalise(m.HomeScore().Total(), Util.MaxScore),
-                Numbery.Normalise(m.AwayScore().Total(), Util.MaxScore)
+                Numbery.Normalise(m.HomeScore().Total(), Util.MaxScore) - Numbery.Normalise(m.AwayScore().Total(), Util.MaxScore)
             });
         }
         #endregion

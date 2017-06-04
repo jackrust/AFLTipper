@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AFLStatisticsService", "AFL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AustralianRulesFootball", "AustralianRulesFootball\AustralianRulesFootball.csproj", "{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiDimensionalTester", "..\Library\MultiDimensionalTester\MultiDimensionalTester.csproj", "{A4936943-AADF-433C-933D-B34A702BC9EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScreenScraper", "..\Library\ScreenScraper\ScreenScraper.csproj", "{2B080B6A-FC97-4952-8416-5E79E0B9717E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +71,14 @@ Global
 		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A4936943-AADF-433C-933D-B34A702BC9EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A4936943-AADF-433C-933D-B34A702BC9EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A4936943-AADF-433C-933D-B34A702BC9EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A4936943-AADF-433C-933D-B34A702BC9EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B080B6A-FC97-4952-8416-5E79E0B9717E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B080B6A-FC97-4952-8416-5E79E0B9717E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B080B6A-FC97-4952-8416-5E79E0B9717E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B080B6A-FC97-4952-8416-5E79E0B9717E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
