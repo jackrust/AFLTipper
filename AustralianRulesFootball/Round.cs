@@ -14,14 +14,18 @@ namespace AustralianRulesFootball
         }
 
         public readonly List<Match> Matches;
+        public bool IsFinal { get; set; }
 
-        public Round() : this(0, 0, new List<Match>()) { }
+        public Round() : this(0, 0, false, new List<Match>()) { }
 
-        public Round(int year, int number, List<Match> matches)
+        public Round(int year, int number, List<Match> matches) : this(year, number, false, matches) { }
+
+        public Round(int year, int number, bool isFinal, List<Match> matches)
         {
             Matches = matches;
             Number = number;
             Year = year;
+            IsFinal = isFinal;
         }
 
         public override bool Equals(object other)

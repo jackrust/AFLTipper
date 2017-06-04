@@ -14,6 +14,8 @@ namespace AustralianRulesFootball
         public Ground Ground;
         public DateTime Date;
         public List<Quarter> Quarters;
+        public MatchStatistics HomeStats { get; set; }
+        public MatchStatistics AwayStats { get; set; }
         public double HomeOdds;
         public double AwayOdds;
 
@@ -39,6 +41,8 @@ namespace AustralianRulesFootball
             HomeOdds = homeOdds;
             AwayOdds = awayOdds;
         }
+
+        
 
         public Score ScoreFor(Team team)
         {
