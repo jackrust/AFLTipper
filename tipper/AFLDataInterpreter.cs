@@ -75,17 +75,17 @@ namespace Tipper
         #endregion
 
         #region DataPoint
-        public DataPoint BuildDataPoint(List<Match> history, Match m)
+        public DataPoint BuildDataPoint(List<Match> history, Match m, Numbery.NormalisationMethod normalisationMethod)
         {
-            return BuildDataPoint(history, m, Interpretations.DefaultInterpretation);
+            return BuildDataPoint(history, m, Interpretations.DefaultInterpretation, normalisationMethod);
         }
 
-        public DataPoint BuildDataPoint(List<Match> history, Match m, List<List<int>> inputInpertretation)
+        public DataPoint BuildDataPoint(List<Match> history, Match m, List<List<int>> inputInpertretation, Numbery.NormalisationMethod normalisationMethod)
         {
             var datapoint = new DataPoint
             {
                 Inputs = (BuildInputs(history, m, inputInpertretation)),
-                Outputs = BuildOutputs(m).ToList(),
+                Outputs = BuildOutputs(m, normalisationMethod).ToList(),
                 Reference = m
             };
             return datapoint;
@@ -303,7 +303,8 @@ namespace Tipper
         #endregion
 
         #region Outputs
-        public abstract IEnumerable<double> BuildOutputs(Match m);
+        public abstract IEnumerable<double> BuildOutputs(Match match, Numbery.NormalisationMethod normalisationMethod);
+        public abstract IEnumerable<double> RetrieveOutputs(List<double> result, Numbery.NormalisationMethod normalisationMethod);
         #endregion
 
         #region constants
@@ -327,5 +328,7 @@ namespace Tipper
             return Util.MaxPoints * rounds;
         }
         #endregion
+
+
     }
 }

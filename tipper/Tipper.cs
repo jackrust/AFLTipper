@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.EnterpriseServices;
 using System.Linq;
 using AFLStatisticsService;
 using ArtificialNeuralNetwork;
@@ -15,6 +14,8 @@ namespace Tipper
         public static int NumInputs = 18;
         public static int NumOutputs = 4;
         public static int DefaultHiddens = 5;
+        public AFLDataInterpreter DataInterpreter = new AFLDataInterpreterTotal();
+        public Numbery.NormalisationMethod NormalisationMethod = Numbery.NormalisationMethod.Asymptotic;
         public League League;
         public Network Net;
 
@@ -62,74 +63,11 @@ namespace Tipper
                 var history =
                     rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).ToList();
                 datapoint.Inputs = (BuildInputs(history, m, interpretation));
-                datapoint.Outputs = (new List<double>()
-                {
-                    Numbery.Normalise(m.HomeScore().Total(), Util.MaxScore),
-                    Numbery.Normalise(m.AwayScore().Total(), Util.MaxScore)
-                });
+                datapoint.Outputs = DataInterpreter.BuildOutputs(m, NormalisationMethod).ToList();
                 datapoint.Reference = m;
                 data.DataPoints.Add(datapoint);
             }
             return data;
-        }
-
-        public List<Match> PredictNext(DateTime date, bool print)
-        {
-            var round = GetRoundFromDate(date);
-            return Predict(date.Year, round.Number + 1, print);
-        }
-
-        public List<Match> Predict(int year, int round, bool print)
-        {
-
-            Func<double, double> rule = (m => m > 27.0 ? 15.00 : 0.00);
-
-            var results = new List<Match>();
-            var rounds = League.GetRounds(0, 0, year, round).Where(x => x.Matches.Count > 0).ToList();
-
-            foreach (var m in rounds.Where(r => (r.Year == year && r.Number == round)).SelectMany(r => r.Matches))
-            {
-                var history =
-                    rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).ToList();
-                var test = BuildInputs(history, m);
-
-                var result = Net.Run(test);
-                results.Add(new Match(
-                    m.Home,
-                    new Score(0, 0),
-                    new Score(0, 0),
-                    new Score(0, 0),
-                    new Score(
-                        Numbery.Denormalise(result[0], Util.MaxGoals),//, Numbery.NormalisationMethod.Asymptotic),
-                        Numbery.Denormalise(result[1], Util.MaxPoints)//, Numbery.NormalisationMethod.Asymptotic)
-                        ),
-                    m.Away,
-                    new Score(0, 0),
-                    new Score(0, 0),
-                    new Score(0, 0),
-                    new Score(
-                        Numbery.Denormalise(result[2], Util.MaxGoals),//, Numbery.NormalisationMethod.Asymptotic),
-                        Numbery.Denormalise(result[3], Util.MaxPoints)//, Numbery.NormalisationMethod.Asymptotic)
-                        ),
-                    m.Ground, m.Date));
-
-                var margin = Math.Abs(results.Last().HomeScore().Total() - results.Last().AwayScore().Total());
-                var wager = rule(margin);
-
-                if (print)
-                    Console.WriteLine("{0,9} Vs {1, 9}: {2}, Bet: ${3:0.00}",
-                        m.Home.Mascot, m.Away.Mascot,
-                                      Printlayer(new[]
-                                      {
-                                          results.Last().HomeScore().Goals,
-                                          results.Last().HomeScore().Points,
-                                          results.Last().HomeScore().Total(),
-                                          results.Last().AwayScore().Goals,
-                                          results.Last().AwayScore().Points,
-                                          results.Last().AwayScore().Total()
-                                      }),wager);
-            }
-            return results;
         }
 
         public void PredictWinner(int year, int round, bool print, List<List<int>> interpretation = null)
@@ -148,11 +86,7 @@ namespace Tipper
                 if (print)
                     Console.WriteLine("{0,9}|{1, 9}|{2}",
                         m.Home.Mascot, m.Away.Mascot,
-                                      Printlayer(new[]
-                                      {
-                                          Numbery.Denormalise(result[0], Util.MaxScore),//, Numbery.NormalisationMethod.Asymptotic),
-                                          Numbery.Denormalise(result[1], Util.MaxScore)//, Numbery.NormalisationMethod.Asymptotic),
-                                      }));
+                        Printlayer(DataInterpreter.RetrieveOutputs(result, NormalisationMethod).ToArray()));
             }
         }
 
@@ -189,17 +123,17 @@ namespace Tipper
 
                 var history =
                     rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).ToList();
-                data.DataPoints.Add(AFLDataInterpreterTotal.New().BuildDataPoint(history, m));
+                data.DataPoints.Add(DataInterpreter.BuildDataPoint(history, m, NormalisationMethod));
             }
             return data;
         }
 
-        public static List<double> BuildInputs(List<Match> history, Match m, List<List<int>> interpretation = null)
+        public List<double> BuildInputs(List<Match> history, Match m, List<List<int>> interpretation = null)
         {
             if (interpretation == null)
                 interpretation = AFLDataInterpreter.Interpretations.BespokeLegacyInterpretation;
 
-            var input = AFLDataInterpreterTotal.New().BuildInputs(history, m, interpretation);
+            var input = DataInterpreter.BuildInputs(history, m, interpretation);
             return input;
         }
 
