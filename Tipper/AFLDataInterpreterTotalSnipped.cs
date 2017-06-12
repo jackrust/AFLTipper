@@ -6,7 +6,7 @@ using Utilities;
 
 namespace Tipper
 {
-    public class AFLDataInterpreterTotal : AFLDataInterpreter
+    public class AFLDataInterpreterTotalSnipped : AFLDataInterpreter
     {
         #region Inputs
         protected override IEnumerable<double> ExtractInputSetForScore(Match m, List<Match> matches, int term,
@@ -44,8 +44,8 @@ namespace Tipper
         {
             return (new List<double>()
             {
-                Numbery.Normalise(match.HomeScore().Total(), Util.MaxScore, normalisationMethod),
-                Numbery.Normalise(match.AwayScore().Total(), Util.MaxScore, normalisationMethod)
+                Numbery.Normalise(match.HomeScore().Total(), Util.MaxReasonableScore, normalisationMethod),
+                Numbery.Normalise(match.AwayScore().Total(), Util.MaxReasonableScore, normalisationMethod)
             });
         }
 
@@ -53,9 +53,20 @@ namespace Tipper
         {
             return (new List<double>()
             {
-                Numbery.Denormalise(result[0], Util.MaxScore, normalisationMethod),
-                Numbery.Denormalise(result[1], Util.MaxScore, normalisationMethod)
+                Numbery.Denormalise(result[0], Util.MaxReasonableScore, normalisationMethod),
+                Numbery.Denormalise(result[1], Util.MaxReasonableScore, normalisationMethod)
             });
+        }
+        #endregion
+
+        #region constants
+        public new static double GetMaxSeasonTotal(double rounds)
+        {
+            //TODO magic number galore
+            if (rounds < 1) return 0;
+            var a = (1800/23);
+            var b = 200 - a;
+            return a*rounds + b;
         }
         #endregion
 

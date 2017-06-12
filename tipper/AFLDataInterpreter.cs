@@ -308,6 +308,11 @@ namespace Tipper
         #endregion
 
         #region constants
+        public static double GetMaxSeasonShots(double rounds)
+        {
+            return Util.MaxShots * rounds;
+        }
+        
         public static double GetMaxSeasonMargin(double rounds)
         {
             return Util.MaxMargin * rounds;

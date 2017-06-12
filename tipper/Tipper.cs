@@ -11,10 +11,11 @@ namespace Tipper
 {
     public class Tipper
     {
+        public static int FirstYear = 2000;
         public static int NumInputs = 18;
         public static int NumOutputs = 4;
         public static int DefaultHiddens = 5;
-        public AFLDataInterpreter DataInterpreter = new AFLDataInterpreterTotal();
+        public AFLDataInterpreter DataInterpreter = new AFLDataInterpreterTotalSnipped();
         public Numbery.NormalisationMethod NormalisationMethod = Numbery.NormalisationMethod.Asymptotic;
         public League League;
         public Network Net;
@@ -23,8 +24,7 @@ namespace Tipper
         {
             var db = new MongoDb();
             League = new League();
-            //TODO:REMOVE
-            League.Seasons = db.ReadSeasonDocument().Where(x => x.Year >= 2003).ToList();
+            League.Seasons = db.ReadSeasonDocument().Where(x => x.Year >= FirstYear).ToList();
             Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
         }
 

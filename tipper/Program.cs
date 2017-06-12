@@ -547,7 +547,7 @@ namespace Tipper
         {
             Console.WriteLine("Layers|Neurons|Epochs|Training|Testing|Years|Shared|Day|State|Ground|Team|Network|Time|Accuracy");
             var year = 2016;
-            var filename = @"TestResults\test_" + year + ".txt";
+            var filename = @"TestResults\test_" + DateTime.Now.ToString("yyyyMMddHHmmss") +".txt";
 
             var multiDimensionalTester = new MultiDimensionalTester.MultiDimensionalTester();
             //Num Layers
@@ -561,7 +561,7 @@ namespace Tipper
             //Testing Season
             multiDimensionalTester.AddParameterGroup(new List<int> { year });
             //Normalisation
-            multiDimensionalTester.AddParameterGroup(new List<int> { 0, 1 });
+            multiDimensionalTester.AddParameterGroup(new List<int> { 0, 1 , 2, 3, 4});
 
             for (int i = 0; i < 10; i++)
             {
@@ -659,6 +659,12 @@ namespace Tipper
             var testingData = tipper.GetMatchDataBetween(testing, roundStart, testing, roundEnd, interpretation);
             trainingData.SuccessCondition = SuccessConditionTotalPrint;
             testingData.SuccessCondition = SuccessConditionTotalPrint;
+            //Console.WriteLine(trainingData.Inputs()[0].Select(i => i.ToString()).Aggregate((i, j) => i.ToString() + "," + j.ToString())); //this was for your art project, feel free to delete
+            //Console.WriteLine(trainingData.Outputs()[0].Select(i => i.ToString()).Aggregate((i, j) => i.ToString() + "," + j.ToString()));
+            //Console.WriteLine(trainingData.Inputs().Select(i => i.Max()).Max());
+            //Console.WriteLine(trainingData.Inputs().Select(i => i.Min()).Min());
+            var fullinputs = trainingData.Inputs().SelectMany(i => i).ToList();
+            Filey.Append(fullinputs.Select(i => String.Format("{0:N2}", i)).Aggregate((i, j) => i + "," + j), @"TestResults\temp_inputs_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt");
             stopWatch.Start();
             tipper.Net = Network.CreateNetwork(trainingData, numberOfHiddenLayers, numberOfHiddenNeuronsPerLayer,
                 TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);

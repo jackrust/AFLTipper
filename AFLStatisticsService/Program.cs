@@ -54,7 +54,7 @@ namespace AFLStatisticsService
             }
 
             //update db
-            db.UpdatePlayerDocument(players.Select(p => p.Bsonify()).ToList());
+            //db.UpdatePlayerDocument(players.Select(p => p.Bsonify()).ToList());
         }
 
         private static void CreatePlayers(MongoDb db)
