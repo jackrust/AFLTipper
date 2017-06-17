@@ -15,8 +15,8 @@ namespace Tipper
         public static int NumInputs = 18;
         public static int NumOutputs = 4;
         public static int DefaultHiddens = 5;
-        public AFLDataInterpreter DataInterpreter = new AFLDataInterpreterTotalSnipped();
-        public Numbery.NormalisationMethod NormalisationMethod = Numbery.NormalisationMethod.Asymptotic;
+        public AFLDataInterpreter DataInterpreter = new AFLDataInterpreterTotal();
+        public Numbery.NormalisationMethod NormalisationMethod = Numbery.NormalisationMethod.Normal;
         public League League;
         public Network Net;
 

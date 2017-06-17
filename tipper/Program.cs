@@ -561,7 +561,7 @@ namespace Tipper
             //Testing Season
             multiDimensionalTester.AddParameterGroup(new List<int> { year });
             //Normalisation
-            multiDimensionalTester.AddParameterGroup(new List<int> { 0, 1 , 2, 3, 4});
+            multiDimensionalTester.AddParameterGroup(new List<int> { 4});
 
             for (int i = 0; i < 10; i++)
             {
@@ -584,7 +584,8 @@ namespace Tipper
                 = (int)args[5] == 0 ? Numbery.NormalisationMethod.Normal
                 : (int)args[5] == 1 ? Numbery.NormalisationMethod.Gradiated
                 : (int)args[5] == 2 ? Numbery.NormalisationMethod.Asymptotic 
-                : (int)args[5] == 3 ? Numbery.NormalisationMethod.AsymptoticSharp
+                : (int)args[5] == 3 ? Numbery.NormalisationMethod.AsymptoticSharp 
+                : (int)args[5] == 4 ? Numbery.NormalisationMethod.AsymptoticExtraSharp
                 : Numbery.NormalisationMethod.AsymptoticSmooth;
 
             var interpretationTeamScore 
