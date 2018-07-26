@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
 using Utilities;
@@ -40,27 +41,11 @@ namespace Tipper
         #endregion
 
         #region Outputs
-        public override IEnumerable<double> BuildOutputs(Match match, Numbery.NormalisationMethod normalisationMethod)
-        {
-            var homeWin = match.IsWinningTeam(match.Home) ? 1.0 : match.IsWinningTeam(match.Away) ? 0.0 : 0.5;
-            var awayWin = 1.0 - homeWin;
-            return (new List<double>()
-            {
-                Numbery.Normalise(Math.Abs(match.HomeScore().Total() - match.AwayScore().Total()), Util.MaxScore, normalisationMethod),
-                Numbery.Normalise(Math.Abs(match.HomeScore().Total() + match.AwayScore().Total()), Util.MaxScore, normalisationMethod),
-                Numbery.Normalise(homeWin, Util.MaxScore, normalisationMethod),
-                Numbery.Normalise(awayWin, Util.MaxScore, normalisationMethod),
-            });
-        }
-
-        public override IEnumerable<double> RetrieveOutputs(List<double> result, Numbery.NormalisationMethod normalisationMethod)
+        public override IEnumerable<double> BuildOutputs(Match m)
         {
             return (new List<double>()
             {
-                Numbery.Denormalise(result[0], Util.MaxScore, normalisationMethod),
-                Numbery.Denormalise(result[1], Util.MaxScore, normalisationMethod),
-                Numbery.Denormalise(result[2], Util.MaxScore, normalisationMethod),
-                Numbery.Denormalise(result[3], Util.MaxScore, normalisationMethod)
+                Numbery.Normalise(m.HomeScore().Total(), Util.MaxScore) - Numbery.Normalise(m.AwayScore().Total(), Util.MaxScore)
             });
         }
         #endregion

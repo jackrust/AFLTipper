@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using AForge.Neuro;
+using AForge.Neuro.Learning;
 using ArtificialNeuralNetwork;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
-using GeneticAlgorithm;
-using GeneticAlgorithm.TraitTypes;
-using GeneticAlgorithm.V2;
 using GeneticArtificialNeuralNetwork;
 using Tipper.Betting;
 using Utilities;
@@ -46,11 +45,11 @@ namespace Tipper
                     case ("F"):
                         TipFullSeason();
                         break;
-                    case ("GT"):
+                    case ("G"):
                         GeneticAlgorithmTest();
                         break;
-                    case ("G"):
-                        GeneticTestComplete();
+                    case ("N"):
+                        TipNextRound();
                         break;
                     case ("O"):
                         TestOptimizer();
@@ -61,8 +60,14 @@ namespace Tipper
                     case ("Q"):
                         loop = false;
                         break;
+                    case ("S"):
+                        TipSpecific();
+                        break;
                     case ("T"):
                         Testing();
+                        break;
+                    case ("TEMP"):
+                        Temp();
                         break;
                     case ("?"):
                         ListOptions();
@@ -354,227 +359,216 @@ namespace Tipper
         #region Genetic Algorithm
         private static void GeneticAlgorithmTest()
         {
-            Console.WriteLine("Setting up genetic algorithm environment");
-            var genes = new List<GeneticAlgorithm.V2.GeneDefinition>()
-            {
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=0,Max=5},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=0,Max=5},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=0,Max=10},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=0,Max=5},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=0,Max=5},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=0,Max=10}
-            };
+            const int idealPopulation = 25;
+            const int maxLoops = 4;
 
-            var experiment = new GeneticAlgorithm.V2.Experiment()
-            {
-                GeneDefinitions = genes,
-                EvaluationCallbacks = new List<Func<List<double>, double>>(){ EvaluationCallback},
-                Generations = 50,
-                CorePopulation = 10
-            };
-            experiment.Run();
-
-            var result = experiment.Test(EvaluationMethod);
-            Console.WriteLine("Result: {0:N2}", result);
-            Console.ReadLine();
-        }
-
-        public static double EvaluationCallback(List<double> values)
-        {
-            const int target = 250;
-            var result = EvaluationMethod(values);
-            var err = Math.Abs(target-result);
-            return err;
-        }
-
-        public static double EvaluationMethod(List<double> values)
-        {
-            if (values.Count != 6)
-                Console.WriteLine("Wrong number of genes in callback {0}", values.Count);
-
-            var a = values[0];
-            var b = values[1];
-            var c = values[2];
-            var d = values[3];
-            var e = values[4];
-            var f = values[5];
-            var result = (a * b) * (10 - c) + (d * e) * (10 - f);
-            return result;
-        }
-
-        #endregion
-
-        #region Genetic Test Complete
-
-        private static void GeneticTestComplete()
-        {
-            Console.WriteLine("Setting up genetic algorithm environment");
-            var year = 2016;
-            var filename = @"TestResultsGA\test_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt";
-            var genes = new List<GeneticAlgorithm.V2.GeneDefinition>()
-            {
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=1,Max=2, Reference = "Layers"},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=1,Max=9, Reference = "Neurons"},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=50,Max=500, Reference = "Epochs"},//500
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=9,Max=9, Reference = "Training"},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=year,Max=year, Reference = "Testing"},
-                new GeneticAlgorithm.V2.GeneDefinition(){Min=0,Max=0, Reference = "Normalisation"},
-                //TODO: Upgrade these to allow 2D
-                //Scores
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ScoreTeam" },
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ScoreGround" },
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ScoreState" },
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ScoreDay" },
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ScoreShared" },
-                //Shots
-                
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ShotTeam" },
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ShotGround" },
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ShotState" },
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ShotDay" },
-                new GeneticAlgorithm.V2.GeneDefinition() { Min = 1, Max = 37, Reference = "ShotShared" },
-            };
-
-            Console.WriteLine("Layers|Neurons|Epochs|Training|Testing|Years|Normalisation|Shared|Day|State|Ground|Team|Network|Time|Accuracy");
-
-            var experiment = new GeneticAlgorithm.V2.Experiment()
-            {
-                GeneDefinitions = genes,
-                EvaluationCallbacks = new List<Func<List<double>, double>> { MultiDimensionalCallbackTester2015, MultiDimensionalCallbackTester2016},
-                Generations = 30,
-                CorePopulation = 10
-            };
-
-            experiment.Run();
-            Console.WriteLine("Done!");
-            //var result = experiment.Test(EvaluationMethod);
-            //Console.WriteLine("Result: {0:N2}", result);
-        
-            //var output = multiDimensionalTester.Run();
-            //Filey.Append(output, filename);
-            Console.ReadLine();
-        }
-
-        public static double MultiDimensionalCallbackTester2015(List<double> values)
-        {
-            return MultiDimensionalCallbackTester(values, 2015);
-        }
-
-        public static double MultiDimensionalCallbackTester2016(List<double> values)
-        {
-            return MultiDimensionalCallbackTester(values, 2016);
-        }
-
-        public static double MultiDimensionalCallbackTester(List<double> values, int year)
-        {
-            var roundedValues = values.Select(Convert.ToInt32).ToList();
-            var numberOfHiddenLayers = (int)roundedValues[0];
-            var numberOfHiddenNeuronsPerLayer = (int)roundedValues[1];
-            var maximumNumberOfEpochs = (int)roundedValues[2];
-            var training = year - (int)roundedValues[3];
-            //TODO: don't be lazy, move this, don't ignore it
-            var testing = year;//(int)roundedValues[4];
-            var normalisation
-                = (int)roundedValues[5] == 0 ? Numbery.NormalisationMethod.Normal
-                : (int)roundedValues[5] == 1 ? Numbery.NormalisationMethod.Gradiated
-                : (int)roundedValues[5] == 2 ? Numbery.NormalisationMethod.Asymptotic
-                : (int)roundedValues[5] == 3 ? Numbery.NormalisationMethod.AsymptoticSharp
-                : (int)roundedValues[5] == 4 ? Numbery.NormalisationMethod.AsymptoticExtraSharp
-                : Numbery.NormalisationMethod.AsymptoticSmooth;
-
-            var interpretationTeamScore= new List<int>(){ roundedValues[6]};
-            var interpretationGroundScore= new List<int>(){roundedValues[7]};
-            var interpretationStateScore= new List<int>(){roundedValues[8]};
-            var interpretationDayScore= new List<int>(){roundedValues[9]};
-            var interpretationSharedScore= new List<int>(){roundedValues[10]};
-
-            var interpretationTeamShots = new List<int>() { roundedValues[11] };
-            var interpretationGroundShots = new List<int>() { roundedValues[12] };
-            var interpretationStateShots = new List<int>() { roundedValues[13] };
-            var interpretationDayShots = new List<int>() { roundedValues[14] };
-            var interpretationSharedShots = new List<int>() { roundedValues[15] };
-            
-            List<List<int>> interpretation = new List<List<int>>
-            {
-                interpretationTeamScore, interpretationGroundScore, interpretationStateScore, interpretationDayScore, interpretationSharedScore, 
-                interpretationTeamShots, interpretationGroundShots, interpretationStateShots, interpretationDayShots, interpretationSharedShots
-            };
+            //Load inputs for full full Dataset
+            Console.WriteLine("Creating Tipper, Dataset etc.");
+            var guid = Guid.NewGuid().ToString();
             var tipper = new Tipper();
-            tipper.NormalisationMethod = normalisation;
+            List<int> numGames = tipper.League.Seasons.Select(s => s.GetMatches().Count).ToList();
+            var data = tipper.BuildFullDataSet();
 
-            var stopWatch = new Stopwatch();
-            var trainingStart = training;
-            var trainingEnd = testing - 1;
+            //                
+            var datatrain = new Data();
+            var datatest = new Data();
+            datatrain.SuccessCondition = SuccessConditionTotalPrint;
+            datatest.SuccessCondition = SuccessConditionTotalPrint;
 
-            var roundStart = 0;
-            var roundEnd = 23;
+            const int numScenarios = 3;
+            var modulo = 0 % numScenarios;
+            //0 = (start of 2011 season, end of 2014 season)
+            //1 = (start of 2010 season, end of 2013 season)
+            //2 = (start of 2009 season, end of 2012 season)
+            ////3 = (start of 2008 season, end of 2011 season)
 
-
-            var trainingData = tipper.GetMatchDataBetween(trainingStart, roundStart, trainingEnd + 1, 0, interpretation);
-            var testingData = tipper.GetMatchDataBetween(testing, roundStart, testing, roundEnd, interpretation);
-            trainingData.SuccessCondition = SuccessConditionTotalPrint;
-            testingData.SuccessCondition = SuccessConditionTotalPrint;
-            //Console.WriteLine(trainingData.Inputs()[0].Select(i => i.ToString()).Aggregate((i, j) => i.ToString() + "," + j.ToString())); //this was for your art project, feel free to delete
-            //Console.WriteLine(trainingData.Outputs()[0].Select(i => i.ToString()).Aggregate((i, j) => i.ToString() + "," + j.ToString()));
-            //Console.WriteLine(trainingData.Inputs().Select(i => i.Max()).Max());
-            //Console.WriteLine(trainingData.Inputs().Select(i => i.Min()).Min());
-            var fullinputs = trainingData.Inputs().SelectMany(i => i).ToList();
-            Filey.Append(fullinputs.Select(i => String.Format("{0:N2}", i)).Aggregate((i, j) => i + "," + j), @"TestResults\temp_inputs_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt");
-            stopWatch.Start();
-            tipper.Net = Network.CreateNetwork(trainingData, numberOfHiddenLayers, numberOfHiddenNeuronsPerLayer,
-                TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
-            tipper.Net.MaxEpochs = maximumNumberOfEpochs;
-            tipper.Net.Train(trainingData.Inputs(), trainingData.Outputs());
-            stopWatch.Stop();
-
-            var successes =
-                testingData.Inputs()
-                    .Select(t => tipper.Net.Run(t))
-                    .Where(
-                        (result, i) =>
-                            testingData.SuccessCondition(result, testingData.DataPoints[i].Outputs, null))
-                    .Count();
-            var successRate = 100 * (double)successes / testingData.DataPoints.Count;
-
-            var index = 0;
-            foreach (var m in testingData.Inputs())
+            var start = 0;
+            var size = 0;
+            var completedGames = numGames.Count - 1;
+            for (var i = 1; i < completedGames; i++)
             {
-                var result = tipper.Net.Run(m);
-                testingData.SuccessCondition(result, testingData.DataPoints[index].Outputs,
-                    @"Tips\test_" +
-                    DateTime.Now.ToString("yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture) +
-                    "_" + tipper.Net.Id + "_tips.txt");
-                index++;
+                if (i < numScenarios - (modulo))
+                {
+                    start += numGames[i];
+                }
+                else if (i < (completedGames - (modulo + 1)))
+                {
+                    size += numGames[i];
+                }
+            }
+            datatrain.DataPoints = data.DataPoints.GetRange(start, size);
+            datatest.DataPoints = data.DataPoints.GetRange(start + size, numGames[numGames.Count - (modulo + 1)]);
+
+
+            //Total inputs: 8 * 5 * 6 = 240
+            Console.WriteLine("Creating list of actors...");
+
+            //Create first population
+            var actors = new List<NetworkActor>();
+
+            Console.WriteLine("Starting generational loop...");
+            //Repeat a bunch of times
+            var loop = 0;
+            while (loop < maxLoops)
+            {
+                Console.WriteLine("Stating new generation...");
+
+                loop++;
+
+                Repopulate(actors, idealPopulation, loop);
+
+                foreach (var actor in actors)
+                {
+                    if (actor.Network.Error <= 0.0001)
+                    {
+                        Console.Write(actor.Id + ", ");
+                        //Train population
+                        actor.Train(datatrain);
+                    }
+                    //Test population
+                    actor.Test(datatest);
+                }
+
+                //Sort Best to worst
+                actors.Sort((x, y) => y.GetFitness().CompareTo(x.GetFitness()));
+
+                //Save all
+                SaveActors(actors, guid, loop);
+                SaveLog(actors, guid, loop);
+
+                //cull the weakest
+                actors.RemoveRange(actors.Count / 3, (actors.Count * 2 / 3));
+
+                foreach (var actor in actors)
+                {
+                    Console.WriteLine("Actor has a success rate of {0}%", actor.GetFitness());
+                }
+            }
+            Console.WriteLine("Actor {0} has a success rate of {1}%", 0, actors[0].GetFitness());
+            Console.ReadLine();
+        }
+
+        public static List<NetworkActor> Repopulate(List<NetworkActor> actors, int targetPopulation, int generation)
+        {
+            const int minPopulation = 10;
+            const int numOutputs = 2;
+            var count = actors.Count;
+            var random = new Random(DateTime.Now.Millisecond + DateTime.Now.Second + DateTime.Now.Minute);
+
+            if (count == 0)
+            {
+                actors.Add(GetBestGuessActor());
+            }
+            if (count < minPopulation)
+            {
+                for (var i = count; i < targetPopulation; i++)
+                {
+                    var actorGenes = NetworkActorGenes.GenerateRandomRepresentative(random);
+                    actors.Add(actorGenes.GenerateActor(numOutputs));
+                }
+            }
+            else
+            {
+                var actorGenes = NetworkActorGenes.GenerateRepresentative(actors, random);
+                for (var i = count; i < targetPopulation; i++)
+                {
+                    actors.Add(actorGenes.GenerateActor(numOutputs));
+                }
             }
 
-            var time = ((double)stopWatch.ElapsedMilliseconds / 1000);
-            /*var output = String.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}|{12}|{13:N2}|{14:N2}%", (int)roundedValues[0],
-                (int)roundedValues[1], (int)roundedValues[2], (int)roundedValues[3], year, (testing - training),
-                (int)roundedValues[5] == 0 ? "Normal" : (int)roundedValues[5] == 1 ? "Gradiated" : (int)roundedValues[5] == 2 ? "Asymptotic" : (int)roundedValues[5] == 3 ? "AsymptoticSharp" : "AsymptoticSmooth",
-                string.Join(",", interpretationSharedScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationDayScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationStateScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationGroundScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationTeamScore.Select(n => n.ToString()).ToArray()),
-                tipper.Net.Id, time,
-                successRate);*/
-            var output = String.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}|{12}|{13}|{14}|{15}|{16}|{17}|{18:N2}|{19:N2}%", (int)roundedValues[0],
-                (int)roundedValues[1], (int)roundedValues[2], (int)roundedValues[3], year, (testing - training),
-                (int)roundedValues[5] == 0 ? "Normal" : (int)roundedValues[5] == 1 ? "Gradiated" : (int)roundedValues[5] == 2 ? "Asymptotic" : (int)roundedValues[5] == 3 ? "AsymptoticSharp" : "AsymptoticSmooth",
-                string.Join(",", interpretationSharedScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationDayScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationStateScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationGroundScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationTeamScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationSharedShots.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationDayShots.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationStateShots.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationGroundShots.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationTeamShots.Select(n => n.ToString()).ToArray()),
-                tipper.Net.Id, time,
-                successRate);
-            Console.WriteLine(output);
-            return 100 - successRate;
+            foreach (var actor in actors)
+            {
+                actor.Generations.Add(generation);
+                actor.RefreshNetwork();
+            }
+
+            return actors;
+        }
+
+        private static NetworkActor GetBestGuessActor()
+        {
+            const int outputs = 2;
+            const int hiddens = 1;
+            var controlFacade = new DataFacadeGrouped();
+            controlFacade.SetMask(new List<bool>
+                {
+                    true, false, false, true, false,
+                    true, false, false, true, false,
+                    true, false, false, true, false,
+                    true, false, false, true, false,
+                    true, false, false, true, false,
+                    true, false, false, true, false
+                });
+
+            var actor = new NetworkActor(controlFacade, new List<int> { hiddens }, outputs);
+            return actor;
+        }
+
+        private static void SaveActors(List<NetworkActor> actors, string guid, int loop)
+        {
+            var str = "";
+            foreach (var actor in actors)
+            {
+                Network.Save(actor.Network);
+            }
+            foreach (var actor in actors)
+            {
+                str += "<actor>\n";
+                str += actor.Stringify() + "\n";
+                str += "</actor>\n";
+            }
+
+            Filey.Save(str, "GeneticArtificialNeuralNetwork/" + guid + "-" + loop + ".gann");
+        }
+
+        private static void SaveLog(List<NetworkActor> actors, string guid, int loop)
+        {
+            var filename = "GeneticArtificialNeuralNetworkLog/" + guid + "-" + loop + ".gann";
+            var str = Filey.Load(filename);
+            str += "===============" + "\n";
+            str += "Generation:    " + loop + "\n";
+            str += "===============" + "\n";
+            foreach (var actor in actors)
+            {
+                str += "Actor:         " + actor.Name + "\n";
+                str += "Network:       " + actor.Network.Id + "\n";
+                str += "SuccessRate:   " + actor.GetFitness() + "\n";
+                str += "Generations:   " + string.Join(",", actor.Generations.Select(x => x.ToString()).ToArray()) + "\n";
+                str += "Subset:        " + string.Join(",", actor.Facade.GetMask().Select(x => x.ToString()).ToArray()) + "\n";
+                str += "Time to train: " + actor.TimeToTrain + "\n";
+                str += "Time to test:  " + actor.TimeToTest + "\n";
+                str += "...\n";
+            }
+
+            Filey.Save(str, filename);
+        }
+        #endregion
+
+        #region Tip next round
+        private static void TipNextRound()
+        {
+            Console.WriteLine("Start");
+            Console.WriteLine("Creating Tipper...");
+            var tipper = new Tipper();
+            var date = DateTime.Now;
+
+            Console.WriteLine("Init Neural Network...");
+            var trainingData = tipper.GetMatchDataBetween(2010, 0, 2014, 23);
+            var testingData = tipper.GetMatchDataBetween(2015, 0, 2015, 23);
+
+            Console.WriteLine("Create network...");
+            var example = Network.Load("Network/91728224-2685-4f6d-a0f9-fb23a0968389.ann");
+            tipper.Net = Network.CreateNetwork(trainingData, example.HLayers.Count, example.HLayers[0].Count, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
+
+            Console.WriteLine("Test network 2015");
+            var successes = testingData.Inputs().Select(t => tipper.Net.Run(t)).Where((result, i) => testingData.SuccessCondition(result, testingData.DataPoints[i].Outputs, null)).Count();
+            var successRate = 100 * (double)successes / testingData.DataPoints.Count;
+            Console.WriteLine("Success rate: {0:N2}", successRate);
+
+            Console.WriteLine("Tip 2015 round...");
+            var tips = tipper.PredictNext(date, true);
+            //Console.WriteLine("..." + tips[0].HomeScore());
+            Console.Read();
         }
         #endregion
 
@@ -588,9 +582,9 @@ namespace Tipper
 
         public static void MetaTest(int index)
         {
-            Console.WriteLine("Layers|Neurons|Epochs|Training|Testing|Years|Normalisation|Shared|Day|State|Ground|Team|Network|Time|Accuracy");
+            Console.WriteLine("Layers|Neurons|Epochs|Training|Testing|Years|Shared|Day|State|Ground|Team|Network|Time|Accuracy");
             var year = 2016;
-            var filename = @"TestResults\test_" + DateTime.Now.ToString("yyyyMMddHHmmss") +".txt";
+            var filename = @"TestResults\test_" + year + ".txt";
 
             var multiDimensionalTester = new MultiDimensionalTester.MultiDimensionalTester();
             //Num Layers
@@ -603,8 +597,6 @@ namespace Tipper
             multiDimensionalTester.AddParameterGroup(new List<int> { year-9});
             //Testing Season
             multiDimensionalTester.AddParameterGroup(new List<int> { year });
-            //Normalisation
-            multiDimensionalTester.AddParameterGroup(new List<int> { 4});
 
             for (int i = 0; i < 10; i++)
             {
@@ -623,40 +615,33 @@ namespace Tipper
             var maximumNumberOfEpochs = (int)args[2];
             var training = (int)args[3];
             var testing = (int)args[4];
-            var normalisation 
-                = (int)args[5] == 0 ? Numbery.NormalisationMethod.Normal
-                : (int)args[5] == 1 ? Numbery.NormalisationMethod.Gradiated
-                : (int)args[5] == 2 ? Numbery.NormalisationMethod.Asymptotic 
-                : (int)args[5] == 3 ? Numbery.NormalisationMethod.AsymptoticSharp 
-                : (int)args[5] == 4 ? Numbery.NormalisationMethod.AsymptoticExtraSharp
-                : Numbery.NormalisationMethod.AsymptoticSmooth;
 
             var interpretationTeamScore 
-                = (int)args[6] == 0 ? new List<int> {1, 3, 5}
-                : (int)args[6] == 1 ? new List<int> {9, 13, 17} 
-                : (int)args[6] == 2 ? new List<int> {25, 31, 37}
+                = (int) args[5] == 0 ? new List<int> {1, 3, 5}
+                : (int) args[5] == 1 ? new List<int> {9, 13, 17} 
+                : (int) args[5] == 2 ? new List<int> {25, 31, 37}
                 : new List<int> {1, 3, 5, 9, 13, 17, 25, 31, 37};
             var interpretationGroundScore 
-                = (int)args[7] == 0 ? new List<int> { 1, 3, 5 }
-                : (int)args[7] == 1 ? new List<int> { 9, 13, 17 } 
-                : (int)args[7] == 2 ? new List<int> { 25, 31, 37 }
+                = (int)args[6] == 0 ? new List<int> { 1, 3, 5 }
+                : (int)args[6] == 1 ? new List<int> { 9, 13, 17 } 
+                : (int) args[6] == 2 ? new List<int> { 25, 31, 37 }
                 : new List<int> { 1, 3, 5, 9, 13, 17, 25, 31, 37 };
             var interpretationStateScore 
-                = (int)args[8] == 0 ? new List<int> { 1, 3, 5 }
-                : (int)args[8] == 1 ? new List<int> { 9, 13, 17 } 
-                : (int)args[8] == 2 ? new List<int> { 25, 31, 37 }
+                = (int)args[7] == 0 ? new List<int> { 1, 3, 5 }
+                : (int)args[7] == 1 ? new List<int> { 9, 13, 17 } 
+                : (int) args[7] == 2 ? new List<int> { 25, 31, 37 }
                 : new List<int> { 1, 3, 5, 9, 13, 17, 25, 31, 37 };
             var interpretationDayScore 
-                = (int)args[9] == 0 ? new List<int> { 1, 3, 5 }
-                : (int)args[9] == 1 ? new List<int> { 9, 13, 17 } 
-                : (int)args[9] == 2 ? new List<int> { 25, 31, 37 }
+                = (int)args[8] == 0 ? new List<int> { 1, 3, 5 }
+                : (int)args[8] == 1 ? new List<int> { 9, 13, 17 } 
+                : (int) args[8] == 2 ? new List<int> { 25, 31, 37 }
                 : new List<int> { 1, 3, 5, 9, 13, 17, 25, 31, 37 };
             var interpretationSharedScore 
-                = (int)args[10] == 0 ? new List<int> { 1, 3, 5 }
-                : (int)args[10] == 1 ? new List<int> { 9, 13, 17 } 
-                : (int)args[10] == 2 ? new List<int> { 25, 31, 37 }
+                = (int)args[9] == 0 ? new List<int> { 1, 3, 5 }
+                : (int)args[9] == 1 ? new List<int> { 9, 13, 17 } 
+                : (int) args[9] == 2 ? new List<int> { 25, 31, 37 }
                 : new List<int> { 1, 3, 5, 9, 13, 17, 25, 31, 37 };
-            /*
+
             var interpretationTeamShots
                 = (int)args[10] == 0 ? new List<int> { 1, 3, 5 }
                 : (int)args[10] == 1 ? new List<int> { 9, 13, 17 }
@@ -682,14 +667,13 @@ namespace Tipper
                 : (int)args[14] == 1 ? new List<int> { 9, 13, 17 }
                 : (int)args[14] == 2 ? new List<int> { 25, 31, 37 }
                 : new List<int> { 1, 3, 5, 9, 13, 17, 25, 31, 37 };
-            */
+
             List<List<int>> interpretation = new List<List<int>>
             {
                 interpretationTeamScore, interpretationGroundScore, interpretationStateScore, interpretationDayScore, interpretationSharedScore, 
-                //interpretationTeamShots, interpretationGroundShots, interpretationStateShots, interpretationDayShots, interpretationSharedShots
+                interpretationTeamShots, interpretationGroundShots, interpretationStateShots, interpretationDayShots, interpretationSharedShots
             };
             var tipper = new Tipper();
-            tipper.NormalisationMethod = normalisation;
 
             var stopWatch = new Stopwatch();
             var trainingStart = training;
@@ -703,12 +687,6 @@ namespace Tipper
             var testingData = tipper.GetMatchDataBetween(testing, roundStart, testing, roundEnd, interpretation);
             trainingData.SuccessCondition = SuccessConditionTotalPrint;
             testingData.SuccessCondition = SuccessConditionTotalPrint;
-            //Console.WriteLine(trainingData.Inputs()[0].Select(i => i.ToString()).Aggregate((i, j) => i.ToString() + "," + j.ToString())); //this was for your art project, feel free to delete
-            //Console.WriteLine(trainingData.Outputs()[0].Select(i => i.ToString()).Aggregate((i, j) => i.ToString() + "," + j.ToString()));
-            //Console.WriteLine(trainingData.Inputs().Select(i => i.Max()).Max());
-            //Console.WriteLine(trainingData.Inputs().Select(i => i.Min()).Min());
-            var fullinputs = trainingData.Inputs().SelectMany(i => i).ToList();
-            Filey.Append(fullinputs.Select(i => String.Format("{0:N2}", i)).Aggregate((i, j) => i + "," + j), @"TestResults\temp_inputs_" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".txt");
             stopWatch.Start();
             tipper.Net = Network.CreateNetwork(trainingData, numberOfHiddenLayers, numberOfHiddenNeuronsPerLayer,
                 TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
@@ -737,18 +715,8 @@ namespace Tipper
             }
 
             var time = ((double) stopWatch.ElapsedMilliseconds/1000);
-            var output = String.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}|{12}|{13:N2}|{14:N2}%", (int) args[0],
+            var output = String.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}|{12}|{13}|{14}|{15}|{16}|{17:N2}|{18:N2}%", (int) args[0],
                 (int) args[1], (int) args[2], (int) args[3], (int) args[4], (testing - training),
-                (int)args[5] == 0 ? "Normal" : (int)args[5] == 1 ? "Gradiated" : (int)args[5] == 2 ? "Asymptotic" : (int)args[5] == 3 ? "AsymptoticSharp" : "AsymptoticSmooth",
-                string.Join(",", interpretationSharedScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationDayScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationStateScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationGroundScore.Select(n => n.ToString()).ToArray()),
-                string.Join(",", interpretationTeamScore.Select(n => n.ToString()).ToArray()),
-                tipper.Net.Id, time,
-                successRate);
-            /*var output = String.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}|{11}|{12}|{13}|{14}|{15}|{16}|{17:N2}|{18:N2}%", (int)args[0],
-                (int)args[1], (int)args[2], (int)args[3], (int)args[4], (testing - training),
                 string.Join(",", interpretationSharedScore.Select(n => n.ToString()).ToArray()),
                 string.Join(",", interpretationDayScore.Select(n => n.ToString()).ToArray()),
                 string.Join(",", interpretationStateScore.Select(n => n.ToString()).ToArray()),
@@ -760,10 +728,75 @@ namespace Tipper
                 string.Join(",", interpretationGroundShots.Select(n => n.ToString()).ToArray()),
                 string.Join(",", interpretationTeamShots.Select(n => n.ToString()).ToArray()),
                 tipper.Net.Id, time,
-                successRate);*/
+                successRate);
             Console.WriteLine(output);
             return output;
         }
+
+        private static void Temp()
+        {
+            var year = 2015;
+            var networks = new List<string>
+            {
+                "ef8a7db0-0838-4a25-ae0e-a09b868f7f07",
+                "35dd61d2-c94b-48d9-8294-ca44b04e5da7",
+                "9c219ee4-cf99-45b6-8db2-057ccdaae2c0",
+                "777c4c0f-4363-4409-a588-adf3014dafd0",
+                "48eb4964-10c7-48ad-a147-34ca22fedc8f",
+                "79afbcb8-56e5-46c1-b528-90d3564406c6",
+                "a0bdb52d-6eb0-40b6-a20b-3a9f89bd4bb7",
+                "e8f7d28f-3495-4bcf-9164-c57e185016d5",
+                "2d0c4d2b-7467-4b15-bc0d-d1a6361cb5e7",
+                "41f31e8c-a6a7-4ff9-97c3-5a8f13cd78ee",
+                "e2c4c6af-af04-46dd-8a9c-c951cc93c5fa",
+                "ec66a514-1e39-4012-985a-3cf222307661",
+                "3a4b1cb8-7dc3-49fa-968d-4f3e9e5d8153",
+                "1e10caf9-dc69-4455-aad0-3ec292a726e6",
+                "c4c3125c-bfdb-43a5-92d4-a79fdeb1115e",
+                "aba7edc4-aea3-48f6-b770-4268008f477c",
+                "474ef6c1-be03-4382-a624-b2278daaba87",
+                "3dfd6e5a-08a9-46a3-9524-183f8fdb9a32",
+                "f4a9127d-c9a6-403a-86f8-0ba6476373a0",
+                "1ad6fe85-1b92-4f11-9456-ce557664fedc",
+                "12cf5bf4-8d9a-45c6-b87f-bdefa8f14105",
+                "3ad7e6cd-5303-4c39-ba1c-ab6bf391879e",
+                "3ba1ef43-b149-47c9-a7f5-32a5113b0f8f",
+                "16b708f8-07c9-49f6-8ee1-c9ae9ef95ba5",
+                "07e1d4a0-2c88-4d49-b197-36a374adfc8f",
+                "ca7e9f8a-c00e-4938-86c0-9eb22423ac2d",
+                "3db913c5-5780-418d-8813-f66509d882b5",
+                "793fda46-3e33-4113-a3e7-152d936b79e5",
+                "7ddb1cf3-3818-4662-a0b2-14c9224e9773",
+                "dfa2a2d6-ffba-4134-bf28-1a8da6b28082",
+                "2fd22cd8-63f8-4864-9865-844a3fc6cf92",
+                "c2f293a0-a000-4675-a773-ce4097381118",
+                "f387e025-2251-4125-bf88-927d8693b2f6",
+                "e26ae082-22c6-4cce-8f11-de5347a33cae",
+                "72eb3043-348d-4643-90a0-54f7d225fb23",
+                "f1459d4b-cc33-401b-a62d-bd2b2ea368a7"
+            };
+            var tipper = new Tipper();
+            var testingData = tipper.GetMatchDataBetween(year, 0, year, 23);
+            testingData.SuccessCondition = SuccessConditionTotalPrint;
+
+            foreach (var ann in networks)
+            {
+                tipper.Net = Network.Load("Network/" + ann + ".ann");
+
+                Console.WriteLine("Test network year {0}", year);
+                var successes =
+                    testingData.Inputs()
+                        .Select(t => tipper.Net.Run(t))
+                        .Where(
+                            (result, i) =>
+                                testingData.SuccessCondition(result, testingData.DataPoints[i].Outputs, null))
+                        .Count();
+                var successRate = 100*(double) successes/testingData.DataPoints.Count;
+                Console.WriteLine("Success rate: {0:N2}", successRate);
+                Console.WriteLine();
+            }
+        }
+
         #endregion
 
         #region Tip early rounds
@@ -843,6 +876,78 @@ namespace Tipper
         }
         #endregion
 
+        #region Tip
+        private static void TipSpecific()
+        {
+            Console.WriteLine("Loading data");
+            var tipper = new Tipper();
+            //Based on Test scenario #670
+            var interpretationTeam = new List<int> { 9, 13, 17 };
+            var interpretationGround = new List<int> { 25, 31, 37 };
+            var interpretationState = new List<int> { 1, 3, 5 };
+            var interpretationDay = new List<int> { 25, 31, 37 };
+            var interpretationShared = new List<int> { 25, 31, 37 };
+            List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
+            var trainingData = tipper.GetMatchDataBetween(2008, 0, 2017, 0, interpretation);
+
+            Console.WriteLine("Training network..");
+            tipper.Net = Network.CreateNetwork(trainingData, 1, 3,
+                TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
+            tipper.Net.MaxEpochs = 1000;
+            tipper.Net.Train(trainingData.Inputs(), trainingData.Outputs());
+
+
+
+            Console.WriteLine("Tipping Season...");
+            var tips = tipper.Predict(2017, 1, true);
+
+            Console.Read();
+        }
+        #endregion
+
+        #region TipSeason
+        private static void TipBetSeason()
+        {
+            Console.WriteLine("Start");
+            Console.WriteLine("Creating Tipper...");
+            var tipper = new Tipper();
+            var money = 200.00;
+
+            Console.WriteLine("Init Neural Network...");
+            Network network = new Network(88, new List<int>{1}, 4);
+            Console.WriteLine("Creating training data...");
+            var trainingData = tipper.GetMatchDataBetween(2009, 0, 2011, 24);
+            Console.WriteLine("Creating testing data...");
+            var testingData = tipper.GetMatchDataBetween(2015, 0, 2015, 24);
+
+            Console.WriteLine("Training Neural Network...");
+            network.Train(trainingData.Inputs(), trainingData.Outputs());
+            
+            Console.WriteLine("Testing Neural Network...");
+            var successes = new List<bool>();
+            for (var i = 0; i < testingData.Outputs().Count; i++)
+            {
+                var round = (i/8)-1;
+                Console.WriteLine("Match: " + ((Match)testingData.DataPoints[i].Reference).Home.ApiName + " vs " + ((Match)testingData.DataPoints[i].Reference).Away.ApiName);
+                Console.WriteLine("Odds: " + ((Match)testingData.DataPoints[i].Reference).HomeOdds + " vs " + ((Match)testingData.DataPoints[i].Reference).AwayOdds);
+                Console.WriteLine("...");
+                var tip = network.Run(testingData.Inputs()[i]);
+
+                var success = SuccessConditionGoalAndPoints(tip, testingData.Outputs()[i]);
+                var returns = BetReturnGoalAndPoints(tip, testingData.Outputs()[i], ((Match)testingData.DataPoints[i].Reference).HomeOdds, ((Match)testingData.DataPoints[i].Reference).AwayOdds);
+                money -= 1.00;
+                if (success)
+                {
+                    money += returns*1.00;
+                }
+                successes.Add(success);
+            }
+            Console.WriteLine("Success%: " + successes.Count(x => x) * 1.0 / trainingData.Outputs().Count * 1.0);
+            Console.WriteLine("Money: " + money);
+            Console.Read();
+        }
+        #endregion
+
         #region Optimizer
         private static void TestOptimizer()
         {
@@ -875,6 +980,7 @@ namespace Tipper
             Console.Read();
         }
         #endregion
+
         
         #region PrintActualResults
         private static void PrintActualResults()
@@ -893,6 +999,32 @@ namespace Tipper
         #endregion
 
         #region TestFunction
+        private static void TestFunction()
+        {
+            var tipper = new Tipper();
+            var successes = 0;
+
+            //var testingData1 = tipper.LearnFromTo(2008, 0, 2010, 24);
+            var testingData1 = tipper.GetMatchDataBetween(2009, 0, 2014, 24);
+
+            //Build
+            //Network network = Network.Load("Network/504a8765-2855-4348-be32-9482d7b537ca.ann");//1-1
+            //Network network = Network.Load("Network/f8fb015d-82db-4512-a95b-07daa543d9ef.ann");//1-5
+            Network network = Network.Load("Network/03ab9e06-f43e-46a7-98b7-84bb6d3d880c.ann");//1-1
+            successes = testingData1.Inputs().Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
+            Console.WriteLine("Normal % = " + ((double)successes / (double)testingData1.DataPoints.Count));
+
+
+
+            /*var function = ExtractFunction(network);
+            var ins = testingData1.DataPoints[0].Inputs;
+            var outs = function(ins);
+            foreach (var o in outs)
+            {
+                Console.WriteLine(o);
+            }
+            Console.WriteLine("End");*/
+        }
 
         public static Func<List<double>, List<double>> ExtractFunction(Network network)
         {
@@ -940,35 +1072,91 @@ namespace Tipper
         #region Testing
         private static void Testing()
         {
-            Console.WriteLine("Loading data...");
+            Console.WriteLine("Start");
+            Console.WriteLine("Creating Tipper...");
             var tipper = new Tipper();
-            var year = 2017;
-            var round = 0;
+            var trainingData1 = new Data();
+            var testingData1 = new Data();
+            var trainingData2 = new Data();
+            var testingData2 = new Data();
+            var badData = new Data();
+            var goodData = new Data();
+            var output = "";
+            var name = "";
+            var successes = 0;
 
-            //Based on Test scenario #670
-            var interpretationTeam = new List<int> { 9, 13, 17 };
-            var interpretationGround = new List<int> { 25, 31, 37 };
-            var interpretationState = new List<int> { 1, 3, 5 };
-            var interpretationDay = new List<int> { 25, 31, 37 };
-            var interpretationShared = new List<int> { 25, 31, 37 };
+            trainingData1 = tipper.GetMatchDataBetween(2010, 0, 2014, 24);
+            testingData1 = tipper.GetMatchDataBetween(2015, 1, 2015, 24);
 
-            List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
-            var trainingData = tipper.GetMatchDataBetween(year - 9, 0, year, round, interpretation);
-            trainingData.SuccessCondition = SuccessConditionTotalPrint;
+            trainingData2 = tipper.GetMatchDataBetween(2013, 1, 2013, 24);
+            testingData2 = tipper.GetMatchDataBetween(2014, 1, 2014, 24);
 
-            //6b376a71-5cb0-41ca-95fb-02daf1db536f
+            //Build
+            Console.WriteLine("First...");
+            Network network = new Network(trainingData1.DataPoints[0].Inputs.Count, new List<int>() { 3, 4 }, trainingData1.DataPoints[0].Outputs.Count);
+            name = network.Id;
+            network.Train(trainingData1.Inputs(), trainingData1.Outputs());
+            Network.Save(network);
 
-            tipper.Net = Network.CreateNetwork(trainingData, 1, 3, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
-            tipper.Net.MaxEpochs = 1000;
-            Console.WriteLine("Training network (" + tipper.Net.Id + ")...");
-            tipper.Net.Train(trainingData.Inputs(), trainingData.Outputs());
+            successes = testingData1.Inputs().Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
+            Console.WriteLine("Normal % = " + ((double)successes / (double)testingData1.DataPoints.Count));
 
-            Console.WriteLine("Tip 2017...");
-            foreach (var r in tipper.League.Seasons.Where(s => s.Year == year).SelectMany(s => s.Rounds).ToList())
+
+
+            //Seperate bad and good data
+            for (var i = 0; i < trainingData1.DataPoints.Count; i++)
             {
-                Console.WriteLine("Tip Round {0} ...", r.Number);
-                tipper.PredictWinner(r.Year, r.Number, true, interpretation);
+                var result = network.Run(trainingData1.DataPoints[i].Inputs);
+                if (SuccessConditionGoalAndPoints(result, trainingData1.DataPoints[i].Outputs))
+                {
+                    goodData.DataPoints.Add(trainingData1.DataPoints[i]);
+                }
+                else
+                {
+                    badData.DataPoints.Add(trainingData1.DataPoints[i]);
+                }
+
             }
+
+            Console.WriteLine("Good...");
+            //Network goodNetwork = new Network(goodData.Inputs[0].Count, new List<int>() { 6 }, goodData.Outputs[0].Count);
+            Network goodNetwork = network;
+            goodNetwork.Train(goodData.Inputs(), goodData.Outputs());
+            successes = testingData1.Inputs().Select(t => goodNetwork.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
+            Console.WriteLine("Good % = " + ((double)successes / (double)testingData1.DataPoints.Count));
+
+            Console.WriteLine("Bad...");
+            //Network badNetwork = new Network(badData.Inputs[0].Count, new List<int>() { 6 }, badData.Outputs[0].Count);
+            Network badNetwork = network;
+            badNetwork.Train(badData.Inputs(), badData.Outputs());
+            successes = testingData1.Inputs().Select(t => badNetwork.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.DataPoints[i].Outputs)).Count();
+            Console.WriteLine("Bad % = " + ((double)successes / (double)testingData1.DataPoints.Count));
+
+
+            /*
+            //Test
+            successes = testingData1.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.Outputs[i])).Count();
+            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData1.Inputs.Count));
+
+            //Pack
+            Network.Save(network);
+            
+
+            //Unpack
+            network = Network.Load("0b4d7a36-94ad-4609-a082-aa040e158c6f.txt");
+            successes = testingData1.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData1.Outputs[i])).Count();
+            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData1.Inputs.Count));
+            
+
+            //Retrain
+            network.Train(trainingData2.Inputs, trainingData2.Outputs);
+
+            //Test
+            successes = testingData2.Inputs.Select(t => network.Run(t)).Where((result, i) => SuccessConditionGoalAndPoints(result, testingData2.Outputs[i])).Count();
+            Console.WriteLine("Unpacked % = " + ((double)successes / (double)testingData2.Inputs.Count));
+
+            Network.Save(network);
+            */
             Console.Read();
         }
         #endregion

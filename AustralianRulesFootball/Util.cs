@@ -8,10 +8,6 @@ namespace AustralianRulesFootball
 {
     public class Util
     {
-        public static double MaxReasonableScore = 200; //Reasonable ceiling score in an AFL Game - semi static
-        public static double MaxReasonableSeasonScore = 3000; //Reasonable ceiling score in an AFL Game - semi static
-
-        public static double MaxShots = 66; //Ceiling score scored in an AFL Game - semi static
         public static double MaxScore = 250; //Ceiling score scored in an AFL Game - semi static
         public static double MaxGoals = 40; //Ceiling goals scored in an AFL Game - semi static
         public static double MaxPoints = 40; //Ceiling points scored in an AFL Game - semi static

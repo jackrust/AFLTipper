@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
 using Utilities;
@@ -28,10 +29,10 @@ namespace Tipper
         {
             var inputSet = new List<double>
             {
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreFor(m.Home).Goals + x.ScoreFor(m.Home).Points), GetMaxSeasonShots),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreFor(m.Away).Goals + x.ScoreFor(m.Away).Points), GetMaxSeasonShots),
-                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreAgainst(m.Home).Goals + x.ScoreAgainst(m.Home).Points), GetMaxSeasonShots),
-                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreAgainst(m.Away).Goals + x.ScoreAgainst(m.Away).Points), GetMaxSeasonShots)
+                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreFor(m.Home).Goals + x.ScoreFor(m.Home).Points), GetMaxSeasonTotal),
+                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreFor(m.Away).Goals + x.ScoreFor(m.Away).Points), GetMaxSeasonTotal),
+                ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreAgainst(m.Home).Goals + x.ScoreAgainst(m.Home).Points), GetMaxSeasonTotal),
+                ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreAgainst(m.Away).Goals + x.ScoreAgainst(m.Away).Points), GetMaxSeasonTotal)
             };
 
             return inputSet;
@@ -40,21 +41,12 @@ namespace Tipper
         #endregion
 
         #region Outputs
-        public override IEnumerable<double> BuildOutputs(Match match, Numbery.NormalisationMethod normalisationMethod)
+        public override IEnumerable<double> BuildOutputs(Match m)
         {
             return (new List<double>()
             {
-                Numbery.Normalise(match.HomeScore().Total(), Util.MaxScore, normalisationMethod),
-                Numbery.Normalise(match.AwayScore().Total(), Util.MaxScore, normalisationMethod)
-            });
-        }
-
-        public override IEnumerable<double> RetrieveOutputs(List<double> result, Numbery.NormalisationMethod normalisationMethod)
-        {
-            return (new List<double>()
-            {
-                Numbery.Denormalise(result[0], Util.MaxScore, normalisationMethod),
-                Numbery.Denormalise(result[1], Util.MaxScore, normalisationMethod)
+                Numbery.Normalise(m.HomeScore().Total(), Util.MaxScore),
+                Numbery.Normalise(m.AwayScore().Total(), Util.MaxScore)
             });
         }
         #endregion

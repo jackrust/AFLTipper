@@ -32,25 +32,17 @@ namespace Tipper
         {
             throw new Exception("ExtractInputSetForShots not implemented for goals & points");
         }
-
-        
-
-        public override IEnumerable<double> RetrieveOutputs(List<double> result, Numbery.NormalisationMethod normalisationMethod)
-        {
-            throw new NotImplementedException();
-        }
-
         #endregion
 
         #region Outputs
-        public override IEnumerable<double> BuildOutputs(Match m, Numbery.NormalisationMethod normalisationMethod)
+        public override IEnumerable<double> BuildOutputs(Match m)
         {
             return (new List<double>()
             {
-                Numbery.Normalise(m.HomeScore().Goals, Util.MaxGoals, normalisationMethod),
-                Numbery.Normalise(m.HomeScore().Points, Util.MaxPoints, normalisationMethod),
-                Numbery.Normalise(m.AwayScore().Goals, Util.MaxGoals, normalisationMethod),
-                Numbery.Normalise(m.AwayScore().Points, Util.MaxPoints, normalisationMethod)
+                Numbery.Normalise(m.HomeScore().Goals, Util.MaxGoals),
+                Numbery.Normalise(m.HomeScore().Points, Util.MaxPoints),
+                Numbery.Normalise(m.AwayScore().Goals, Util.MaxGoals),
+                Numbery.Normalise(m.AwayScore().Points, Util.MaxPoints)
             });
         }
         #endregion

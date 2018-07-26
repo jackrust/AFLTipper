@@ -75,17 +75,17 @@ namespace Tipper
         #endregion
 
         #region DataPoint
-        public DataPoint BuildDataPoint(List<Match> history, Match m, Numbery.NormalisationMethod normalisationMethod)
+        public DataPoint BuildDataPoint(List<Match> history, Match m)
         {
-            return BuildDataPoint(history, m, Interpretations.DefaultInterpretation, normalisationMethod);
+            return BuildDataPoint(history, m, Interpretations.DefaultInterpretation);
         }
 
-        public DataPoint BuildDataPoint(List<Match> history, Match m, List<List<int>> inputInpertretation, Numbery.NormalisationMethod normalisationMethod)
+        public DataPoint BuildDataPoint(List<Match> history, Match m, List<List<int>> inputInpertretation)
         {
             var datapoint = new DataPoint
             {
                 Inputs = (BuildInputs(history, m, inputInpertretation)),
-                Outputs = BuildOutputs(m, normalisationMethod).ToList(),
+                Outputs = BuildOutputs(m).ToList(),
                 Reference = m
             };
             return datapoint;
@@ -303,16 +303,10 @@ namespace Tipper
         #endregion
 
         #region Outputs
-        public abstract IEnumerable<double> BuildOutputs(Match match, Numbery.NormalisationMethod normalisationMethod);
-        public abstract IEnumerable<double> RetrieveOutputs(List<double> result, Numbery.NormalisationMethod normalisationMethod);
+        public abstract IEnumerable<double> BuildOutputs(Match m);
         #endregion
 
         #region constants
-        public static double GetMaxSeasonShots(double rounds)
-        {
-            return Util.MaxShots * rounds;
-        }
-        
         public static double GetMaxSeasonMargin(double rounds)
         {
             return Util.MaxMargin * rounds;
@@ -333,7 +327,5 @@ namespace Tipper
             return Util.MaxPoints * rounds;
         }
         #endregion
-
-
     }
 }
