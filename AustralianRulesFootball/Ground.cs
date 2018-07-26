@@ -86,7 +86,7 @@ namespace AustralianRulesFootball
         public static Ground A = new Ground("A", new List<string> { "AAMI Stadium", "Football Park" }, new List<string> { }, State.SouthAustralia, new GeographicCoordinate(-34.8800, 138.4956));
         public static Ground Ao = new Ground("AO", new List<string> {"Adelaide Oval"}, new List<string> {}, State.SouthAustralia, new GeographicCoordinate(-34.9156, 138.5961));
         //Tasmania
-        public static Ground Au = new Ground("AU", new List<string> {"Aurora Stadium", "York Park", "University of Tasmania"}, new List<string> {"US"}, State.Tasmania, new GeographicCoordinate(-41.4258, 147.1389));
+        public static Ground Au = new Ground("AU", new List<string> { "Aurora Stadium", "York Park", "University of Tasmania", "University of Tasmania Stadium" }, new List<string> { "US" }, State.Tasmania, new GeographicCoordinate(-41.4258, 147.1389));
         public static Ground Ba = new Ground("BA", new List<string> {"Bludstone Arena", "Blundstone Arena"}, new List<string> {}, State.Tasmania, new GeographicCoordinate(-42.877699, 147.373535));
         public static Ground Nh = new Ground("NH", new List<string> {"North Hobart"}, new List<string> {}, State.Tasmania, new GeographicCoordinate(-42.867778, 147.315833));
         //Victoria
