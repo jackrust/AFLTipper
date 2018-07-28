@@ -52,3 +52,6 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\H
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\HtmlAgilityPack.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\obj\Debug\tipper.exe
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\obj\Debug\tipper.pdb
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\tipper.exe.config
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\tipper.exe
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\tipper.pdb
