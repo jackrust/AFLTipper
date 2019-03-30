@@ -21,14 +21,14 @@ namespace AustralianRulesFootball
                 history.Add(playerMatch.Bsonify());
             }
 
-            var round = new BsonDocument
+            var player = new BsonDocument
             {
                 {"finalSirenPlayerId", FinalSirenPlayerId},
                 {"name", Name},
                 {"history", history}
             };
 
-            return round;
+            return player;
         }
 
         public static Player Objectify(BsonDocument bson)

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
 
 namespace AustralianRulesFootball
 {
@@ -27,12 +22,64 @@ namespace AustralianRulesFootball
 
         public BsonDocument Bsonify()
         {
-            throw new NotImplementedException();
+            var playerMatch = new BsonDocument
+            {
+                {"finalSirenPlayerId", FinalSirenPlayerId},
+                {"year", Year},
+                {"roundNo", RoundNo},
+                {"against", Against},
+                {"kicks", Kicks},
+                {"handballs", Handballs},
+                {"marks", Marks},
+                {"hitOuts", HitOuts},
+                {"tackles", Tackles},
+                {"freesFor", FreesFor},
+                {"freesAgainst", FreesAgainst},
+                {"goals", Goals},
+                {"behinds", Behinds},
+                {"rating", Rating},
+                {"win", Win},
+            };
+
+            return playerMatch;
         }
 
         public static PlayerMatch Objectify(BsonDocument bson)
         {
-            throw new NotImplementedException();
+            var finalSirenPlayerId = bson.GetValue("finalSirenPlayerId").AsInt32;
+            var year = bson.GetValue("year").AsInt32;
+            var roundNo = bson.GetValue("roundNo").AsInt32;
+            var against = bson.GetValue("against").AsString;
+            var kicks = bson.GetValue("kicks").AsInt32;
+            var handballs = bson.GetValue("handballs").AsInt32;
+            var marks = bson.GetValue("marks").AsInt32;
+            var hitOuts = bson.GetValue("hitOuts").AsInt32;
+            var tackles = bson.GetValue("tackles").AsInt32;
+            var freesFor = bson.GetValue("freesFor").AsInt32;
+            var freesAgainst = bson.GetValue("freesAgainst").AsInt32;
+            var goals = bson.GetValue("goals").AsInt32;
+            var behinds = bson.GetValue("behinds").AsInt32;
+            var rating = bson.GetValue("rating").AsInt32;
+            var win = bson.GetValue("win").AsBoolean;
+
+            return new PlayerMatch()
+            {
+                FinalSirenPlayerId = finalSirenPlayerId,
+                Year = year,
+                RoundNo = roundNo,
+                Against = against,
+                Kicks = kicks,
+                Handballs = handballs,
+                Marks = marks,
+                HitOuts = hitOuts,
+                Tackles = tackles,
+                FreesFor = freesFor,
+                FreesAgainst = freesAgainst,
+                Goals = goals,
+                Behinds = behinds,
+                Rating = rating,
+                Win = win
+            };
         }
     }
 }

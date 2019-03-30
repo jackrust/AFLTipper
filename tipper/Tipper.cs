@@ -132,8 +132,9 @@ namespace Tipper
             return results;
         }
 
-        public void PredictWinner(int year, int round, bool print, List<List<int>> interpretation = null)
+        public List<PredictedMatch> PredictWinners(int year, int round, List<List<int>> interpretation = null)
         {
+            var predictions = new List<PredictedMatch>();
             var rounds = League.GetRounds(0, 0, year, round).Where(x => x.Matches.Count > 0).ToList();
 
             foreach (var m in rounds.Where(r => (r.Year == year && r.Number == round)).SelectMany(r => r.Matches))
@@ -145,17 +146,28 @@ namespace Tipper
 
                 var result = Net.Run(test);
 
-                if (print)
-                    Console.WriteLine("{0,9}|{1, 9}|{2}",
-                        m.Home.Mascot, m.Away.Mascot,
-                                      Printlayer(new[]
-                                      {
-                                          Numbery.Denormalise(result[0], Util.MaxScore),//, Numbery.NormalisationMethod.Asymptotic),
-                                          Numbery.Denormalise(result[1], Util.MaxScore)//, Numbery.NormalisationMethod.Asymptotic),
-                                      }));
+                predictions.Add(new PredictedMatch(m.Home, m.Away, m.Ground, m.Date, Numbery.Denormalise(result[0], Util.MaxScore), Numbery.Denormalise(result[1], Util.MaxScore), round));
             }
+            return predictions;
         }
 
+        public string ResultToString(List<PredictedMatch> matches)
+        {
+            var strings = new List<string>();
+            foreach (var m in matches)
+            {
+                strings.Add(String.Format("{0,9}|{1}|{2, 9}|{3}",
+                        m.Home.Mascot, Printlayer(new[]
+                                      {
+                                          m.HomeTotal,//, Numbery.NormalisationMethod.Asymptotic),
+                                      }), m.Away.Mascot,
+                                      Printlayer(new[]
+                                      {
+                                          m.AwayTotal//, Numbery.NormalisationMethod.Asymptotic),
+                                      })));
+            }
+            return string.Join("\n", strings.ToArray());
+        }
 
         public void StateMatchesult(int year, int round)
         {

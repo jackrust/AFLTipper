@@ -180,6 +180,12 @@ namespace Tipper
                 input.AddRange(ExtractSharedOpponentScoreSet(m, history, term, ExtractInputSetForShots));
             }
             */
+
+            //v3 - Player data
+            //Total games played
+            //Team consistancy
+            //Total disposals
+            //
             return input;
         }
 

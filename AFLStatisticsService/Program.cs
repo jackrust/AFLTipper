@@ -14,32 +14,48 @@ namespace AFLStatisticsService
 
         static void Main()
         {
-            //if (DateTime.Now.Month > 10)
-                //return;
-
             var db = new MongoDb();
-            UpdateMatches(db);
-            //UpdatePlayers(db);
-            Console.WriteLine("Complete");
-            Console.ReadLine();
+            var updateFromYear = DateTime.Now.Year;
+            var loop = true;
+            const string options = "[U]pdate, [Q]uit, [?]Options";
+            Console.WriteLine("AFL Statistics Service");
+            while (loop)
+            {
+                Console.Write("\n>");
+                var command = Console.ReadLine();
+                if (command == null) continue;
+                switch (command.ToUpper())
+                {
+                    case ("U"):
+                        Console.WriteLine("Updating Matches");
+                        UpdateMatches(db);
+                        Console.WriteLine("Updating Players");
+                        UpdatePlayers(db, updateFromYear);
+                        break;
+                    case ("Q"):
+                        loop = false;
+                        break;
+                    case ("?"):
+                        Console.WriteLine(options);
+                        break;
+                }
+            }
         }
 
         //TODO: Might be less page hits to update by match (once we have their starting data)
-        private static void UpdatePlayers(MongoDb db)
+        private static void UpdatePlayers(MongoDb db, int updateFromYear)
         {
             Console.WriteLine("Beginning UpdatePlayers");
             var year = DateTime.Now.Year;
 
             //What have I got?
             List<Player> players = db.ReadPlayerDocument() ?? new List<Player>();
-
-            //add any new matches between last match and now
             var api = new FinalSirenApi();
 
             //Get histry for each player
-            for (var i = year; i >= StartingYear; i--)
+            for (var i = year; i >= updateFromYear; i--)
             {
-                var newplayers = api.GetPlayers(year);
+                var newplayers = api.GetPlayers(i);
 
                 foreach (var n in newplayers.Where(n => players.All(p => p.FinalSirenPlayerId != n.FinalSirenPlayerId)))
                 {
@@ -55,16 +71,6 @@ namespace AFLStatisticsService
 
             //update db
             db.UpdatePlayerDocument(players.Select(p => p.Bsonify()).ToList());
-        }
-
-        private static void CreatePlayers(MongoDb db)
-        {
-            Console.WriteLine("Beginning CreatePlayers");
-            var year = DateTime.Now.Year;
-            //What have I got?
-            List<Player> players = new List<Player>();
-
-
         }
 
         private static void UpdateMatches(MongoDb db)

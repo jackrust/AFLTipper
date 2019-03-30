@@ -7,6 +7,8 @@ namespace AFLStatisticsService.API
     {
         protected static readonly Dictionary<int, int> numHomeandAwayRounds = new Dictionary<int, int>
         {   
+            {2019, 23},
+            {2018, 23},
             {2017, 23},    
             {2016, 23},
             {2015, 23},

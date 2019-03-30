@@ -66,8 +66,11 @@ namespace AustralianRulesFootball
                 Ground.Mcg,
                 Ground.Ms,
                 Ground.Nh,
+                Ground.Os,
                 Ground.Ps,
+                Ground.Rs,
                 Ground.Ss,
+                Ground.Sss,
                 Ground.Sps,
                 Ground.Sto,
                 Ground.Scg,
@@ -84,21 +87,40 @@ namespace AustralianRulesFootball
 
         public static Team GetTeamByName(String name)
         {
-            var team =
-                GetTeams()
-                    .First(
-                        t => t.Names.Any(a => String.Equals(a, name, StringComparison.CurrentCultureIgnoreCase)));
+
+            Team team = GetTeams()
+                        .First();
+            try
+            {
+                team =
+                    GetTeams()
+                        .First(
+                            t => t.Names.Any(a => String.Equals(a, name, StringComparison.CurrentCultureIgnoreCase)));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
             return team;
         }
 
         public static Ground GetGroundByName(string name)
         {
-            var ground =
-                GetGrounds()
-                    .First(
-                        g =>
-                            g.Names.Any(a => String.Equals(a, name, StringComparison.CurrentCultureIgnoreCase)) ||
-                            String.Equals(g.Abbreviation, name, StringComparison.CurrentCultureIgnoreCase));
+            Ground ground = GetGrounds()
+                        .First();
+            try
+            {
+                ground =
+                    GetGrounds()
+                        .First(
+                            g =>
+                                g.Names.Any(a => String.Equals(a, name, StringComparison.CurrentCultureIgnoreCase)) ||
+                                String.Equals(g.Abbreviation, name, StringComparison.CurrentCultureIgnoreCase));
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
             return ground;
         }
 
