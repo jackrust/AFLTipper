@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web.Http;
+using AFLStatisticsService;
 using ArtificialNeuralNetwork;
 using AustralianRulesFootball;
 using Tipper.UI;
@@ -13,10 +15,18 @@ namespace AFLTippingAPI.Controllers
         // GET api/values
         public IEnumerable<string> Get()
         {
-
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             var tips = TipNextRound();
+            TimeSpan ts = stopWatch.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+            ts.Hours, ts.Minutes, ts.Seconds,
+            ts.Milliseconds / 10);
 
-            return tips;
+            var output = new List<string> {elapsedTime};
+            output.AddRange(tips);
+
+            return output;
         }
 
         private static List<string> TipNextRound()

@@ -59,14 +59,12 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\t
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\tipper.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AFLStatisticsService.exe
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.Neuro.dll
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\ArtificialNeuralNetwork.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AustralianRulesFootball.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\BureauOfMeteorology.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\GeneticAlgorithm.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\GeneticArtificialNeuralNetwork.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\MultiDimensionalTester.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\Universal.dll
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\Utilities.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\MongoDB.Bson.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\MongoDB.Driver.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\ScreenScraper.dll

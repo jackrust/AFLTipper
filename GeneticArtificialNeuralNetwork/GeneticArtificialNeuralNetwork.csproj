@@ -4,16 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{2365D600-71E6-4272-A882-FE8BEBA79410}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>AFLStatisticsService</RootNamespace>
-    <AssemblyName>AFLStatisticsService</AssemblyName>
+    <RootNamespace>GeneticArtificialNeuralNetwork</RootNamespace>
+    <AssemblyName>GeneticArtificialNeuralNetwork</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,7 +22,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,18 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MongoDB.Bson, Version=2.2.3.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MongoDB.Bson.2.2.3\lib\net45\MongoDB.Bson.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MongoDB.Driver, Version=2.2.3.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MongoDB.Driver.2.2.3\lib\net45\MongoDB.Driver.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="MongoDB.Driver.Core, Version=2.2.3.3, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\MongoDB.Driver.Core.2.2.3\lib\net45\MongoDB.Driver.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -53,26 +39,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="API\AFLAPI.cs" />
-    <Compile Include="API\FinalSirenAPI.cs" />
-    <Compile Include="API\AflStatisticsApi.cs" />
-    <Compile Include="API\OddsCSV.cs" />
-    <Compile Include="MongoDB.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="NetworkActor.cs" />
+    <Compile Include="NetworkActorGenes.cs" />
+    <Compile Include="ANNOrganism.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
-      <Project>{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}</Project>
-      <Name>AustralianRulesFootball</Name>
+    <ProjectReference Include="..\ArtificialNeuralNetwork\ArtificialNeuralNetwork.csproj">
+      <Project>{291A3AE9-0951-412D-93D5-DDCA1CEE2455}</Project>
+      <Name>ArtificialNeuralNetwork</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ScreenScraper\ScreenScraper.csproj">
-      <Project>{2B080B6A-FC97-4952-8416-5E79E0B9717E}</Project>
-      <Name>ScreenScraper</Name>
+    <ProjectReference Include="..\GeneticAlgorithm\GeneticAlgorithm.csproj">
+      <Project>{75B276CE-0BDD-42F4-93DA-B87BE576BE61}</Project>
+      <Name>GeneticAlgorithm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Universal\Universal.csproj">
+      <Project>{6310FB3B-91D2-4956-974C-B3B028ADB403}</Project>
+      <Name>Universal</Name>
     </ProjectReference>
     <ProjectReference Include="..\Utilities\Utilities.csproj">
       <Project>{643F220E-6E85-4B40-B43C-0DE8900A65E5}</Project>

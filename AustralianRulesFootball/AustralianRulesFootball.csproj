@@ -67,7 +67,7 @@
     <Compile Include="Util.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\Universal\Universal.csproj">
+    <ProjectReference Include="..\Universal\Universal.csproj">
       <Project>{6310FB3B-91D2-4956-974C-B3B028ADB403}</Project>
       <Name>Universal</Name>
     </ProjectReference>

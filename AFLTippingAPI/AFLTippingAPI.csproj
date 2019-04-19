@@ -293,17 +293,13 @@
     <Content Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\ArtificialNeuralNetwork\ArtificialNeuralNetwork.csproj">
-      <Project>{291A3AE9-0951-412D-93D5-DDCA1CEE2455}</Project>
-      <Name>ArtificialNeuralNetwork</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Library\Utilities\Utilities.csproj">
-      <Project>{643F220E-6E85-4B40-B43C-0DE8900A65E5}</Project>
-      <Name>Utilities</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AFLStatisticsService\AFLStatisticsService.csproj">
       <Project>{2365D600-71E6-4272-A882-FE8BEBA79410}</Project>
       <Name>AFLStatisticsService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ArtificialNeuralNetwork\ArtificialNeuralNetwork.csproj">
+      <Project>{291A3AE9-0951-412D-93D5-DDCA1CEE2455}</Project>
+      <Name>ArtificialNeuralNetwork</Name>
     </ProjectReference>
     <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
       <Project>{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}</Project>
@@ -312,6 +308,10 @@
     <ProjectReference Include="..\tipper\Tipper.csproj">
       <Project>{47AB100E-A9E3-41C0-80D1-C6CF8580D4FF}</Project>
       <Name>Tipper</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Utilities\Utilities.csproj">
+      <Project>{643F220E-6E85-4B40-B43C-0DE8900A65E5}</Project>
+      <Name>Utilities</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

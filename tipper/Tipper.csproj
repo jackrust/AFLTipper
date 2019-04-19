@@ -267,22 +267,6 @@
     </WebReferenceUrl>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Library\GeneticAlgorithm\GeneticAlgorithm.csproj">
-      <Project>{75B276CE-0BDD-42F4-93DA-B87BE576BE61}</Project>
-      <Name>GeneticAlgorithm</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Library\GeneticArtificialNeuralNetwork\GeneticArtificialNeuralNetwork.csproj">
-      <Project>{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}</Project>
-      <Name>GeneticArtificialNeuralNetwork</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Library\MultiDimensionalTester\MultiDimensionalTester.csproj">
-      <Project>{A4936943-AADF-433C-933D-B34A702BC9EB}</Project>
-      <Name>MultiDimensionalTester</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Library\Universal\Universal.csproj">
-      <Project>{6310FB3B-91D2-4956-974C-B3B028ADB403}</Project>
-      <Name>Universal</Name>
-    </ProjectReference>
     <ProjectReference Include="..\AFLStatisticsService\AFLStatisticsService.csproj">
       <Project>{2365D600-71E6-4272-A882-FE8BEBA79410}</Project>
       <Name>AFLStatisticsService</Name>
@@ -290,6 +274,22 @@
     <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
       <Project>{61fbb7c9-f3a6-4972-81e1-6a5be0a176e3}</Project>
       <Name>AustralianRulesFootball</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GeneticAlgorithm\GeneticAlgorithm.csproj">
+      <Project>{75B276CE-0BDD-42F4-93DA-B87BE576BE61}</Project>
+      <Name>GeneticAlgorithm</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GeneticArtificialNeuralNetwork\GeneticArtificialNeuralNetwork.csproj">
+      <Project>{C48891AC-0C9E-40EE-B59E-9C380E52FAA9}</Project>
+      <Name>GeneticArtificialNeuralNetwork</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\MultiDimensionalTester\MultiDimensionalTester.csproj">
+      <Project>{A4936943-AADF-433C-933D-B34A702BC9EB}</Project>
+      <Name>MultiDimensionalTester</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Universal\Universal.csproj">
+      <Project>{6310FB3B-91D2-4956-974C-B3B028ADB403}</Project>
+      <Name>Universal</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
