@@ -13,7 +13,7 @@ namespace AFLTippingAPI.Tests.Controllers
     [TestClass]
     public class ValuesControllerTest
     {
-        [TestMethod]
+        /*[TestMethod]
         public void Get()
         {
             // Arrange
@@ -27,7 +27,7 @@ namespace AFLTippingAPI.Tests.Controllers
             Assert.AreEqual(2, result.Count());
             Assert.AreEqual("value1", result.ElementAt(0));
             Assert.AreEqual("value2", result.ElementAt(1));
-        }
+        }*/
 
         [TestMethod]
         public void GetById()
