@@ -1,22 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using HtmlAgilityPack;
-using Utilities.Html;
 
 namespace Utilities
 {
     public class Htmly
     {
-        public static Element ExtractElements(string html)
-        {
-            var element = new Element();
-
-            HtmlDocument doc = new HtmlDocument();
-            doc.LoadHtml(html);
-            return element;
-        }
-
         public static string FindCostIn(string html, string option)
         {
             //TODO: convert option to options
