@@ -7,7 +7,7 @@ using Match = AustralianRulesFootball.Match;
 
 namespace AFLStatisticsService.API
 {
-    internal class FinalSirenApi : AflStatisticsApi
+    public class FinalSirenApi : AflStatisticsApi
     {
         private const string Website = "http://finalsiren.com/";
         private const string MatchResults = Website + "Results.asp";
