@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Utilities;
 
 namespace ArtificialNeuralNetwork
 {
@@ -196,7 +195,7 @@ namespace ArtificialNeuralNetwork
             double prevError = -1;
             const double cycleLength = 100;
             double cullPopulation = 50;
-            var log = new List<List<double>>();
+            //var log = new List<List<double>>();
             do
             {
                 network.Error = network.TrainEpoch(inputs, targets) / inputs.Count;
@@ -220,7 +219,7 @@ namespace ArtificialNeuralNetwork
                     AdjustLearningRateDown(network);
                 }
                 prevError = network.Error;
-                log.Add(new List<double>() { network.Epochs, minima, network.Error, minError, maxError });
+                //log.Add(new List<double>() { network.Epochs, minima, network.Error, minError, maxError });
 
                 //Cull outliers
                 var largestError = 0;
@@ -238,7 +237,8 @@ namespace ArtificialNeuralNetwork
                     }
 
                     temp = populationErrors.Aggregate(temp, (current, p) => current + ("" + p.Key + "," + p.Value + "\n"));
-                    Filey.Save(temp, "tamp_ANNOutput.txt");
+                    //TODO:reinstate with mongo
+                    //Filey.Save(temp, "tamp_ANNOutput.txt");
                     var boundary = LocatePercentileError(0.995, populationErrors.Select(e => e.Value).ToList());
                     var cullInputs = populationErrors.Where(p => p.Value > boundary).Select(e => inputs[e.Key]);
                     var cullTargets = populationErrors.Where(p => p.Value > boundary).Select(e => targets[e.Key]);
@@ -252,11 +252,11 @@ namespace ArtificialNeuralNetwork
                     }
                 }
             } while (minima < network.MaxMinima && network.Epochs < network.MaxEpochs);
-
-            network = Network.Load(network.Directory + network.Id + ".ann");
-            Filey.Save(log, "Network/Algorithm/Log.txt");
+            //TODO:reinstate with mongo
+            //network = Network.Load(network.Directory + network.Id + ".ann");
+            //Filey.Save(log, "Network/Algorithm/Log.txt");
             var rankings = network.RankInputs();
-            Filey.Save(rankings, "Network/Algorithm/Rankings.txt");
+            //Filey.Save(rankings, "Network/Algorithm/Rankings.txt");
         }
 
         private double LocatePercentileError(double percentile, List<double> errors)

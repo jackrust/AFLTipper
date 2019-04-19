@@ -72,7 +72,6 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\M
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.Genetic.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.Math.dll
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\HtmlAgilityPack.dll
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\GeneticAlgorithm.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\GeneticArtificialNeuralNetwork.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\MultiDimensionalTester.pdb
@@ -80,15 +79,11 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\U
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AFLStatisticsService.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AustralianRulesFootball.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.Neuro.xml
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\ArtificialNeuralNetwork.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\BureauOfMeteorology.pdb
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\Utilities.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\MongoDB.Bson.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\MongoDB.Driver.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\ScreenScraper.pdb
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.Genetic.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.Math.xml
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\HtmlAgilityPack.pdb
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\HtmlAgilityPack.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\Tipper.csprojResolveAssemblyReference.cache
