@@ -16,6 +16,9 @@ namespace AustralianRulesFootball
         public List<Quarter> Quarters;
         public MatchStatistics HomeStats { get; set; }
         public MatchStatistics AwayStats { get; set; }
+        public List<PlayerMatch> HomePlayerMatches { get; set; }
+        public List<PlayerMatch> AwayPlayerMatches { get; set; }
+
         public double HomeOdds;
         public double AwayOdds;
 
@@ -40,6 +43,9 @@ namespace AustralianRulesFootball
             Quarters = quarters;
             HomeOdds = homeOdds;
             AwayOdds = awayOdds;
+            //TODO: should these always be set?
+            HomePlayerMatches = new List<PlayerMatch>();
+            AwayPlayerMatches = new List<PlayerMatch>();
         }
 
         
@@ -138,6 +144,32 @@ namespace AustralianRulesFootball
             if (teams.Count(t => t.Equals(Home)) > 0) return Away;
             if (teams.Count(t => t.Equals(Away)) > 0) return Home;
             return null;
+        }
+
+        public Score GetOppositionScore(Team team)
+        {
+            if (Home.Equals(team))
+            {
+                return AwayScore();
+            }
+            if (Away.Equals(team))
+            {
+                return HomeScore();
+            }
+            return new Score();
+        }
+
+        public Score GetTeamScore(Team team)
+        {
+            if (Home.Equals(team))
+            {
+                return HomeScore();
+            }
+            if (Away.Equals(team))
+            {
+                return AwayScore();
+            }
+            return new Score();
         }
 
         public bool Equals(Match other)

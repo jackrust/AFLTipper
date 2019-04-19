@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AustralianRulesFootball
 {
     public class PredictedMatch : Match
     {
-        public double HomeTotal = 0;
-        public double AwayTotal = 0;
+        public double HomeTotal;
+        public double AwayTotal;
         public int RoundNumber;
 
         public PredictedMatch(Team home, Score hq1, Score hq2, Score hq3, Score hq4, Team away, Score aq1, Score aq2,

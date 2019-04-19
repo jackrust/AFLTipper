@@ -24,6 +24,11 @@ namespace Tipper
             return inputSet;
         }
 
+        protected override IEnumerable<double> ExtractInputSetForWin(Match m, List<Match> matches, int term, Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
+        {
+            throw new NotImplementedException();
+        }
+
         protected override IEnumerable<double> ExtractInputSetForShots(Match m, List<Match> matches, int term,
             Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
         {
@@ -36,6 +41,11 @@ namespace Tipper
             };
 
             return inputSet;
+        }
+
+        protected override IEnumerable<double> ExtractInputSetForOppotionScore(int term, List<Tuple<Score, Score, DateTime>> homeOppositionScores, List<Tuple<Score, Score, DateTime>> awayOppositionScores)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

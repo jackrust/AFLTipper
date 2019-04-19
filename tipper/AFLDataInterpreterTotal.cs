@@ -24,6 +24,20 @@ namespace Tipper
             return inputSet;
         }
 
+        protected override IEnumerable<double> ExtractInputSetForWin(Match m, List<Match> matches, int term,
+            Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
+        {
+            var inputSet = new List<double>
+            {
+                ExtractInput(matches, homeWherePredicate, term, (x => x.IsWinningTeam(m.Home) ? 1.0: 0.0), GetMaxSeasonRounds),
+                ExtractInput(matches, awayWherePredicate, term, (x => x.IsWinningTeam(m.Away) ? 1.0: 0.0), GetMaxSeasonRounds),
+                ExtractInput(matches, homeWherePredicate, term, (x => !x.IsWinningTeam(m.Home) ? 1.0: 0.0), GetMaxSeasonRounds),
+                ExtractInput(matches, awayWherePredicate, term, (x => !x.IsWinningTeam(m.Away) ? 1.0: 0.0), GetMaxSeasonRounds),
+            };
+
+            return inputSet;
+        }
+
         protected override IEnumerable<double> ExtractInputSetForShots(Match m, List<Match> matches, int term,
             Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
         {
@@ -33,6 +47,20 @@ namespace Tipper
                 ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreFor(m.Away).Goals + x.ScoreFor(m.Away).Points), GetMaxSeasonTotal),
                 ExtractInput(matches, homeWherePredicate, term, (x => x.ScoreAgainst(m.Home).Goals + x.ScoreAgainst(m.Home).Points), GetMaxSeasonTotal),
                 ExtractInput(matches, awayWherePredicate, term, (x => x.ScoreAgainst(m.Away).Goals + x.ScoreAgainst(m.Away).Points), GetMaxSeasonTotal)
+            };
+
+            return inputSet;
+        }
+
+        protected override IEnumerable<double> ExtractInputSetForOppotionScore(int term, 
+            List<Tuple<Score, Score, DateTime>> homeOppositionScores, List<Tuple<Score, Score, DateTime>> awayOppositionScores)
+        {
+            var inputSet = new List<double>
+            {
+                ExtractInputFromScoreScoreDateTuplet(term, (x => x.Item1.Total()), homeOppositionScores, GetMaxSeasonTotal),
+                ExtractInputFromScoreScoreDateTuplet(term, (x => x.Item2.Total()), homeOppositionScores, GetMaxSeasonTotal),
+                ExtractInputFromScoreScoreDateTuplet(term, (x => x.Item1.Total()), awayOppositionScores, GetMaxSeasonTotal),
+                ExtractInputFromScoreScoreDateTuplet(term, (x => x.Item2.Total()), awayOppositionScores, GetMaxSeasonTotal)
             };
 
             return inputSet;

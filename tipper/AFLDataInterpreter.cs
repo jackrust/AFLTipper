@@ -55,11 +55,38 @@ namespace Tipper
 
             public static List<List<int>> BespokeLegacyInterpretation = new List<List<int>>
             {
+                new List<int> {1, 8, 21},
+                new List<int> {1, 8, 21},
+                new List<int> {1, 8, 21},
+                new List<int> {1, 8, 21},
+                new List<int> {1, 8, 21}
+                /*
                 new List<int> {1, 19},
                 new List<int> {5, 19},
                 new List<int> {29},
                 new List<int> {5, 11, 19},
-                new List<int> {1, 19}
+                new List<int> {1, 19}*/
+            };
+
+            public static List<List<int>> BespokeLegacyInterpretationWithWins = new List<List<int>>
+            {
+                new List<int> {1, 19},
+                new List<int> {5, 19},
+                new List<int> {29},
+                new List<int> {5, 11, 19},//new List<int> {},
+                new List<int> {1, 19},
+                new List<int> {1, 5, 19}
+            };
+
+            public static List<List<int>> BespokeLegacyInterpretationYearFocus = new List<List<int>>
+            {
+                new List<int> {1, 19},
+                new List<int> {5, 19},
+                new List<int> {29},
+                new List<int> {5, 11, 19},//new List<int> {},
+                new List<int> {1, 19},
+                new List<int> {3, 7},
+                new List<int> {5, 19}
             };
 
             public static List<List<int>> DefaultInterpretation = new List<List<int>>
@@ -104,7 +131,8 @@ namespace Tipper
                 return input;
             foreach (var term in interpretation[0])
             {
-                input.AddRange(ExtractTeamScoreInputSet(m, history, term, ExtractInputSetForScore));
+                if(term > 0)
+                    input.AddRange(ExtractTeamScoreInputSet(m, history, term, ExtractInputSetForScore));
             }
 
             //Scores By Ground
@@ -112,7 +140,8 @@ namespace Tipper
                 return input;
             foreach (var term in interpretation[1])
             {
-                input.AddRange(ExtractGroundScoreInputSet(m, history, term, ExtractInputSetForScore));
+                if (term > 0)
+                    input.AddRange(ExtractGroundScoreInputSet(m, history, term, ExtractInputSetForScore));
             }
 
             //Scores By State longerTerm
@@ -120,7 +149,8 @@ namespace Tipper
                 return input;
             foreach (var term in interpretation[2])
             {
-                input.AddRange(ExtractStateScoreInputSet(m, history, term, ExtractInputSetForScore));
+                if (term > 0)
+                    input.AddRange(ExtractStateScoreInputSet(m, history, term, ExtractInputSetForScore));
             }
 
             //Scores by Day
@@ -128,7 +158,8 @@ namespace Tipper
                 return input;
             foreach (var term in interpretation[3])
             {
-                input.AddRange(ExtractDayScoreInputSet(m, history, term, ExtractInputSetForScore));
+                if (term > 0)
+                    input.AddRange(ExtractDayScoreInputSet(m, history, term, ExtractInputSetForScore));
             }
 
             //Recent Shared Opponents
@@ -136,8 +167,46 @@ namespace Tipper
                 return input;
             foreach (var term in interpretation[4])
             {
-                input.AddRange(ExtractSharedOpponentScoreSet(m, history, term, ExtractInputSetForScore));
+                if (term > 0)
+                    input.AddRange(ExtractSharedOpponentScoreSet(m, history, term, ExtractInputSetForScore));
             }
+
+            //Scores by quality of recent Opponents
+            if (interpretation.Count < 6)
+                return input;
+            foreach (var term in interpretation[4])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractQulityOfRecentOpponentScoreSet(m, history, term, ExtractInputSetForOppotionScore));
+            }
+
+            //Outcome focus
+            //Wins By Team
+            if (interpretation.Count < 1)
+                return input;
+            foreach (var term in interpretation[0])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractTeamWinInputSet(m, history, term, ExtractInputSetForWin));
+            }
+
+            //Year focous
+            //Scores By Team
+            /*if (interpretation.Count < 7)
+                return input;
+            foreach (var term in interpretation[0])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractTeamScoreInputSet(m, history.Where(h => h.Date.Year == m.Date.Year).ToList(), term, ExtractInputSetForScore));
+            }
+
+            if (interpretation.Count < 8)
+                return input;
+            foreach (var term in interpretation[4])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractSharedOpponentScoreSet(m, history.Where(h => h.Date.Year == m.Date.Year).ToList(), term, ExtractInputSetForScore));
+            }*/
 
             //v2 - measure by Shots
             /*
@@ -185,8 +254,15 @@ namespace Tipper
             //Total games played
             //Team consistancy
             //Total disposals
-            //
+            
             return input;
+        }
+
+        private IEnumerable<double> ExtractTeamWinInputSet(Match m, List<Match> matches, int term, Func<Match, List<Match>, int, Func<Match, bool>, Func<Match, bool>, IEnumerable<double>> extrator)
+        {
+            Func<Match, bool> homeWherePredicate = (x => x.HasTeam(m.Home) && x.Date > m.Date.AddDays(-DataExpiryDays));
+            Func<Match, bool> awayWherePredicate = (x => x.HasTeam(m.Away) && x.Date > m.Date.AddDays(-DataExpiryDays));
+            return extrator(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
         private IEnumerable<double> ExtractTeamScoreInputSet(Match m, List<Match> matches, int term, Func<Match, List<Match>, int, Func<Match, bool>, Func<Match, bool>, IEnumerable<double>> extrator)
@@ -284,11 +360,70 @@ namespace Tipper
             return extrator(m, matches, term, homeWherePredicate, awayWherePredicate);
         }
 
+        private IEnumerable<double> ExtractQulityOfRecentOpponentScoreSet(Match m, List<Match> matches,
+            int term,  Func<int,
+            List<Tuple<Score, Score, DateTime>>,
+            List<Tuple<Score, Score, DateTime>>, IEnumerable<double>> extrator)
+        {
+            const int numOpponents = 24;
+            var recentHomeMatches =
+                matches.Where(mtch => mtch.HasTeam(m.Home) && !mtch.HasTeam(m.Away))
+                    .OrderByDescending(mtch => mtch.Date)
+                    .Take(numOpponents)
+                    .ToList();
+
+            var recentAwayMatches =
+                matches.Where(mtch => mtch.HasTeam(m.Away) && !mtch.HasTeam(m.Home))
+                    .OrderByDescending(mtch => mtch.Date)
+                    .Take(numOpponents)
+                    .ToList();
+
+            //Foreach recent game get some recent matches by that team
+            var recentHomeRecentOppenentMatches = new List<Tuple<Score, Score, DateTime>>();
+            foreach (var recentHomeMatch in recentHomeMatches)
+            {
+                var opposition = recentHomeMatch.GetOpposition(m.Home);
+                foreach (var match in matches.Where(mtch => mtch.HasTeam(opposition) && !mtch.HasTeam(m.Home) && mtch.Date <= recentHomeMatch.Date.AddMonths(1) && mtch.Date >= recentHomeMatch.Date.AddMonths(-1)))
+                {
+                    var OppositionInQuestionScore = match.GetTeamScore(opposition);
+                    var OppositionOfOppositionScore = match.GetOppositionScore(opposition);
+                    var date = match.Date;
+                    var tuple = new Tuple<Score, Score, DateTime>(OppositionInQuestionScore, OppositionOfOppositionScore, date);
+                    recentHomeRecentOppenentMatches.Add(tuple);
+                }
+            }
+
+            var recentAwayRecentOppenentMatches = new List<Tuple<Score, Score, DateTime>>();
+            foreach (var recentAwayMatch in recentAwayMatches)
+            {
+                var opposition = recentAwayMatch.GetOpposition(m.Away);
+                foreach (var match in matches.Where(mtch => mtch.HasTeam(opposition) && !mtch.HasTeam(m.Away) && mtch.Date <= recentAwayMatch.Date.AddMonths(1) && mtch.Date >= recentAwayMatch.Date.AddMonths(-1)))
+                {
+                    var OppositionInQuestionScore = match.GetTeamScore(opposition);
+                    var OppositionOfOppositionScore = match.GetOppositionScore(opposition);
+                    var date = match.Date;
+                    var tuple = new Tuple<Score, Score, DateTime>(OppositionInQuestionScore, OppositionOfOppositionScore, date);
+                    recentAwayRecentOppenentMatches.Add(tuple);
+                }
+            }
+
+            return extrator(term, recentHomeRecentOppenentMatches, recentAwayRecentOppenentMatches);
+        }
+
         protected abstract IEnumerable<double> ExtractInputSetForScore(Match m, List<Match> matches, int term,
+            Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate);
+
+        protected abstract IEnumerable<double> ExtractInputSetForWin(Match m, List<Match> matches, int term,
             Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate);        
         
         protected abstract IEnumerable<double> ExtractInputSetForShots(Match m, List<Match> matches, int term,
             Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate);
+
+
+        protected abstract IEnumerable<double> ExtractInputSetForOppotionScore(int term,
+            List<Tuple<Score, Score, DateTime>> homeOppositionScores,
+            List<Tuple<Score, Score, DateTime>> awayOppositionScores);
+
 
         public static double ExtractInput(List<Match> s, Func<Match, bool> wherePredicate, int takeLength,
             Func<Match, double> sumSelector, Func<double, double> maxFunc)
@@ -306,6 +441,21 @@ namespace Tipper
                     .Count());
             return Numbery.Normalise(value, max);
         }
+
+        public static double ExtractInputFromScoreScoreDateTuplet(int takeLength,
+    Func<Tuple<Score, Score, DateTime>, double> sumSelector, List<Tuple<Score, Score, DateTime>> homeOppositionScores, Func<double, double> maxFunc)
+        {
+            var value = homeOppositionScores
+                .OrderByDescending(x => x.Item3)
+                .Take(takeLength)
+                .Sum(sumSelector);
+            var max = maxFunc(
+                homeOppositionScores
+                    .OrderByDescending(x => x.Item3)
+                    .Take(takeLength)
+                    .Count());
+            return Numbery.Normalise(value, max);
+        }
         #endregion
 
         #region Outputs
@@ -313,6 +463,11 @@ namespace Tipper
         #endregion
 
         #region constants
+        public static double GetMaxSeasonRounds(double rounds)
+        {
+            return rounds;
+        }
+
         public static double GetMaxSeasonMargin(double rounds)
         {
             return Util.MaxMargin * rounds;
@@ -320,7 +475,8 @@ namespace Tipper
 
         public static double GetMaxSeasonTotal(double rounds)
         {
-            return Util.MaxScore * rounds;
+            //return Util.MaxScore * rounds;
+            return Util.MaxAverage * rounds;
         }
 
         public static double GetMaxSeasonGoals(double rounds)

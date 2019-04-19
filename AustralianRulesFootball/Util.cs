@@ -8,10 +8,11 @@ namespace AustralianRulesFootball
 {
     public class Util
     {
-        public static double MaxScore = 250; //Ceiling score scored in an AFL Game - semi static
+        public static double MaxScore = 250; //250- Ceiling score scored in an AFL Game - semi static
+        public static double MaxAverage = 180; //Ceiling score scored in an AFL Game - semi static
         public static double MaxGoals = 40; //Ceiling goals scored in an AFL Game - semi static
         public static double MaxPoints = 40; //Ceiling points scored in an AFL Game - semi static
-        public static double MaxMargin = 190; //Ceiling margin scored in an AFL Game - semi static
+        public static double MaxMargin = 119; //119 - Ceiling margin scored in an AFL Game - semi static
         public static double MaxRestDays = 21; //estimate maximum inseason days between games - semi static
         public static double MaxLadderPoints = 4;
 

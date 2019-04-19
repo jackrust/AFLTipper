@@ -6,6 +6,7 @@ using AFLStatisticsService;
 using ArtificialNeuralNetwork;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
+using Tipper.au.com.afl.xml;
 using Utilities;
 
 namespace Tipper
@@ -23,7 +24,21 @@ namespace Tipper
             var db = new MongoDb();
             League = new League();
             //TODO:REMOVE
-            League.Seasons = db.ReadSeasonDocument().Where(x => x.Year >= 2003).ToList();
+            League.Seasons = db.ReadSeasonDocument().Where(x => x.Year >= 2003).OrderBy(x => x.Year).ToList();
+           /* var playerStats = db.ReadPlayerDocument().ToList();
+            foreach (var season in League.Seasons)
+            {
+                foreach (var round in season.Rounds)
+                {
+                    foreach (var match in round.Matches)
+                    {
+                        match.HomePlayerMatches = playerStats.SelectMany(x => x.History).Where(
+                                        h =>
+                                           h.Year == season.Year && h.RoundNo == round.Number &&
+                                            match.Away.Equals(Util.GetTeamByName(h.Against))).ToList();
+                    }
+                }
+            }*/
             Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
         }
 
@@ -156,7 +171,7 @@ namespace Tipper
             var strings = new List<string>();
             foreach (var m in matches)
             {
-                strings.Add(String.Format("{0,9}|{1}|{2, 9}|{3}",
+                strings.Add(String.Format("{0,-9}|{1, -6}|{2, -9}|{3, -6}",
                         m.Home.Mascot, Printlayer(new[]
                                       {
                                           m.HomeTotal,//, Numbery.NormalisationMethod.Asymptotic),

@@ -70,6 +70,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Tipper.cs" />
+    <Compile Include="UI\UIHelpers.cs" />
+    <Compile Include="UI\UIMainLoop.cs" />
+    <Compile Include="UI\UIOptimizerLoop.cs" />
     <Compile Include="Web References\au.com.afl.xml\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using AustralianRulesFootball;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -11,6 +12,37 @@ namespace AFLStatisticsService
     {
         private const string MongoDbExe = @"C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe";
         private const string DatabaseName = "afl";
+
+        #region Combined
+
+        //TODO: Can we just load player data into season data?
+        /*public List<Season> ReadSeasonAndPlayerDocuments()
+        {
+            var database = LoadMongoDatabase();
+            //Load seasons
+            var seasonsCollection = database.GetCollection<BsonDocument>("season");
+            var seasonsDocument = seasonsCollection.Find(_ => true).ToListAsync();
+            seasonsDocument.Wait();
+            var seasons = ObjectifySeason(seasonsDocument.Result);
+
+            //Load player matches
+            var playersCollection = database.GetCollection<BsonDocument>("player");
+            var playersDocument = playersCollection.Find(_ => true).ToListAsync();
+            playersDocument.Wait();
+            var players = ObjectifySeason(playersDocument.Result);
+            //Append player data
+            foreach (var s in seasons)
+            {
+                foreach (var r in s.Rounds)
+                {
+                    foreach (var m in r.Matches)
+                    {
+                        
+                    }
+                }
+            }
+        } */
+        #endregion
 
         #region Season
         public void InsertSeasonDocument(List<BsonDocument> seasons)
