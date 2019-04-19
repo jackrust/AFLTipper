@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Utilities
 {
     public class Randomy
     {
-        public static int Seed = DateTime.Now.Second;
+        public static int Seed = DateTime.Now.Second; 
 
         public static double RandomNormalDistribution(double value, double min, double max, int seed = 0)
         {

@@ -10,7 +10,7 @@ namespace Utilities
     {
         public enum DateAccuracy
         {
-            Millisecond,
+            Millisecond, 
             Second,
             Minute,
             Hour,

@@ -12,7 +12,7 @@ namespace Utilities
 
         public static void Start()
         {
-            _startStack.Push(new BenchmarkData());
+            _startStack.Push(new BenchmarkData()); 
         }
 
         public static void Start(string label)
