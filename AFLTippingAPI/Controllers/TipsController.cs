@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Web.Http;
-using AFLStatisticsService;
 using ArtificialNeuralNetwork;
 using AustralianRulesFootball;
 using Tipper.UI;
