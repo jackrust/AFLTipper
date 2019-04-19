@@ -23,7 +23,6 @@ namespace Utilities
             var result = "";
             var regex = new Regex(@"[$][0-9]{1,3}(?:,?[0-9]{3})*(\.[0-9]{2})*");
             var index = html.IndexOf(option, StringComparison.Ordinal);
-            var matchone = regex.Match(html);
 
             foreach (Match match in regex.Matches(html))
             {
@@ -39,7 +38,7 @@ namespace Utilities
 
     public class HtmlySearchInformation
     {
-        public string keywords;
+        public string Keywords;
     }
 
     public class HtmlyResultDetails

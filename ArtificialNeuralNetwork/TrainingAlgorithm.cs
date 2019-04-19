@@ -148,7 +148,7 @@ namespace ArtificialNeuralNetwork
             double minError = -1;
             double maxError = -1;
             double prevError = -1;
-            var log = new List<List<double>>();
+            //var log = new List<List<double>>();
             do
             {
 
@@ -173,7 +173,7 @@ namespace ArtificialNeuralNetwork
                     AdjustLearningRateDown(network);
                 }
                 prevError = network.Error;
-                log.Add(new List<double>() {network.Epochs, minima, network.Error, minError, maxError});
+                //log.Add(new List<double>() {network.Epochs, minima, network.Error, minError, maxError});
 
             } while (minima < network.MaxMinima && network.Epochs < network.MaxEpochs);
 
