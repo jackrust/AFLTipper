@@ -4,14 +4,14 @@ using Utilities;
 
 namespace AustralianRulesFootball
 {
-    public class Team
+    public class Team : Entity
     {
-        public readonly string Region;
-        public readonly string Mascot;
-        public readonly string ApiName;
-        public readonly List<String> Names;
-        public readonly List<Ground> Homes;
-        public readonly List<Colour> Colours;
+        public string Region;
+        public string Mascot;
+        public string ApiName;
+        public List<String> Names;
+        public List<Ground> Homes;
+        public List<Colour> Colours;
 
         public Team(string region, string mascot, string apiName, Ground home, List<Colour> colours)
             : this(region, mascot, apiName, new List<string>(), new List<Ground>() {home}, colours)

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using Utilities;
 
 namespace AustralianRulesFootball
 {
-    public class Season
+    public class Season : Entity
     {
         public int Year;
         public List<Round> Rounds;
@@ -73,7 +74,7 @@ namespace AustralianRulesFootball
         }
 
         #region IO
-        public string Stringify()
+        /*public string Stringify()
         {
             var s = "";
             s += "<year>"+Year+"</year>";
@@ -120,7 +121,7 @@ namespace AustralianRulesFootball
 
             var season =  new Season(year, rounds);
             return season;
-        }
+        }*/
         #endregion
     }
 }

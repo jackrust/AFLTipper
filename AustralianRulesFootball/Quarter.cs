@@ -4,7 +4,7 @@ using Utilities;
 
 namespace AustralianRulesFootball
 {
-    public class Quarter
+    public class Quarter : Entity
     {
         public enum QuarterNumber
         {

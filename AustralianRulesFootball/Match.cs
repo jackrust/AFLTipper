@@ -7,7 +7,7 @@ using Utilities;
 
 namespace AustralianRulesFootball
 {
-    public class Match
+    public class Match : Entity
     {
         public Team Home;
         public Team Away;
@@ -180,7 +180,7 @@ namespace AustralianRulesFootball
 
         #region IO
 
-        public string Stringify()
+        /*public string Stringify()
         {
             var s = "";
             s += "<hometeam>" + Home.Stringify() + "</hometeam>";
@@ -257,7 +257,7 @@ namespace AustralianRulesFootball
             var homeOdds = bson.GetValue("homeOdds").AsDouble;
             var awayOdds = bson.GetValue("awayOdds").AsDouble;
             return new Match(home, away, quarters, ground, date, homeOdds, awayOdds);
-        }
+        }*/
         #endregion
     }
 }

@@ -6,13 +6,13 @@ using Utilities;
 
 namespace AustralianRulesFootball
 {
-    public class Ground
+    public class Ground : Entity
     {
-        public readonly string Abbreviation;
-        public readonly State State;
-        public readonly GeographicCoordinate Coordinate;
-        public readonly List<string> Names;
-        public readonly List<string> Abbreviations;
+        public string Abbreviation;
+        public State State;
+        public GeographicCoordinate Coordinate;
+        public List<string> Names;
+        public List<string> Abbreviations;
 
         public Ground(string abbreviation, List<string> names, List<string> abbreviations, State state, GeographicCoordinate coordinate)
         {

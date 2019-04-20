@@ -4,7 +4,7 @@ using MongoDB.Bson;
 
 namespace AustralianRulesFootball
 {
-    public class Player
+    public class Player : Entity
     {
         public int FinalSirenPlayerId { get; set; }
         public string Name { get; set; }

@@ -1,17 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using AustralianRulesFootball;
-using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Builders;
 
 namespace AFLStatisticsService
 {
     public class MongoDb
     {
-        private const string MongoDbExe = @"C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe";
+        private string MongoDbConnectionString;
+        private const string MongoDbExeLocal = @"C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe";
         private const string DatabaseName = "afl";
+
+        public MongoDb()
+        {
+            MongoDbConnectionString = ConfigurationManager.AppSettings.Get("MONGOHQ_URL") ??
+                ConfigurationManager.AppSettings.Get("MONGOLAB_URI") ??
+                "mongodb://localhost/Seasons";
+        }
 
         #region Combined
 
@@ -44,8 +52,58 @@ namespace AFLStatisticsService
         } */
         #endregion
 
+        #region ReleaseMongo
+        public void InsertSeasonDocument(List<int> seasons)
+        {
+            var database = MongoDatabase.Create(MongoDbConnectionString);
+
+            var collection = database.GetCollection<Season>("Seasons");
+
+            // insert object
+            foreach (var season in seasons)
+            {
+                collection.Insert(season);
+            }
+        }
+
+        //TODO: Replace List with IEnumerable - it will prevent enumaration early and speed shit up
+        public List<Season> ReadSeasonDocument()
+        {
+            var database = LoadMongoDatabase();
+            var collection = database.GetCollection<Season>("Seasons");
+            return collection.FindAll().ToList();
+        }
+
+        public void UpdateSeasonDocument(List<Season> seasons)
+        {
+            var database = LoadMongoDatabase();
+            var collection = database.GetCollection<Season>("Seasons");
+
+            foreach (var s in seasons)
+            {
+                collection.Update(Query.EQ("Year", s.Year.ToString()), Update.Replace(s), UpdateFlags.Upsert);
+            }
+            if (false)
+            {
+                foreach (var s in seasons)
+                {
+                    collection.Insert(s);
+                }
+            }
+        }
+
+
+
+        private MongoDatabase LoadMongoDatabase()
+        {
+            return MongoDatabase.Create(MongoDbConnectionString);
+        }
+
+        #endregion
+
+
         #region Season
-        public void InsertSeasonDocument(List<BsonDocument> seasons)
+        /*public void InsertSeasonDocumentz(List<BsonDocument> seasons)
         {
             var database = LoadMongoDatabase();
             var collection = database.GetCollection<BsonDocument>("season");
@@ -57,17 +115,17 @@ namespace AFLStatisticsService
             }
 
             collection.InsertMany(seasons);
-        }
+        }*/
 
-        public List<Season> ReadSeasonDocument()
+        /*public List<Season> ReadSeasonDocument()
         {
             var database = LoadMongoDatabase();
             var collection = database.GetCollection<BsonDocument>("season");
             var documents = collection.Find(_ => true).ToListAsync();
             documents.Wait();
             return ObjectifySeason(documents.Result);
-        }
-
+        }*/
+        /*
         public void UpdateSeasonDocument(List<BsonDocument> seasons)
         {
             var database = LoadMongoDatabase();
@@ -86,10 +144,9 @@ namespace AFLStatisticsService
                     collection.InsertOne(s);
                 }
             }
-            
-        }
+        }*/
 
-        private List<Season> ObjectifySeason(List<BsonDocument> documents)
+        /*private List<Season> ObjectifySeason(List<BsonDocument> documents)
         {
             var seasons = new List<Season>();
             foreach (var d in documents)
@@ -105,11 +162,11 @@ namespace AFLStatisticsService
                 }
             }
             return seasons;
-        }
+        }*/
         #endregion
 
         #region Player
-        public List<Player> ReadPlayerDocument()
+        /*public List<Player> ReadPlayerDocument()
         {
             var database = LoadMongoDatabase();
             var collection = database.GetCollection<BsonDocument>("player");
@@ -154,11 +211,11 @@ namespace AFLStatisticsService
                 }
             }
             return players;
-        }
+        }*/
         #endregion
 
 
-        private static IMongoDatabase LoadMongoDatabase()
+        /*private static IMongoDatabase LoadMongoDatabase()
         {
             if (!IsProcessOpen("mongod"))
             {
@@ -168,7 +225,7 @@ namespace AFLStatisticsService
             var client = new MongoClient("mongodb://localhost:27017");
             var database = client.GetDatabase(DatabaseName);
             return database;
-        }
+        }*/
 
         public static bool IsProcessOpen(string name)
         {

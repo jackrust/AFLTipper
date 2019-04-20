@@ -29,8 +29,9 @@ namespace AFLStatisticsService
                     case ("U"):
                         Console.WriteLine("Updating Matches");
                         UpdateMatches(db);
-                        Console.WriteLine("Updating Players");
-                        UpdatePlayers(db, updateFromYear);
+                        //TODO: Reinstate once Mongo works
+                        //Console.WriteLine("Updating Players");
+                        //UpdatePlayers(db, updateFromYear);
                         break;
                     case ("Q"):
                         loop = false;
@@ -43,7 +44,7 @@ namespace AFLStatisticsService
         }
 
         //TODO: Might be less page hits to update by match (once we have their starting data)
-        private static void UpdatePlayers(MongoDb db, int updateFromYear)
+        /*private static void UpdatePlayers(MongoDb db, int updateFromYear)
         {
             Console.WriteLine("Beginning UpdatePlayers");
             var year = DateTime.Now.Year;
@@ -71,7 +72,7 @@ namespace AFLStatisticsService
 
             //update db
             db.UpdatePlayerDocument(players.Select(p => p.Bsonify()).ToList());
-        }
+        }*/
 
         private static void UpdateMatches(MongoDb db)
         {
@@ -93,7 +94,7 @@ namespace AFLStatisticsService
             seasons = UpdateFrom(seasons, year, number + 1);
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
-            db.UpdateSeasonDocument(seasons.Select(s => s.Bsonify()).ToList());
+            db.UpdateSeasonDocument(seasons);
         }
 
         private static List<Season> UpdateFrom(List<Season> seasons, int year, int number)
@@ -143,11 +144,11 @@ namespace AFLStatisticsService
             return seasons;
         }
 
-        public static League Objectify(string str)
+        /*public static League Objectify(string str)
         {
             var ss = Stringy.SplitOn(Stringy.SplitOn(str, "seasons")[0], "season");
             var seasons = ss.Select(Season.Objectify).ToList();
             return new League(seasons);
-        }
+        }*/
     }
 }

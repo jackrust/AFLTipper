@@ -4,7 +4,7 @@ using Utilities;
 
 namespace AustralianRulesFootball
 {
-    public class Score
+    public class Score : Entity
     {
         public double Goals;
         public double Points;
