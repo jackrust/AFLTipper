@@ -2,7 +2,7 @@
 
 namespace AustralianRulesFootball
 {
-    public class PlayerMatch
+    public class PlayerMatch : Entity
     {
         public int FinalSirenPlayerId { get; set; }
         public int Year { get; set; }

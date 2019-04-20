@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using MongoDB.Bson;
-using Utilities;
+﻿using System.Collections.Generic;
 
 namespace AustralianRulesFootball
 {
@@ -13,7 +9,7 @@ namespace AustralianRulesFootball
             return (Matches != null ? Matches.GetHashCode() : 0);
         }
 
-        public readonly List<Match> Matches;
+        public List<Match> Matches;
         public bool IsFinal { get; set; }
 
         public Round() : this(0, 0, false, new List<Match>()) { }
@@ -42,7 +38,7 @@ namespace AustralianRulesFootball
         }
 
         #region IO
-        public string Stringify()
+        /*public string Stringify()
         {
             var s = "";
             s += "<year>" + Year + "</year>";
@@ -96,7 +92,7 @@ namespace AustralianRulesFootball
             var matches = bson.GetValue("matches").AsBsonArray.Select(r => Match.Objectify(r.AsBsonDocument)).ToList();
 
             return new Round(year, number, matches);
-        }
+        }*/
         #endregion
     }
 }

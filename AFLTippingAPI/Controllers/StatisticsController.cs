@@ -6,7 +6,6 @@ using System.Web.Http;
 using AFLStatisticsService;
 using AFLStatisticsService.API;
 using AustralianRulesFootball;
-using Utilities;
 
 namespace AFLTippingAPI.Controllers
 {
@@ -19,30 +18,39 @@ namespace AFLTippingAPI.Controllers
         public IEnumerable<string> Get()
         {
             var db = new MongoDb();
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-            UpdateMatches(db);
-            TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-            ts.Hours, ts.Minutes, ts.Seconds,
-            ts.Milliseconds / 10);
-            return new List<string> { string.Format("elapsedTime: {0}", elapsedTime) };
+            var seasons = db.ReadSeasonDocument() ?? new List<Season>();
+            seasons = seasons.OrderBy(s => s.Year).ToList();
+            return seasons.Select(s => s.Year.ToString());
         }
 
         // GET api/statistics/5
         public string Get(int id)
         {
-            return "value";
+            var db = new MongoDb();
+            var seasons = db.ReadSeasonDocument() ?? new List<Season>();
+            return seasons.Any(s => s.Year == id)? "Exists" : "Does not exist";
         }
 
         // POST api/statistics
         public void Post([FromBody]string value)
         {
+            var db = new MongoDb();
+            UpdateAllSeasons(db);
         }
 
         // PUT api/statistics/5
         public void Put(int id, [FromBody]string value)
         {
+            if (id < 2000)
+            {
+                return;
+            }
+            if (id > DateTime.Now.Year)
+            {
+                return;
+            }
+            var db = new MongoDb();
+            UpdateSeason(db, id);
         }
 
         // DELETE api/statistics/5
@@ -50,7 +58,7 @@ namespace AFLTippingAPI.Controllers
         {
         }
 
-        private static void UpdateMatches(MongoDb db)
+        private static void UpdateAllSeasons(MongoDb db)
         {
             //What have I got?
             var seasons = db.ReadSeasonDocument() ?? new List<Season>();
@@ -66,41 +74,34 @@ namespace AFLTippingAPI.Controllers
             var year = lastCompletedRound == null ? StartingYear : lastCompletedRound.Year;
             var number = lastCompletedRound == null ? 0 : lastCompletedRound.Number;
             //add any new matches between last match and now
-            seasons = UpdateFrom(seasons, year, number + 1);
+            seasons = UpdateFrom(db, seasons, year, number + 1);
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
-            db.UpdateSeasonDocument(seasons.Select(s => s.Bsonify()).ToList());
+            db.UpdateSeasonDocument(seasons);
         }
 
-        private static List<Season> UpdateFrom(List<Season> seasons, int year, int number)
+        private static void UpdateSeason(MongoDb db, int year)
+        {
+            //What have I got?
+            var seasons = db.ReadSeasonDocument() ?? new List<Season>();
+            seasons = seasons.OrderBy(s => s.Year).ToList();
+
+            var number = 0;
+            //add any new matches between last match and now
+            Update(db, seasons, year, number + 1);
+        }
+
+        private static List<Season> UpdateFrom(MongoDb db, List<Season> seasons, int year, int number)
         {
             if (seasons.Count == 1)
                 seasons = new List<Season>();
-            var api = new FinalSirenApi();
             Console.WriteLine(year + ", " + number);
             var successful = true;
             while (successful)
             {
                 try
                 {
-                    var numRounds = api.GetNumRounds(year);
-                    for (var i = number; i <= numRounds; i++)
-                    {
-                        var round = api.GetRoundResults(year, i);
-                        if (seasons.All(s => s.Year != year))
-                        {
-                            seasons.Add(new Season(year, new List<Round>()));
-                        }
-
-                        if (seasons.First(s => s.Year == year).Rounds.Count >= i)
-                        {
-                            seasons.First(s => s.Year == year).Rounds[i - 1] = round;
-                        }
-                        else
-                        {
-                            seasons.First(s => s.Year == year).Rounds.Add(round);
-                        }
-                    }
+                    Update(db, seasons, year, number);
                 }
                 catch (Exception e)
                 {
@@ -118,11 +119,30 @@ namespace AFLTippingAPI.Controllers
             return seasons;
         }
 
-        public static League Objectify(string str)
+        private static void Update(MongoDb db, List<Season> seasons, int year, int number)
         {
-            var ss = Stringy.SplitOn(Stringy.SplitOn(str, "seasons")[0], "season");
-            var seasons = ss.Select(Season.Objectify).ToList();
-            return new League(seasons);
+
+            var api = new FinalSirenApi();
+
+            var numRounds = api.GetNumRounds(year);
+            for (var i = number; i <= numRounds; i++)
+            {
+                var round = api.GetRoundResults(year, i);
+                if (seasons.All(s => s.Year != year))
+                {
+                    seasons.Add(new Season(year, new List<Round>()));
+                }
+
+                if (seasons.First(s => s.Year == year).Rounds.Count >= i)
+                {
+                    seasons.First(s => s.Year == year).Rounds[i - 1] = round;
+                }
+                else
+                {
+                    seasons.First(s => s.Year == year).Rounds.Add(round);
+                }
+            }
+            db.UpdateSeasonDocument(seasons);
         }
     }
 }

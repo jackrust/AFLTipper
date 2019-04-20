@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AustralianRulesFootball
 {
-    public class MatchStatistics
+    public class MatchStatistics : Entity
     {
         public string For { get; set; }
         public string Against { get; set; }

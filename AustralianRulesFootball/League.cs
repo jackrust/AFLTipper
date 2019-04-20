@@ -7,7 +7,7 @@ using Utilities;
 
 namespace AustralianRulesFootball
 {
-    public class League
+    public class League : Entity
     {
         public static int StartingYear = 2007;
         public List<Season> Seasons;
@@ -56,7 +56,7 @@ namespace AustralianRulesFootball
         }
 
         //TODO: Obselete: use MongoDB
-        public static League Load()
+        /*public static League Load()
         {
             var league = new League();
             const string fileName = "League/League.txt";
@@ -118,17 +118,17 @@ namespace AustralianRulesFootball
 
             
             //Write to file for next time
-            var file = new StreamWriter(fileName);
+            /*var file = new StreamWriter(fileName);
             var s = league.Stringify();
             file.WriteLine(s);
             file.Close();
             
             return league;
-        }
+        }*/
 
         #region IO
 
-        public string Stringify()
+        /*public string Stringify()
         {
             var s = "";
             s += "<seasons>";
@@ -147,7 +147,7 @@ namespace AustralianRulesFootball
             var ss = Stringy.SplitOn(Stringy.SplitOn(str, "seasons")[0], "season");
             var seasons = ss.Select(Season.Objectify).ToList();
             return new League(seasons);
-        }
+        }*/
 
         #endregion
     }

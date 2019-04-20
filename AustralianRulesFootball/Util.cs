@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace AustralianRulesFootball
 {
-    public class Util
+    public class Util : Entity
     {
         public static double MaxScore = 250; //250- Ceiling score scored in an AFL Game - semi static
         public static double MaxAverage = 180; //Ceiling score scored in an AFL Game - semi static

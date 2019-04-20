@@ -1,6 +1,6 @@
 ﻿namespace AustralianRulesFootball
 {
-    public class RoundShell
+    public class RoundShell : Entity
     {
         public int Year;
         public int Number;

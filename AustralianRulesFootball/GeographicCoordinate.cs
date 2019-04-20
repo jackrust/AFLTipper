@@ -1,6 +1,6 @@
 ﻿namespace AustralianRulesFootball
 {
-    public class GeographicCoordinate
+    public class GeographicCoordinate : Entity
     {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
