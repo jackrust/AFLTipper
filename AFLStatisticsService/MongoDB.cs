@@ -16,7 +16,7 @@ namespace AFLStatisticsService
         private static readonly string LocalDatabaseName = "afl";
         private static readonly string RemoteDatabaseName = "appharbor_qzz6l02h";
         private string MongoDbConnectionString;
-        private string DatabaseName = "afl";
+        private string DatabaseName;
 
         public MongoDb()
         {
