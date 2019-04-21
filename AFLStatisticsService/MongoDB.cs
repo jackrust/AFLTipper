@@ -11,15 +11,19 @@ namespace AFLStatisticsService
 {
     public class MongoDb
     {
+        //C:\Program Files\MongoDB\Server\3.6\bin\mongod.exe;
+        private static readonly string LocalConnectionstring = "mongodb://localhost/Seasons";
+        private static readonly string LocalDatabaseName = "afl";
+        private static readonly string RemoteDatabaseName = "appharbor_qzz6l02h";
         private string MongoDbConnectionString;
-        private const string MongoDbExeLocal = @"C:\Program Files\MongoDB\Server\3.2\bin\mongod.exe";//@"C:\Program Files\MongoDB\Server\3.6\bin\mongod.exe"
-        private const string DatabaseName = "afl";
+        private string DatabaseName = "afl";
 
         public MongoDb()
         {
             MongoDbConnectionString = ConfigurationManager.AppSettings.Get("MONGOHQ_URL") ??
                 ConfigurationManager.AppSettings.Get("MONGOLAB_URI") ??
-                "mongodb://localhost/Seasons";
+                LocalConnectionstring;
+            DatabaseName = MongoDbConnectionString == LocalConnectionstring ? LocalDatabaseName : RemoteDatabaseName;
         }
 
         #region Combined
@@ -59,7 +63,7 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(MongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase("afl").GetCollection<Season>("Seasons");
+            var databaseSeasons = session.Client.GetDatabase(DatabaseName).GetCollection<Season>("Seasons");
             var nullFilter = new FilterDefinitionBuilder<Season>().Empty;
             var results = databaseSeasons.Find<Season>(nullFilter).ToList();
             return results;
@@ -72,7 +76,7 @@ namespace AFLStatisticsService
             //var collection = database.GetCollection<Season>("Seasons");
             var client = new MongoClient(MongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase("afl").GetCollection<Season>("Seasons");
+            var databaseSeasons = session.Client.GetDatabase(DatabaseName).GetCollection<Season>("Seasons");
 
             try
             {
@@ -103,7 +107,7 @@ namespace AFLStatisticsService
 
             var clientz = new MongoClient(MongoDbConnectionString);
             var sessionz = client.StartSession();
-            var databaseSeasonsz = session.Client.GetDatabase("afl").GetCollection<Season>("Seasons");
+            var databaseSeasonsz = session.Client.GetDatabase(DatabaseName).GetCollection<Season>("Seasons");
             var nullFilterz = new FilterDefinitionBuilder<Season>().Empty;
             var resultsz = databaseSeasons.Find<Season>(nullFilterz).ToList();
         }
