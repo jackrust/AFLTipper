@@ -19,7 +19,7 @@ namespace AFLTippingAPI.Controllers
             var db = new MongoDb();
             var seasons = db.ReadSeasonDocument() ?? new List<Season>();
             seasons = seasons.OrderBy(s => s.Year).ToList();
-            return seasons.Select(s => s.Year.ToString());
+            return seasons.Select(s => String.Format("{0}, {1}", s.Year.ToString(), s.Rounds.Count()));
         }
 
         // GET api/statistics/5
