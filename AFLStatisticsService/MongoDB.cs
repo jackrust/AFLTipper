@@ -74,22 +74,27 @@ namespace AFLStatisticsService
             return collection.FindAll().ToList();
         }
 
+        //TODO: this is getting silly, better to just create dedicated actions (insert, update, delete) rather than this catch all
         public void UpdateSeasonDocument(List<Season> seasons)
         {
             var database = LoadMongoDatabase();
             var collection = database.GetCollection<Season>("Seasons");
+            var databaseSeasons = collection.FindAll().ToList();
 
             foreach (var s in seasons)
             {
-                collection.Update(Query.EQ("Year", s.Year.ToString()), Update.Replace(s), UpdateFlags.Upsert);
-            }
-            if (false)
-            {
-                foreach (var s in seasons)
+                if (databaseSeasons.Any(dbs => dbs.Year == s.Year))
+                {
+                    collection.Update(Query.EQ("Year", s.Year.ToString()), Update.Replace(s), UpdateFlags.Upsert);
+                }
+                else
                 {
                     collection.Insert(s);
                 }
             }
+            var databasez = LoadMongoDatabase();
+            var collectionz = database.GetCollection<Season>("Seasons");
+            var databaseSeasonsz = collection.FindAll().ToList();
         }
 
 
