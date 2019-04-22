@@ -17,7 +17,7 @@ namespace AFLTippingAPI.Controllers
         public IEnumerable<string> Get()
         {
             var db = new MongoDb();
-            var seasons = db.ReadSeasonDocument() ?? new List<Season>();
+            var seasons = db.GetSeasons() ?? new List<Season>();
             seasons = seasons.OrderBy(s => s.Year).ToList();
             return seasons.Select(s => String.Format("{0}, {1}", s.Year.ToString(), s.Rounds.Count()));
         }
@@ -26,7 +26,7 @@ namespace AFLTippingAPI.Controllers
         public string Get(int id)
         {
             var db = new MongoDb();
-            var seasons = db.ReadSeasonDocument() ?? new List<Season>();
+            var seasons = db.GetSeasons() ?? new List<Season>();
             return seasons.Any(s => s.Year == id)? "Exists" : "Does not exist";
         }
 
@@ -60,7 +60,7 @@ namespace AFLTippingAPI.Controllers
         private static void UpdateAllSeasons(MongoDb db)
         {
             //What have I got?
-            var seasons = db.ReadSeasonDocument() ?? new List<Season>();
+            var seasons = db.GetSeasons().ToList();
             seasons = seasons.OrderBy(s => s.Year).ToList();
 
             var lastCompletedRound =
@@ -76,13 +76,13 @@ namespace AFLTippingAPI.Controllers
             seasons = UpdateFrom(db, seasons, year, number + 1);
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
-            db.UpdateSeasonDocument(seasons);
+            db.UpdateSeasons(seasons);
         }
 
         private static void UpdateSeason(MongoDb db, int year)
         {
             //What have I got?
-            var seasons = db.ReadSeasonDocument() ?? new List<Season>();
+            var seasons = db.GetSeasons().ToList();
             seasons = seasons.OrderBy(s => s.Year).ToList();
 
             var number = 0;
@@ -141,7 +141,7 @@ namespace AFLTippingAPI.Controllers
                     seasons.First(s => s.Year == year).Rounds.Add(round);
                 }
             }
-            db.UpdateSeasonDocument(seasons);
+            db.UpdateSeasons(seasons);
         }
     }
 }

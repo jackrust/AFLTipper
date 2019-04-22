@@ -78,7 +78,7 @@ namespace AFLStatisticsService
         {
             Console.WriteLine("Beginning UpdateMatches");
             //What have I got?
-            var seasons = db.ReadSeasonDocument() ?? new List<Season>();
+            var seasons = db.GetSeasons().ToList();
             seasons = seasons.OrderBy(s => s.Year).ToList();
 
             var lastCompletedRound =
@@ -91,10 +91,10 @@ namespace AFLStatisticsService
             var year = lastCompletedRound == null ? StartingYear : lastCompletedRound.Year;
             var number = lastCompletedRound == null ? 0 : lastCompletedRound.Number;
             //add any new matches between last match and now
-            seasons = UpdateFrom(seasons, year, number + 1);
+            seasons = UpdateFrom(seasons, year, number + 1).ToList();
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
-            db.UpdateSeasonDocument(seasons);
+            db.UpdateSeasons(seasons);
         }
 
         private static List<Season> UpdateFrom(List<Season> seasons, int year, int number)

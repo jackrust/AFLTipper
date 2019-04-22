@@ -11,8 +11,8 @@ namespace AustralianRulesFootball
         public string Abbreviation;
         public State State;
         public GeographicCoordinate Coordinate;
-        public List<string> Names;
-        public List<string> Abbreviations;
+        public IEnumerable<string> Names;
+        public IEnumerable<string> Abbreviations;
 
         public Ground(string abbreviation, List<string> names, List<string> abbreviations, State state, GeographicCoordinate coordinate)
         {

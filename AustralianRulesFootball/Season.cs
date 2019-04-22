@@ -74,10 +74,11 @@ namespace AustralianRulesFootball
         }
 
         #region IO
-        /*public string Stringify()
+        public string Stringify()
         {
             var s = "";
             s += "<year>"+Year+"</year>";
+            s += "<id>"+Id+"</id>";
             s += "<rounds>";
             foreach (var r in Rounds)
             {
@@ -88,7 +89,7 @@ namespace AustralianRulesFootball
             s += "</rounds>";
             return s;
         }
-
+        /*
         public BsonDocument Bsonify()
         {
             //TODO: this probably shouldn't know about Bson
@@ -104,16 +105,17 @@ namespace AustralianRulesFootball
                 {"rounds", rounds}
             };
             return match;
-        }
+        }*/
 
         public static Season Objectify(string str)
         {
             var year = Convert.ToInt32(Stringy.SplitOn(str, "year")[0]);
             var rs = Stringy.SplitOn(Stringy.SplitOn(str, "rounds")[0], "round");
             var rounds = rs.Select(Round.Objectify).ToList();
-            return new Season(year, rounds);
+            var season = new Season(year, rounds);
+            return season;
         }
-
+        /*
         public static Season Objectify(BsonDocument bson)
         {
             var year = bson.GetValue("year").AsInt32;

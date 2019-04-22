@@ -24,7 +24,7 @@ namespace Tipper
             var db = new MongoDb();
             League = new League();
             //TODO:REMOVE
-            League.Seasons = db.ReadSeasonDocument().Where(x => x.Year >= 2003).OrderBy(x => x.Year).ToList();
+            League.Seasons = db.GetSeasons().Where(x => x.Year >= 2003).OrderBy(x => x.Year).ToList();
            /* var playerStats = db.ReadPlayerDocument().ToList();
             foreach (var season in League.Seasons)
             {

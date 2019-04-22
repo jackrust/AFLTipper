@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
-using System.Diagnostics;
 using System.Linq;
 using AustralianRulesFootball;
 using MongoDB.Driver;
@@ -12,38 +11,37 @@ namespace AFLStatisticsService
     public class MongoDb
     {
         //C:\Program Files\MongoDB\Server\3.6\bin\mongod.exe;
-        private static readonly string LocalConnectionstring = "mongodb://localhost/Seasons";
-        private static readonly string LocalDatabaseName = "afl";
-        private static readonly string RemoteDatabaseName = "appharbor_qzz6l02h";
-        private string MongoDbConnectionString;
-        private string DatabaseName;
+        public static readonly string LocalConnectionString = "mongodb://localhost/Seasons";
+        public static readonly string LocalDatabaseName = "afl";
+        public static readonly string RemoteDatabaseName = "appharbor_qzz6l02h";
+        private readonly string _mongoDbConnectionString;
+        private readonly string _databaseName;
 
         public MongoDb()
         {
-            MongoDbConnectionString = ConfigurationManager.AppSettings.Get("MONGOHQ_URL") ??
-                ConfigurationManager.AppSettings.Get("MONGOLAB_URI") ??
-                LocalConnectionstring;
-            DatabaseName = MongoDbConnectionString == LocalConnectionstring ? LocalDatabaseName : RemoteDatabaseName;
+            _mongoDbConnectionString = ConfigurationManager.AppSettings.Get("MONGOHQ_URL") ??
+                                      ConfigurationManager.AppSettings.Get("MONGOLAB_URI") ??
+                                      LocalConnectionString;
+            _databaseName = _mongoDbConnectionString == LocalConnectionString ? LocalDatabaseName : RemoteDatabaseName;
         }
 
         #region ReleaseMongo
-        //TODO: Replace List with IEnumerable - it will prevent enumaration early and speed shit up
-        public List<Season> ReadSeasonDocument()
+
+        public IEnumerable<Season> GetSeasons()
         {
-            var client = new MongoClient(MongoDbConnectionString);
+            var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase(DatabaseName).GetCollection<Season>("Seasons");
+            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Season>("Seasons");
             var nullFilter = new FilterDefinitionBuilder<Season>().Empty;
-            var results = databaseSeasons.Find<Season>(nullFilter).ToList();
+            var results = databaseSeasons.Find(nullFilter).ToList();
             return results;
         }
 
-        //TODO: this is getting silly, better to just create dedicated actions (insert, update, delete) rather than this catch all
-        public void UpdateSeasonDocument(List<Season> seasons)
+        public void UpdateSeasons(List<Season> seasons)
         {
-            var client = new MongoClient(MongoDbConnectionString);
+            var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase(DatabaseName).GetCollection<Season>("Seasons");
+            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Season>("Seasons");
 
             try
             {
@@ -51,26 +49,51 @@ namespace AFLStatisticsService
                 foreach (var s in seasons)
                 {
                     var nullFilter = new FilterDefinitionBuilder<Season>().Empty;
-                    var results = databaseSeasons.Find<Season>(nullFilter).ToList();
+                    var results = databaseSeasons.Find(nullFilter).ToList();
 
                     if (results.Any(dbs => dbs.Year == s.Year))
                     {
-                        var filter = new BsonDocument("Year", s.Year.ToString());
-                        databaseSeasons.ReplaceOne(filter, s);
+                        var filter = new BsonDocument("Year", s.Year);
+                        databaseSeasons.DeleteOne(filter);
+                        databaseSeasons.InsertOne(s);
                     }
                     else
                     {
                         databaseSeasons.InsertOne(s);
                     }
                 }
+
                 session.CommitTransaction();
             }
             catch (Exception e)
             {
                 session.AbortTransaction();
-                return;
+                throw;
             }
         }
+
         #endregion
+
+        public void DeleteSeason(int year)
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Season>("Seasons");
+
+            try
+            {
+                session.StartTransaction();
+
+                var filter = new BsonDocument("Year", year);
+                databaseSeasons.DeleteOne(filter);
+
+                session.CommitTransaction();
+            }
+            catch (Exception)
+            {
+                session.AbortTransaction();
+                throw;
+            }
+        }
     }
 }

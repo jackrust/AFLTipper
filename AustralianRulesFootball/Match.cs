@@ -180,7 +180,7 @@ namespace AustralianRulesFootball
 
         #region IO
 
-        /*public string Stringify()
+        public string Stringify()
         {
             var s = "";
             s += "<hometeam>" + Home.Stringify() + "</hometeam>";
@@ -200,7 +200,7 @@ namespace AustralianRulesFootball
             return s;
         }
 
-        public BsonDocument Bsonify()
+        /*public BsonDocument Bsonify()
         {
             //TODO: this probably shouldn't know about Bson
             var quarters = new BsonDocument()
@@ -222,7 +222,7 @@ namespace AustralianRulesFootball
                 {"awayOdds", AwayOdds}
             };
             return match;
-        }
+        }*/
 
         public static Match Objectify(string str)
         {
@@ -241,7 +241,7 @@ namespace AustralianRulesFootball
             var awayOdds = Double.Parse(aos);
             return new Match(home, away, quarters, ground, date, homeOdds, awayOdds);
         }
-
+        /*
         public static Match Objectify(BsonDocument bson)
         {
             var home = Team.LoadByName(bson.GetValue("home").AsString);

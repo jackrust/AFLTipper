@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Utilities;
 
 namespace AustralianRulesFootball
 {
@@ -38,11 +41,12 @@ namespace AustralianRulesFootball
         }
 
         #region IO
-        /*public string Stringify()
+        public string Stringify()
         {
             var s = "";
             s += "<year>" + Year + "</year>";
             s += "<number>" + Number + "</number>";
+            s += "<isfinal>" + (IsFinal ? "true":"false") + "</isfinal>";
             s += "<matches>";
             foreach (var m in Matches)
             {
@@ -53,7 +57,7 @@ namespace AustralianRulesFootball
             s += "</matches>";
             return s;
         }
-
+        /*
         public BsonDocument Bsonify()
         {
             var matches = new BsonArray();
@@ -71,20 +75,21 @@ namespace AustralianRulesFootball
 
             return round;
         }
-
+        */
         public static Round Objectify(string str)
         {
             var year = Convert.ToInt32(Stringy.SplitOn(str, "year")[0]);
             var number = Convert.ToInt32(Stringy.SplitOn(str, "number")[0]);
+            var isFinal = Convert.ToBoolean(Stringy.SplitOn(str, "isfinal")[0]);
             var ms = Stringy.SplitOn(Stringy.SplitOn(str, "matches")[0], "match");
 
             if (ms.Count == 0 || ms[0] == "0" || ms[0] == "")
                 return new Round();
 
             var matches = ms.Select(Match.Objectify).ToList();
-            return new Round(year, number, matches);
+            return new Round(year, number, isFinal, matches);
         }
-
+        /*
         public static Round Objectify(BsonDocument bson)
         {
             var year = bson.GetValue("year").AsInt32;
