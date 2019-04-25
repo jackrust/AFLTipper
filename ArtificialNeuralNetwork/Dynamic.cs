@@ -13,9 +13,9 @@ namespace ArtificialNeuralNetwork
 
 	    public Dynamic() {}
 	    public Dynamic(IEnumerable<Neuron> inputs):base(inputs) {}
-	    public Dynamic(String name):base(name) {}
+	    public Dynamic(string name):base(name) {}
 
-        public Dynamic(List<Dendrite> dendrites, String name, double threshold)
+        public Dynamic(List<Dendrite> dendrites, string name, double threshold)
             : base(dendrites, name, threshold) {}
 
 

@@ -14,7 +14,7 @@ namespace ArtificialNeuralNetwork
         public Input() { Dendrites = new List<Dendrite>(); }
 
 
-        public Input(String name)
+        public Input(string name)
             : this(name, DefaultValue)
         {
             Dendrites = new List<Dendrite>();
@@ -25,7 +25,7 @@ namespace ArtificialNeuralNetwork
             Dendrites = new List<Dendrite>();
 	    }
 	
-	    public Input(String name, double value):base(name)
+	    public Input(string name, double value):base(name)
         {
 		    Value = value;
             Dendrites = new List<Dendrite>();

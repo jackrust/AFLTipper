@@ -35,9 +35,6 @@
     <Reference Include="AForge.Neuro">
       <HintPath>..\..\..\..\..\..\..\Program Files (x86)\AForge.NET\Framework\Release\AForge.Neuro.dll</HintPath>
     </Reference>
-    <Reference Include="ArtificialNeuralNetwork">
-      <HintPath>..\..\Library\ArtificialNeuralNetwork\obj\Debug\ArtificialNeuralNetwork.dll</HintPath>
-    </Reference>
     <Reference Include="BureauOfMeteorology">
       <HintPath>..\..\Library\BureauOfMeteorology\bin\Debug\BureauOfMeteorology.dll</HintPath>
     </Reference>
@@ -289,6 +286,10 @@
     <ProjectReference Include="..\AFLStatisticsService\AFLStatisticsService.csproj">
       <Project>{2365D600-71E6-4272-A882-FE8BEBA79410}</Project>
       <Name>AFLStatisticsService</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ArtificialNeuralNetwork\ArtificialNeuralNetwork.csproj">
+      <Project>{291a3ae9-0951-412d-93d5-ddca1cee2455}</Project>
+      <Name>ArtificialNeuralNetwork</Name>
     </ProjectReference>
     <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
       <Project>{61fbb7c9-f3a6-4972-81e1-6a5be0a176e3}</Project>

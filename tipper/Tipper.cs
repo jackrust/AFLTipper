@@ -73,17 +73,17 @@ namespace Tipper
                 .SelectMany(r => r.Matches);
             foreach (var m in matches)
             {
-                var datapoint = new DataPoint();
+                var dataPoint = new DataPoint();
                 var history =
                     rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).ToList();
-                datapoint.Inputs = (BuildInputs(history, m, interpretation));
-                datapoint.Outputs = (new List<double>()
+                dataPoint.Inputs = (BuildInputs(history, m, interpretation));
+                dataPoint.Outputs = (new List<double>()
                 {
                     Numbery.Normalise(m.HomeScore().Total(), Util.MaxScore),
                     Numbery.Normalise(m.AwayScore().Total(), Util.MaxScore)
                 });
-                datapoint.Reference = m;
-                data.DataPoints.Add(datapoint);
+                dataPoint.Reference = m;
+                data.DataPoints.Add(dataPoint);
             }
             return data;
         }

@@ -37,15 +37,15 @@
     </Reference>
     <Reference Include="MongoDB.Bson, Version=2.7.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MongoDB.Bson.2.7.3\lib\net45\MongoDB.Bson.dll</HintPath>
-	  <SpecificVersion>True</SpecificVersion>
+      <SpecificVersion>True</SpecificVersion>
     </Reference>
     <Reference Include="MongoDB.Driver, Version=2.7.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MongoDB.Driver.2.7.3\lib\net45\MongoDB.Driver.dll</HintPath>
-	  <SpecificVersion>True</SpecificVersion>
+      <SpecificVersion>True</SpecificVersion>
     </Reference>
     <Reference Include="MongoDB.Driver.Core, Version=2.7.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MongoDB.Driver.Core.2.7.3\lib\net45\MongoDB.Driver.Core.dll</HintPath>
-	  <SpecificVersion>True</SpecificVersion>
+      <SpecificVersion>True</SpecificVersion>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
@@ -76,6 +76,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ArtificialNeuralNetwork\ArtificialNeuralNetwork.csproj">
+      <Project>{291A3AE9-0951-412D-93D5-DDCA1CEE2455}</Project>
+      <Name>ArtificialNeuralNetwork</Name>
+    </ProjectReference>
     <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
       <Project>{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}</Project>
       <Name>AustralianRulesFootball</Name>

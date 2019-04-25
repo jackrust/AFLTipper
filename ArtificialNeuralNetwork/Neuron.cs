@@ -9,12 +9,15 @@ namespace ArtificialNeuralNetwork
     {
 
         public static double DefaultThreshold = 0.5;
-        public static String DefaultName = "N";
+        public static string DefaultName = "N";
         public double Threshold = DefaultThreshold;
-        public String Name = DefaultName;
+        public string Name = DefaultName;
         public List<Dendrite> Dendrites;
 
-        protected Neuron(){}
+        public Neuron()
+        {
+            Dendrites = new List<Dendrite>();
+        }
 
         /**
          * Extended Constructor

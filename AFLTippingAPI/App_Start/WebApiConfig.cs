@@ -13,6 +13,12 @@ namespace AFLTippingAPI
             );
 
             config.Routes.MapHttpRoute(
+                name: "NeuralNetworkApis",
+                routeTemplate: "api/neuralnetwork/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
+
+            config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
                 defaults: new { id = RouteParameter.Optional }

@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+using System.Web.Helpers;
 using ArtificialNeuralNetwork.DataManagement;
 
 namespace ArtificialNeuralNetwork
@@ -30,6 +32,13 @@ namespace ArtificialNeuralNetwork
         public List<List<Dynamic>> HLayers;
         public List<Dynamic> ONeurons;
 
+
+        public Network()
+        {
+            INeurons = new List<Input>();
+            HLayers = new List<List<Dynamic>>();
+            ONeurons = new List<Dynamic>();
+        }
         public Network(int inputsNo, IReadOnlyCollection<int> hiddenNos, int outputsNo)
         {
             CreateInputs(inputsNo);
@@ -298,18 +307,45 @@ namespace ArtificialNeuralNetwork
         public static void Save(Network network)
         {
             IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream(network.Directory + network.Id + ".ann", FileMode.Create, FileAccess.Write, FileShare.None);
+            var stream = new FileStream(network.Directory + network.Id + ".ann", FileMode.Create, FileAccess.Write, FileShare.None);
             formatter.Serialize(stream, network);
             stream.Close();
         }
 
+
         public static Network Load(string filename)
         {
             IFormatter formatter = new BinaryFormatter();
-            Stream stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var stream = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read);
             var obj = (Network)formatter.Deserialize(stream);
             stream.Close();
             return obj;
+        }
+
+        public static string Serialize(Network network)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            var stream = new MemoryStream();
+            formatter.Serialize(stream, network);
+            
+            stream.Position = 0;
+            var str = "";
+            using (var reader = new StreamReader(stream))
+            {
+                str = reader.ReadToEnd();
+            }
+            stream.Close();
+            return str;
+        }
+
+        public static Network Deserialize(string str)
+        {
+            IFormatter formatter = new BinaryFormatter();
+            byte[] byteArray = Encoding.ASCII.GetBytes(str);
+            MemoryStream stream = new MemoryStream(byteArray);
+            var network = (Network)formatter.Deserialize(stream);
+            stream.Close();
+            return network;
         }
 
         public static Network Copy(Network orig)

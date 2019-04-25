@@ -95,3 +95,5 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\A
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\Tipper.csproj.CopyComplete
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\tipper.exe
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\tipper.pdb
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\ArtificialNeuralNetwork.dll
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\ArtificialNeuralNetwork.pdb

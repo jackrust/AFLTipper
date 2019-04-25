@@ -3,10 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
+using AFLStatisticsService;
 using ArtificialNeuralNetwork;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
 using GeneticArtificialNeuralNetwork;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using Tipper.Betting;
 using Utilities;
 
@@ -601,6 +605,24 @@ namespace Tipper.UI
             Console.WriteLine("Last completed round:" + round);
             //Tip
             var predictions = SetUpTipper(tipper, year, round);
+
+            //Save Network
+            //var net = tipper.Net;
+            //var db = new MongoDb();
+            //db.UpdateNetworks(new List<Network>(){net});
+
+            /*var bson = tipper.Net.ToBson();
+            var net = BsonSerializer.Deserialize<Network>(bson);
+
+            //var str = Encoding.ASCII.GetString(bson);
+            //var bytes = Encoding.ASCII.GetBytes(str);
+
+            string str = Convert.ToBase64String(bson);
+            byte[] bytes = Convert.FromBase64String(str);
+
+            var net1 = BsonSerializer.Deserialize<Network>(bytes);*/
+
+
             var rounds = predictions.Select(p => p.RoundNumber).Distinct();
             foreach (var r in rounds)
             {
