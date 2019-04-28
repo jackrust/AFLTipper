@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.EnterpriseServices;
 using System.Linq;
 using AFLStatisticsService;
 using ArtificialNeuralNetwork;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
-using Tipper.au.com.afl.xml;
 using Utilities;
 
 namespace Tipper

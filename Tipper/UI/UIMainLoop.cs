@@ -687,6 +687,9 @@ namespace Tipper.UI
 
             //Train Network
             tipper.Net.Train(trainingData.Inputs(), trainingData.Outputs());
+            var str = tipper.Net.Print();
+            var db = new MongoDb();
+            db.UpdateNetworks(new List<Network>() {tipper.Net});
 
             //Print results
             Console.WriteLine("Tip {0}...", year);

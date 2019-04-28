@@ -1,36 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Web.Http;
+using AFLStatisticsService;
 using ArtificialNeuralNetwork;
 using AustralianRulesFootball;
+using MongoDB.Bson;
 using Tipper.UI;
 
 namespace AFLTippingAPI.Controllers
 {
     public class TipsController : ApiController
     {
-        // GET api/values
-        public IEnumerable<string> Get()
+        private readonly MongoDb _db;
+
+        public TipsController()
         {
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-            var tips = TipNextRound();
-            TimeSpan ts = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-            ts.Hours, ts.Minutes, ts.Seconds,
-            ts.Milliseconds / 10);
-
-            var output = new List<string> {elapsedTime};
-            output.AddRange(tips);
-
-            return output;
+            _db = new MongoDb();
         }
 
-        private static List<string> TipNextRound()
+        // GET api/values
+        public string Get()
         {
-            var tips = new List<string>();
+            var predictions = JustTipFullSeason();
+            var simplePredictions = SimplePrediction.Convert(predictions);
+            return simplePredictions.ToJson();
+        }
+
+        private List<PredictedMatch> JustTipFullSeason()
+        {
             //Load tipper
             var tipper = new Tipper.Tipper();
 
@@ -45,21 +43,13 @@ namespace AFLTippingAPI.Controllers
             var round = !completedRounds.Any() ? 0 : completedRounds.OrderByDescending(r => r.Number).First().Number;
 
             //Tip
-            var predictions = SetUpTipper(tipper, year, round);
-            var rounds = predictions.Select(p => p.RoundNumber).Distinct();
-            foreach (var r in rounds)
-            {
-                var tip = "";
-                tip +=  String.Format("Tip Round {0} ...", r);
-                tip += String.Format(tipper.ResultToString(predictions.Where(p => p.RoundNumber == r).ToList()));
-                tips.Add(tip);
-            }
-            return tips;
+            return SetUpTipper(tipper, year, round);
+
         }
 
-        private static List<PredictedMatch> SetUpTipper(Tipper.Tipper tipper, int year, int round)//Names are getting stupid
+        private List<PredictedMatch> SetUpTipper(Tipper.Tipper tipper, int year, int round)//Names are getting stupid
         {
-            //Based on Test scenario #670
+            //Based on Test scenario #670. If this changes the network will need to change too.
             var interpretationTeam = new List<int> { 9, 13, 17 };
             var interpretationGround = new List<int> { 25, 31, 37 };
             var interpretationState = new List<int> { 1, 3, 5 };
@@ -70,14 +60,13 @@ namespace AFLTippingAPI.Controllers
             var trainingData = tipper.GetMatchDataBetween(year - 10, 0, year, round, interpretation);
             trainingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;
 
-            //Create Network
-            tipper.Net = Network.CreateNetwork(trainingData, 1, 3, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
-            tipper.Net.MaxEpochs = 250;//Change back to 750?
-
-            //Train Network
-            tipper.Net.Train(trainingData.Inputs(), trainingData.Outputs());
-
+            //Load Network
+            var network = _db.GetNetworks().First(n => n.Id == "46cb0d16-5726-4617-9a3f-4ce3ed64d6a7");
+            Network.PlugIn(network.ONeurons, network.HLayers, network.INeurons);
+            tipper.Net = network;
+            var str = tipper.Net.Print();
             //Print results
+            Console.WriteLine("Tip {0}...", year);
             var predictions = new List<PredictedMatch>();
             foreach (var r in tipper.League.Seasons.Where(s => s.Year == year).SelectMany(s => s.Rounds).Where(r => r.Number > round).ToList())
             {

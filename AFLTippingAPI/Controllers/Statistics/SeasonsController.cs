@@ -223,8 +223,8 @@ namespace AFLTippingAPI.Controllers.Statistics
         // DELETE api/statistics/seasons/5
         public void Delete(int id)
         {
-            var db = new MongoDb();
-            db.DeleteSeason(id);
+            //var db = new MongoDb();
+            //db.DeleteSeason(id);
         }
     }
 }

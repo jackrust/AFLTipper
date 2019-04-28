@@ -12,11 +12,11 @@ namespace AFLTippingAPI.Controllers.NeuralNetwork
 {
     public class NetworkController : ApiController
     {
-        private MongoDb db;
+        private readonly MongoDb _db;
 
         public NetworkController()
         {
-            db = new MongoDb();
+            _db = new MongoDb();
         }
         // GET api/statistics/seasons
         public string Get()
@@ -35,15 +35,12 @@ namespace AFLTippingAPI.Controllers.NeuralNetwork
         private string GetNetwork(string id)
         {
             
-            var networks = db.GetNetworks().Where(n => (id.Length == 0 || n.Id == id)).ToList();
+            var networks = _db.GetNetworks().Where(n => (id.Length == 0 || n.Id == id)).ToList();
             var bsonStrings = new List<string>();
             foreach (var network in networks)
             {
                 var bson = network.ToBson();
-                string str = Convert.ToBase64String(bson);
-                //TODO: test, delete
-                byte[] bytesz = Convert.FromBase64String(str);
-                var networkz = BsonSerializer.Deserialize<Network>(bytesz);
+                var str = Convert.ToBase64String(bson);
                 bsonStrings.Add(str);
             }
 
@@ -65,7 +62,7 @@ namespace AFLTippingAPI.Controllers.NeuralNetwork
         {
             var networks = ConvertToNetworkList(value);
 
-            db.UpdateNetworks(networks.Where(n => n.Id == id).ToList());
+            _db.UpdateNetworks(networks.Where(n => n.Id == id).ToList());
         }
 
         private List<Network> ConvertToNetworkList(object value)
