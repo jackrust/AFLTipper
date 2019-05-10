@@ -66,7 +66,7 @@ namespace Tipper.UI
 
 
             Console.WriteLine("Loading data...");
-            var data = tipper.GetMatchDataBetween(2005, 0, 2019, 0);
+            var data = tipper.GetMatchDataFromLeagueBetween(2005, 0, 2019, 0);
 
             var count = 0;
             foreach (var dataPoint in data.DataPoints)
@@ -211,7 +211,7 @@ namespace Tipper.UI
                                 if (interperetation.Sum(i => i.Sum()) > 0)
                                 {
                                     Console.WriteLine("Loading data...");
-                                    var data = tipper.GetMatchDataBetween(2003, 0, 2019, 0, interperetation);
+                                    var data = tipper.GetMatchDataFromLeagueBetween(2003, 0, 2019, 0, interperetation);
                                     Console.WriteLine("Optimizing...{0}-{1}-{2}-{3}-{4}", one[0], two[0], three[0],
                                         four[0],
                                         five[0]);

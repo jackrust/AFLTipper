@@ -6,15 +6,20 @@ using System.Web.Http;
 using AFLStatisticsService;
 using AFLStatisticsService.API;
 using AustralianRulesFootball;
-using MongoDB.Bson;
 using Utilities;
 
 namespace AFLTippingAPI.Controllers.Statistics
 {
     public class SeasonsController : ApiController
     {
+        private readonly MongoDb _db;
         const double Tolerance = 0.01;
         private const int StartingYear = 2000;
+
+        public SeasonsController()
+        {
+            _db = new MongoDb();
+        }
 
         // GET api/statistics/seasons
         public string Get()
@@ -60,8 +65,7 @@ namespace AFLTippingAPI.Controllers.Statistics
 
         private string GetSeasonShortForm(bool filter, int year)
         {
-            var db = new MongoDb();
-            var seasons = db.GetSeasons().Where(s => (!filter || s.Year == year));
+            var seasons = _db.GetSeasons().Where(s => (!filter || s.Year == year));
             var seasonsJson = seasons.Select(s =>
                 $"{{{{Year:{s.Year}}}, {{Rounds:{s.Rounds.Count(r => !r.Matches.Any(m => m.HomeScore().Total() < 0.01 && m.AwayScore().Total() < 0.01))}}}}}");
             var output = seasonsJson.Aggregate("{", (current, seasonJson) => current + (seasonJson + ",")).TrimEnd(',')+"}";
@@ -70,11 +74,8 @@ namespace AFLTippingAPI.Controllers.Statistics
 
         private string GetSeasonLongForm(bool filter, int year)
         {
-            var db = new MongoDb();
-            var seasons = db.GetSeasons().Where(s => (!filter || s.Year == year)).ToList();
+            var seasons = _db.GetSeasons().Where(s => (!filter || s.Year == year)).ToList();
             var xmlList = seasons.Select(s => s.Stringify());
-            //var json = Json.Encode(seasons);
-
 
             var xml = "<seasons>";
             foreach (var x in xmlList)
@@ -92,18 +93,21 @@ namespace AFLTippingAPI.Controllers.Statistics
             UpdateSeasonsByMethod(value);
         }
 
+        public void Update()
+        {
+            UpdateSeasonsByMethod("");
+        }
+
         private void UpdateSeasonsByMethod(string value)
         {
             if (value == "")
             {
-                var db = new MongoDb();
-                UpdateAllSeasons(db);
+                UpdateAllSeasons();
             }
             else
             {
                 List<Season> seasons = Json.Decode(value);
-                var db = new MongoDb();
-                db.UpdateSeasons(seasons);
+                _db.UpdateSeasons(seasons);
             }
 
         }
@@ -118,8 +122,7 @@ namespace AFLTippingAPI.Controllers.Statistics
         {
             if (value == "")
             {
-                var db = new MongoDb();
-                UpdateSeason(db, year);
+                UpdateSeason(year);
             }
             else
             {
@@ -128,15 +131,14 @@ namespace AFLTippingAPI.Controllers.Statistics
                 if(season.Year != year)
                     return;
                 //Season season = Json.Decode(value);
-                var db = new MongoDb();
-                db.UpdateSeasons(new List<Season>{season});
+                _db.UpdateSeasons(new List<Season>{season});
             }
 
         }
-        private static void UpdateAllSeasons(MongoDb db)
+        private void UpdateAllSeasons()
         {
             //What have I got?
-            var seasons = db.GetSeasons().ToList();
+            var seasons = _db.GetSeasons().ToList();
             seasons = seasons.OrderBy(s => s.Year).ToList();
 
             var lastCompletedRound =
@@ -149,24 +151,24 @@ namespace AFLTippingAPI.Controllers.Statistics
             var year = lastCompletedRound?.Year ?? StartingYear;
             var number = lastCompletedRound?.Number ?? 0;
             //add any new matches between last match and now
-            seasons = UpdateFrom(db, seasons, year, number + 1);
+            seasons = UpdateFrom(seasons, year, number + 1);
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
-            db.UpdateSeasons(seasons);
+            _db.UpdateSeasons(seasons);
         }
 
-        private static void UpdateSeason(MongoDb db, int year)
+        private void UpdateSeason(int year)
         {
             //What have I got?
-            var seasons = db.GetSeasons().ToList();
+            var seasons = _db.GetSeasons().ToList();
             seasons = seasons.OrderBy(s => s.Year).ToList();
 
             var number = 0;
             //add any new matches between last match and now
-            Update(db, seasons, year, number + 1);
+            Update(seasons, year, number + 1);
         }
 
-        private static List<Season> UpdateFrom(MongoDb db, List<Season> seasons, int year, int number)
+        private List<Season> UpdateFrom(List<Season> seasons, int year, int number)
         {
             if (seasons.Count == 1)
                 seasons = new List<Season>();
@@ -176,7 +178,7 @@ namespace AFLTippingAPI.Controllers.Statistics
             {
                 try
                 {
-                    Update(db, seasons, year, number);
+                    Update(seasons, year, number);
                 }
                 catch (Exception e)
                 {
@@ -194,7 +196,7 @@ namespace AFLTippingAPI.Controllers.Statistics
             return seasons;
         }
 
-        private static void Update(MongoDb db, List<Season> seasons, int year, int number)
+        private void Update(List<Season> seasons, int year, int number)
         {
 
             var api = new FinalSirenApi();
@@ -217,7 +219,7 @@ namespace AFLTippingAPI.Controllers.Statistics
                     seasons.First(s => s.Year == year).Rounds.Add(round);
                 }
             }
-            db.UpdateSeasons(seasons);
+            _db.UpdateSeasons(seasons);
         }
 
         // DELETE api/statistics/seasons/5

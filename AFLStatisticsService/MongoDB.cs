@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using ArtificialNeuralNetwork;
+using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
 using MongoDB.Driver;
 using MongoDB.Bson;
@@ -29,7 +30,7 @@ namespace AFLStatisticsService
             _databaseName = _mongoDbConnectionString == LocalConnectionString ? LocalDatabaseName : RemoteDatabaseName;
         }
 
-        #region ReleaseMongo
+        #region Seasons
 
         public IEnumerable<Season> GetSeasons()
         {
@@ -76,8 +77,6 @@ namespace AFLStatisticsService
             }
         }
 
-        #endregion
-
         public void DeleteSeason(int year)
         {
             var client = new MongoClient(_mongoDbConnectionString);
@@ -99,7 +98,9 @@ namespace AFLStatisticsService
                 throw;
             }
         }
+        #endregion
 
+        #region Network
         public IEnumerable<Network> GetNetworks()
         {
             var client = new MongoClient(_mongoDbConnectionString);
@@ -163,5 +164,72 @@ namespace AFLStatisticsService
                 throw;
             }
         }//First, broken network = 1c9e05b2-e765-4009-a3b9-a573fdb4765a
+        #endregion
+
+        #region Data Interpretation
+        public IEnumerable<Data> GetDataInterpretation()
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Data>("DataInterpretation");
+            var nullFilter = new FilterDefinitionBuilder<Data>().Empty;
+            var results = databaseSeasons.Find(nullFilter).ToList();
+            return results;
+        }
+
+        public void UpdateDataInterpretation(List<Data> datas)
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseNetworks = session.Client.GetDatabase(_databaseName).GetCollection<Data>("DataInterpretation");
+
+            try
+            {
+                session.StartTransaction();
+                foreach (var d in datas)
+                {
+                    var nullFilter = new FilterDefinitionBuilder<Data>().Empty;
+                    var results = databaseNetworks.Find(nullFilter).ToList();
+
+                    if (results.Any(dbs => dbs.Id == d.Id))
+                    {
+                        databaseNetworks.DeleteOne(dbn => dbn.Id == d.Id);
+                        databaseNetworks.InsertOne(d);
+                    }
+                    else
+                    {
+                        databaseNetworks.InsertOne(d);
+                    }
+                }
+
+                session.CommitTransaction();
+            }
+            catch (Exception e)
+            {
+                session.AbortTransaction();
+                throw;
+            }
+        }
+
+        public void DeleteDataInterpretation(string id)
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseNetworks = session.Client.GetDatabase(_databaseName).GetCollection<Data>("DataInterpretation");
+
+            try
+            {
+                session.StartTransaction();
+
+                databaseNetworks.DeleteOne(dbn => dbn.Id == id);
+                session.CommitTransaction();
+            }
+            catch (Exception e)
+            {
+                session.AbortTransaction();
+                throw;
+            }
+        }//First, broken network = 1c9e05b2-e765-4009-a3b9-a573fdb4765a
+        #endregion
     }
 }

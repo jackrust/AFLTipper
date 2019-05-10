@@ -113,7 +113,7 @@ namespace Tipper
             {
                 Inputs = (BuildInputs(history, m, inputInpertretation)),
                 Outputs = BuildOutputs(m).ToList(),
-                Reference = m
+                Reference = m.ToTuple()
             };
             return datapoint;
         }

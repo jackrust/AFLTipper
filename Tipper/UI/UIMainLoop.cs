@@ -363,8 +363,8 @@ namespace Tipper.UI
             var date = DateTime.Now;
 
             Console.WriteLine("Init Neural Network...");
-            var trainingData = tipper.GetMatchDataBetween(2011, 0, 2016, 23);
-            var testingData = tipper.GetMatchDataBetween(2016, 0, 2018, 23);
+            var trainingData = tipper.GetMatchDataFromLeagueBetween(2011, 0, 2016, 23);
+            var testingData = tipper.GetMatchDataFromLeagueBetween(2016, 0, 2018, 23);
             testingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;
 
             Console.WriteLine("Create network...");
@@ -494,8 +494,8 @@ namespace Tipper.UI
             const int roundEnd = 23;
 
 
-            var trainingData = tipper.GetMatchDataBetween(trainingStart, roundStart, trainingEnd + 1, 0, interpretation);
-            var testingData = tipper.GetMatchDataBetween(testing, roundStart, testing, roundEnd, interpretation);
+            var trainingData = tipper.GetMatchDataFromLeagueBetween(trainingStart, roundStart, trainingEnd + 1, 0, interpretation);
+            var testingData = tipper.GetMatchDataFromLeagueBetween(testing, roundStart, testing, roundEnd, interpretation);
             trainingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;
             testingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;
             stopWatch.Start();
@@ -676,7 +676,7 @@ namespace Tipper.UI
             var interpretationShared = new List<int> { 25, 31, 37 };
 
             List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
-            var trainingData = tipper.GetMatchDataBetween(year - 10, 0, year, round, interpretation);
+            var trainingData = tipper.GetMatchDataFromLeagueBetween(year - 10, 0, year, round, interpretation);
             trainingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;
 
             //Create Network
@@ -688,8 +688,8 @@ namespace Tipper.UI
             //Train Network
             tipper.Net.Train(trainingData.Inputs(), trainingData.Outputs());
             var str = tipper.Net.Print();
-            var db = new MongoDb();
-            db.UpdateNetworks(new List<Network>() {tipper.Net});
+            //var db = new MongoDb();
+            //db.UpdateNetworks(new List<Network>() {tipper.Net});
 
             //Print results
             Console.WriteLine("Tip {0}...", year);
@@ -715,7 +715,7 @@ namespace Tipper.UI
             var interpretationDay = new List<int> { 25, 31, 37 };
             var interpretationShared = new List<int> { 25, 31, 37 };
             List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
-            var trainingData = tipper.GetMatchDataBetween(2008, 0, 2017, 0, interpretation);
+            var trainingData = tipper.GetMatchDataFromLeagueBetween(2008, 0, 2017, 0, interpretation);
 
             Console.WriteLine("Training network..");
             tipper.Net = Network.CreateNetwork(trainingData, 1, 3,
@@ -731,7 +731,7 @@ namespace Tipper.UI
             Console.Read();
         }
         #endregion
-
+        /*
         #region TipBetSeason
         private static void TipBetSeason()
         {
@@ -743,9 +743,9 @@ namespace Tipper.UI
             Console.WriteLine("Init Neural Network...");
             Network network = new Network(88, new List<int> { 1 }, 4);
             Console.WriteLine("Creating training data...");
-            var trainingData = tipper.GetMatchDataBetween(2009, 0, 2011, 24);
+            var trainingData = tipper.GetMatchDataFromLeagueBetween(2009, 0, 2011, 24);
             Console.WriteLine("Creating testing data...");
-            var testingData = tipper.GetMatchDataBetween(2015, 0, 2015, 24);
+            var testingData = tipper.GetMatchDataFromLeagueBetween(2015, 0, 2015, 24);
 
             Console.WriteLine("Training Neural Network...");
             network.Train(trainingData.Inputs(), trainingData.Outputs());
@@ -755,6 +755,11 @@ namespace Tipper.UI
             for (var i = 0; i < testingData.Outputs().Count; i++)
             {
                 var round = (i / 8) - 1;
+
+                var composite = (Tuple<DateTime, string>)testingData.DataPoints[i].Reference;
+                //Attempting to convert from "DataPoint Match reference to tuple reference
+                //Realised this wasn't used and commented out for now
+
                 Console.WriteLine("Match: " + ((Match)testingData.DataPoints[i].Reference).Home.ApiName + " vs " + ((Match)testingData.DataPoints[i].Reference).Away.ApiName);
                 Console.WriteLine("Odds: " + ((Match)testingData.DataPoints[i].Reference).HomeOdds + " vs " + ((Match)testingData.DataPoints[i].Reference).AwayOdds);
                 Console.WriteLine("...");
@@ -774,7 +779,7 @@ namespace Tipper.UI
             Console.Read();
         }
         #endregion
-
+    */
 
         #region PrintActualResults
         private static void PrintActualResults()
@@ -869,7 +874,7 @@ namespace Tipper.UI
             var interpretationShared = new List<int> { 25, 31, 37 };
 
             List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
-            var trainingData = tipper.GetMatchDataBetween(year - 3, 0, year, round, interpretation);
+            var trainingData = tipper.GetMatchDataFromLeagueBetween(year - 3, 0, year, round, interpretation);
             trainingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;
 
             //Create Network

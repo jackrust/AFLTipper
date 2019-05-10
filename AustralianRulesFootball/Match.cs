@@ -178,6 +178,26 @@ namespace AustralianRulesFootball
                    Ground.Equals(other.Ground);
         }
 
+        public Tuple<DateTime, string> ToTuple()
+        {
+            return MatchToTuple(this);
+        }
+
+        public static Tuple<DateTime, string> MatchToTuple(Match match)
+        {
+            var date = match.Date;
+            var ground = match.Ground.Abbreviation;
+            return new Tuple<DateTime, string>(date, ground);
+        }
+
+        public static Match FindMatchByTuple(List<Match> matches, Tuple<DateTime, string> composite)
+        {
+            var match = matches.Where(m => m.Date == composite.Item1 && m.Ground.Abbreviation == composite.Item2).ToList();
+            if(match.Count() != 1)
+                Console.WriteLine("Couldn't find match by tuple. Dammit.");
+            return match.First();
+        }
+
         #region IO
 
         public string Stringify()

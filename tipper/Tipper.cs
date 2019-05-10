@@ -45,11 +45,11 @@ namespace Tipper
             Net = new Network(inputs, hiddens, outputs);
         }
 
-        public Data GetMatchDataBetween(int fromYear, int fromRound, DateTime date)
+        public Data GetMatchDataFromLeagueBetween(int fromYear, int fromRound, DateTime date)
         {
             Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
             var round = GetRoundFromDate(date);
-            return GetMatchDataBetween(fromYear, fromRound, date.Year, round.Number);
+            return GetMatchDataFromLeagueBetween(fromYear, fromRound, date.Year, round.Number);
         }
 
         private Round GetRoundFromDate(DateTime date)
@@ -63,10 +63,17 @@ namespace Tipper
             return round;
         }
 
-        public Data GetMatchDataBetween(int fromYear, int fromRound, int toYear, int toRound, List<List<int>> interpretation = null)
+        public Data GetMatchDataFromLeagueBetween(int fromYear, int fromRound, int toYear, int toRound, List<List<int>> interpretation = null)
+        {
+            return GetMatchDataBetween(League.Seasons, fromYear, fromRound, toYear, toRound, interpretation);
+        }
+        
+        public static Data GetMatchDataBetween(List<Season> seasons, int fromYear, int fromRound, int toYear, int toRound, List<List<int>> interpretation = null)
         {
             var data = new Data();
-            var rounds = League.GetRounds(0, 0, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
+            //TODO: It's a little messy to new this up here
+            var league = new League(seasons);
+            var rounds = league.GetRounds(0, 0, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
             var matches = rounds.Where(r => (r.Year == fromYear && r.Number >= fromRound) || (r.Year > fromYear))
                 .SelectMany(r => r.Matches);
             foreach (var m in matches)
@@ -80,7 +87,7 @@ namespace Tipper
                     Numbery.Normalise(m.HomeScore().Total(), Util.MaxScore),
                     Numbery.Normalise(m.AwayScore().Total(), Util.MaxScore)
                 });
-                dataPoint.Reference = m;
+                dataPoint.Reference = m.ToTuple();
                 data.DataPoints.Add(dataPoint);
             }
             return data;

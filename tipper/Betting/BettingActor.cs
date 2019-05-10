@@ -27,7 +27,7 @@ namespace Tipper.Betting
         {
             NetworkActor.Train(data);
         }
-
+        /*
         public void Test(Data data)
         {
             var successes = 0;
@@ -47,7 +47,11 @@ namespace Tipper.Betting
                 if (success)
                 {
                     successes++;
-                    var homescore = ((Match) subset.DataPoints[i].Reference).HomeScore().Total();
+                    var composite = (Tuple<DateTime, string>)subset.DataPoints[i].Reference;
+                    //Attempting to convert from "DataPoint Match reference to tuple reference
+                    //Realised this wasn't used and commented out for now
+
+                    var homescore = (Match.FindMatchByTuple(, ).HomeScore().Total();
                     var awayscore = ((Match) subset.DataPoints[i].Reference).AwayScore().Total();
                     var odds = 0.0;
                     if(homescore > awayscore)
@@ -60,7 +64,7 @@ namespace Tipper.Betting
             //Console.WriteLine("successes = " + (double)successes / (double)subset.Inputs().Count);
             stopwatch.Stop();
             TimeToTest = stopwatch.ElapsedMilliseconds;
-        }
+        }*/
 
         private double CalculateWager(List<double> output)
         {

@@ -6,8 +6,10 @@ namespace ArtificialNeuralNetwork.DataManagement
 {
     public class Data
     {
+        public string Id = Guid.NewGuid().ToString();
         public List<DataPoint> DataPoints;
-        //Todo, should this live here?
+        //TODO: should this live here?
+        //TODO: no
         public Func<List<double>, List<double>, string, bool> SuccessCondition;
 
         public Data()

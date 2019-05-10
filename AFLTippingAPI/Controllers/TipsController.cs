@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 using AFLStatisticsService;
+using AFLTippingAPI.Controllers.Statistics;
+using AFLTippingAPI.Helpers;
 using ArtificialNeuralNetwork;
 using AustralianRulesFootball;
 using MongoDB.Bson;
@@ -57,16 +59,15 @@ namespace AFLTippingAPI.Controllers
             var interpretationShared = new List<int> { 25, 31, 37 };
 
             List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
-            var trainingData = tipper.GetMatchDataBetween(year - 10, 0, year, round, interpretation);
+            var trainingData = tipper.GetMatchDataFromLeagueBetween(year - 10, 0, year, round, interpretation);
             trainingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;
 
             //Load Network
-            var network = _db.GetNetworks().First(n => n.Id == "46cb0d16-5726-4617-9a3f-4ce3ed64d6a7");
+            var network = _db.GetNetworks().First(n => n.Id == Global.NeuralNetworkId);
+            //Neurons don't seem to plug themselves automatically after being stored.
             Network.PlugIn(network.ONeurons, network.HLayers, network.INeurons);
             tipper.Net = network;
-            var str = tipper.Net.Print();
             //Print results
-            Console.WriteLine("Tip {0}...", year);
             var predictions = new List<PredictedMatch>();
             foreach (var r in tipper.League.Seasons.Where(s => s.Year == year).SelectMany(s => s.Rounds).Where(r => r.Number > round).ToList())
             {
@@ -84,6 +85,13 @@ namespace AFLTippingAPI.Controllers
         // POST api/values
         public void Post([FromBody]string value)
         {
+            //Update Seasons
+            var seasonsController = new SeasonsController();
+            seasonsController.Update();
+            //Update Data Interpretation
+            var interpretedDataController = new InterpretedDataController();
+            interpretedDataController.Update();
+
         }
 
         // PUT api/values/5

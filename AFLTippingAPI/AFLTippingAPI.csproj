@@ -184,7 +184,8 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\Statistics\DataProjectionController.cs" />
+    <Compile Include="Controllers\Statistics\InterpretedDataController.cs" />
+    <Compile Include="Helpers\Global.cs" />
     <Compile Include="Models\SimplePrediction.cs" />
     <Compile Include="Controllers\NeuralNetwork\NetworkController.cs" />
     <Compile Include="Controllers\Statistics\SeasonsController.cs" />
