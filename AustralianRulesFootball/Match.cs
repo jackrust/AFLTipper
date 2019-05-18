@@ -252,7 +252,7 @@ namespace AustralianRulesFootball
             var d = Stringy.SplitOn(str, "date")[0];
             var date = new DateTime();
             if (d.Length > 1)
-                date = DateTime.Parse(d);
+                date = DateTime.Parse(d, CultureInfo.GetCultureInfo("en-au"));
             var qs = Stringy.SplitOn(Stringy.SplitOn(str, "quarters")[0], "quarter");
             var quarters = qs.Select(Quarter.Objectify).ToList();
             var hos = Stringy.SplitOn(str, "homeOdds")[0];
