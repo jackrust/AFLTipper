@@ -75,7 +75,16 @@ namespace AFLTippingAPI.Controllers.Statistics
             var str = value.ToString();
             Console.WriteLine("JACK'S LOGGING NOTE : api/statistics/InterpretedData/ str.length = " + str.Length);
             var data = Json.Decode<Data>(str);
-            AppendExisting(data);
+            //TODO: This is just for debugging. remove it
+            try
+            {
+                AppendExisting(data);
+            }
+            catch
+            {
+                throw new Exception("str.length = " + str.Length);
+            }
+
             _db.UpdateDataInterpretation(new List<Data>(){ data });
         }
 
