@@ -72,10 +72,11 @@ namespace AFLTippingAPI.Controllers
 
 
             //Load Network
-            var network = _db.GetNetworks().First(n => n.Id == Global.NeuralNetworkId);
+            var network = _db.GetNetworks().ToList();
+            var first = network.First(n => n.Id == Global.NeuralNetworkId);
             //Neurons don't seem to plug themselves automatically after being stored.
-            Network.PlugIn(network.ONeurons, network.HLayers, network.INeurons);
-            tipper.Net = network;
+            Network.PlugIn(first.ONeurons, first.HLayers, first.INeurons);
+            tipper.Net = first;
             //Print results
             var predictions = new List<PredictedMatch>();
             foreach (var r in tipper.League.Seasons.Where(s => s.Year == year).SelectMany(s => s.Rounds).Where(r => r.Number > round).ToList())
