@@ -51,6 +51,7 @@ namespace AFLTippingAPI.Controllers
 
         private List<PredictedMatch> SetUpTipper(Tipper.Tipper tipper, int year, int round)//Names are getting stupid
         {
+            
             //Based on Test scenario #670. If this changes the network will need to change too.
             var interpretationTeam = new List<int> { 9, 13, 17 };
             var interpretationGround = new List<int> { 25, 31, 37 };
@@ -59,8 +60,11 @@ namespace AFLTippingAPI.Controllers
             var interpretationShared = new List<int> { 25, 31, 37 };
 
             List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
+            /*
             var trainingData = tipper.GetMatchDataFromLeagueBetween(year - 10, 0, year, round, interpretation);
             trainingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;
+            */
+
 
             //Load Network
             var network = _db.GetNetworks().First(n => n.Id == Global.NeuralNetworkId);

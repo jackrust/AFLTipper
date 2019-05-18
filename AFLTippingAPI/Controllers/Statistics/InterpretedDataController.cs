@@ -74,28 +74,15 @@ namespace AFLTippingAPI.Controllers.Statistics
         public void Put([FromBody]object value)
         {
             var str = value.ToString();
-            Console.WriteLine("JACK'S LOGGING NOTE : api/statistics/InterpretedData/ str.length = " + str.Length);
             var data = Json.Decode<Data>(str);
-            //TODO: This is just for debugging. remove it
-            try
-            {
-                AppendExisting(data);
-            }
-            catch(Exception e)
-            {
-                throw new Exception("str.length = " + str.Length  + " ... data.DataPoints.Count: " + data.DataPoints.Count  + " ... orig message: " + e.Message + " ... " + e.StackTrace);
-            }
-
+            AppendExisting(data);
             _db.UpdateDataInterpretation(new List<Data>(){ data });
         }
 
         private void AppendExisting(Data data)
         {
             //First, need to fix json misunderstanding the use of tuple
-            Debug.Print("1 - " + data);
-            Debug.Print("2 - " + data.DataPoints);
-            Debug.Print("3 - " + data.DataPoints.Count);
-            for (var i = 0; i < data.DataPoints.Count; i++)
+            for (var i = 0; i < data.DataPoints.ToList().Count; i++)
             {
                 Debug.Print("4 - " + i);
                 var dictionary = (Dictionary<string, object>)data.DataPoints[i].Reference;
