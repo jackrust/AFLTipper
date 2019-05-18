@@ -35,6 +35,11 @@ namespace AFLTippingAPI.Controllers
             var tipper = new Tipper.Tipper();
 
             //Load last completed 
+            var league = tipper.League;
+            var seasons = league.Seasons;
+            var filteredSeasons = seasons.Where(s => s.Rounds.Any());
+            var orderedfilteredseasons = filteredSeasons.OrderByDescending(s => s.Year);
+            var first = orderedfilteredseasons.First().Year;
             var year = tipper.League.Seasons.Where(s => s.Rounds.Any()).OrderByDescending(s => s.Year).First().Year;
             var completedRounds =
                 tipper.League.Seasons.Where(s => s.Rounds.Any())
