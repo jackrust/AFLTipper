@@ -73,6 +73,7 @@ namespace AFLTippingAPI.Controllers.Statistics
         public void Put([FromBody]object value)
         {
             var str = value.ToString();
+            Console.WriteLine("JACK'S LOGGING NOTE : api/statistics/InterpretedData/ str.length = " + str.Length);
             var data = Json.Decode<Data>(str);
             AppendExisting(data);
             _db.UpdateDataInterpretation(new List<Data>(){ data });
