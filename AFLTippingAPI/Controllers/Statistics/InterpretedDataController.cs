@@ -97,19 +97,25 @@ namespace AFLTippingAPI.Controllers.Statistics
                 data.DataPoints[i].Reference = new Tuple<DateTime, string>((DateTime)dictionary["Item1"], (string)dictionary["Item2"]);
             }
 
-            var dbData = _db.GetDataInterpretation().First();
+            var dbData = _db.GetDataInterpretation().FirstOrDefault();
+
+            if (dbData != null)
+            {
+                var filteredDataPoints = data.DataPoints.Where(dp => !dbData.DataPoints.Any(dbdp =>
+                    ((Tuple<DateTime, string>)dp.Reference).Item1 == ((Tuple<DateTime, string>)dbdp.Reference).Item1 &&
+                    ((Tuple<DateTime, string>)dp.Reference).Item2 == ((Tuple<DateTime, string>)dbdp.Reference).Item2));
+                data.DataPoints = dbData.DataPoints;
+                data.DataPoints.AddRange(filteredDataPoints);
+            }
 
             //filter to only new ones
-            var filteredDataPoints = data.DataPoints.Where(dp => !dbData.DataPoints.Any(dbdp =>
-                ((Tuple<DateTime, string>) dp.Reference).Item1 == ((Tuple<DateTime, string>) dbdp.Reference).Item1 &&
-                ((Tuple<DateTime, string>) dp.Reference).Item2 == ((Tuple<DateTime, string>) dbdp.Reference).Item2));
-            data.DataPoints = dbData.DataPoints;
-            data.DataPoints.AddRange(filteredDataPoints);
+            
             data.DataPoints = data.DataPoints.OrderBy(dp => ((Tuple<DateTime, string>) dp.Reference).Item1).ToList();
         }
 
+
         // PUT api/statistics/InterpretedData/5
-        public void Put(int id, [FromBody]object value)
+            public void Put(int id, [FromBody]object value)
         {
            
         }
