@@ -178,6 +178,7 @@ namespace AFLTippingAPI.Controllers.Statistics
             {
                 try
                 {
+                    //TODO: if it's taking seconds it's probably timed out - can I cut it short?
                     Update(seasons, year, number);
                 }
                 catch (Exception e)
