@@ -82,7 +82,7 @@ namespace AFLTippingAPI.Controllers.Statistics
             }
             catch
             {
-                throw new Exception("str.length = " + str.Length);
+                throw new Exception("str.length = " + str.Length  + " ... is data null: " + data );
             }
 
             _db.UpdateDataInterpretation(new List<Data>(){ data });
