@@ -80,9 +80,9 @@ namespace AFLTippingAPI.Controllers.Statistics
             {
                 AppendExisting(data);
             }
-            catch
+            catch(Exception e)
             {
-                throw new Exception("str.length = " + str.Length  + " ... is data null: " + data );
+                throw new Exception("str.length = " + str.Length  + " ... data.DataPoints.Count: " + data.DataPoints.Count  + " ... orig message: " + e.Message + " ... " + e.StackTrace);
             }
 
             _db.UpdateDataInterpretation(new List<Data>(){ data });
