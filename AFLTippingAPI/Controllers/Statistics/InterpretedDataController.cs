@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Web.Helpers;
 using System.Web.Http;
@@ -91,8 +92,12 @@ namespace AFLTippingAPI.Controllers.Statistics
         private void AppendExisting(Data data)
         {
             //First, need to fix json misunderstanding the use of tuple
+            Debug.Print("1 - " + data);
+            Debug.Print("2 - " + data.DataPoints);
+            Debug.Print("3 - " + data.DataPoints.Count);
             for (var i = 0; i < data.DataPoints.Count; i++)
             {
+                Debug.Print("4 - " + i);
                 var dictionary = (Dictionary<string, object>)data.DataPoints[i].Reference;
                 data.DataPoints[i].Reference = new Tuple<DateTime, string>((DateTime)dictionary["Item1"], (string)dictionary["Item2"]);
             }
