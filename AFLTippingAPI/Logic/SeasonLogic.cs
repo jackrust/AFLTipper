@@ -95,9 +95,6 @@ namespace AFLTippingAPI.Logic
             var number = lastCompletedRound?.Number ?? 0;
             //add any new matches between last match and now
             seasons = UpdateFrom(seasons, year, number + 1);
-            seasons.RemoveAll(s => s.Rounds.Count == 0);
-            //update db
-            db.UpdateSeasons(seasons.Where(s => s.Year >= year).ToList());
         }
 
         public static void UpdateSeason(int year)
@@ -167,10 +164,10 @@ namespace AFLTippingAPI.Logic
                 else
                 {
                     seasons.First(s => s.Year == year).Rounds.Add(round);
-                    db.UpdateSeasons(seasons);
+                    db.UpdateSeasons(seasons.Where(s => s.Year >= year).ToList());
                 }
             }
-            db.UpdateSeasons(seasons);
+            db.UpdateSeasons(seasons.Where(s => s.Year >= year).ToList());
         }
 
         public static void UpdateSeasonByMethod(int year, string value)
