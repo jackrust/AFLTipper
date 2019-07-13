@@ -18,6 +18,12 @@ namespace AFLStatisticsService.API
 
         public override int GetNumRounds(int year)
         {
+            if (numHomeandAwayRounds.ContainsKey(year))
+            {
+                return numHomeandAwayRounds[year];
+            }
+
+            //TODO: Should probably store this in db to prevent double handling. Once it's true it's not changing
             var numRounds = 0;
             var parameters = new Dictionary<string, string> { { "SeasonID", year.ToString() }, { "Round", "1-1" } };
             var page = WebsiteAPI.GetPage(MatchResults, parameters);

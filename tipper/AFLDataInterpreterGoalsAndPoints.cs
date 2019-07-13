@@ -32,13 +32,7 @@ namespace Tipper
             throw new NotImplementedException();
         }
 
-        protected override IEnumerable<double> ExtractInputSetForShots(Match m, List<Match> matches, int term,
-            Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate)
-        {
-            throw new Exception("ExtractInputSetForShots not implemented for goals & points");
-        }
-
-        protected override IEnumerable<double> ExtractInputSetForOppotionScore(int term, List<Tuple<Score, Score, DateTime>> homeOppositionScores, List<Tuple<Score, Score, DateTime>> awayOppositionScores)
+        protected override IEnumerable<double> ExtractInputSetForOppositionScore(int term, List<Tuple<Score, Score, DateTime>> homeOppositionScores, List<Tuple<Score, Score, DateTime>> awayOppositionScores)
         {
             throw new NotImplementedException();
         }
