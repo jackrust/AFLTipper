@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using AFLTippingAPI.Controllers;
-using AFLTippingAPI.Logic;
+using API.Controllers.Statistics;
+using API.Logic;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -15,9 +15,9 @@ namespace API.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
+
             var predictions = NetworkLogic.JustTipFullSeason();
             var simplePredictions = SimplePrediction.Convert(predictions);
-
             var json = simplePredictions.Select(JsonConvert.SerializeObject);
 
             return json;
@@ -30,10 +30,15 @@ namespace API.Controllers
             return "value";
         }
 
-        // POST: api/Tipper
-        [HttpPost]
-        public void Post([FromBody] string value)
+        // POST api/values
+        public void Post([System.Web.Http.FromBody]string value)
         {
+            //Update Seasons
+            SeasonLogic.Update();
+            //Update Data Interpretation
+            var interpretedDataController = new InterpretedDataController();
+            interpretedDataController.Update();
+
         }
 
         // PUT: api/Tipper/5

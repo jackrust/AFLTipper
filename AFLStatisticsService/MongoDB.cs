@@ -50,7 +50,7 @@ namespace AFLStatisticsService
 
             try
             {
-                session.StartTransaction();
+                //session.StartTransaction();
                 foreach (var s in seasons)
                 {
                     var nullFilter = new FilterDefinitionBuilder<Season>().Empty;
@@ -68,11 +68,11 @@ namespace AFLStatisticsService
                     }
                 }
 
-                session.CommitTransaction();
+                //session.CommitTransaction();
             }
             catch (Exception e)
             {
-                session.AbortTransaction();
+                //session.AbortTransaction();
                 throw;
             }
         }
@@ -185,7 +185,7 @@ namespace AFLStatisticsService
 
             try
             {
-                session.StartTransaction();
+                //session.StartTransaction();
                 foreach (var d in datas)
                 {
                     var nullFilter = new FilterDefinitionBuilder<Data>().Empty;
@@ -202,11 +202,11 @@ namespace AFLStatisticsService
                     }
                 }
 
-                session.CommitTransaction();
+                //session.CommitTransaction();
             }
             catch (Exception e)
             {
-                session.AbortTransaction();
+                //session.AbortTransaction();
                 throw;
             }
         }
