@@ -94,7 +94,7 @@ namespace API.Logic
             var year = lastCompletedRound?.Year ?? StartingYear;
             var number = lastCompletedRound?.Number ?? 0;
             //add any new matches between last match and now
-            seasons = UpdateFrom(seasons, year, number + 1);
+            UpdateFrom(seasons, year, number + 1);
         }
 
         public static void UpdateSeason(int year)
@@ -183,7 +183,7 @@ namespace API.Logic
                 var season = ss.Select(Season.Objectify).ToList().First();
                 if (season.Year != year)
                     return;
-                //Season season = Json.Decode(value);
+                
                 db.UpdateSeasons(new List<Season> {season});
             }
         }
