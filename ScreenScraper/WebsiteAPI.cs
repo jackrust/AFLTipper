@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.Pipes;
 using System.Linq;
 using System.Net;
+using System.Security.Policy;
 
 namespace ScreenScraper
 {
@@ -11,24 +11,26 @@ namespace ScreenScraper
     {
         public static string GetPage(string page, Dictionary<string, string> parameters)
         {
-            var url = page + "?";
-            url = parameters.Aggregate(url, (current, p) => current + (p.Key + "=" + p.Value + "&"));
-            url = url.TrimEnd('&');
+            var url = page;
+                if (parameters.Count > 0)
+                {
+                    url = url + "?";
+                    url = parameters.Aggregate(url, (current, p) => current + (p.Key + "=" + p.Value + "&"));
+                    url = url.TrimEnd('&');
+                }
 
             return GetPage(url);
         }
 
         public static string GetPage(string url)
         {
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
             var client = new WebClient();
             Stream data = null;
-            try
-            {
-                data = client.OpenRead(url);
-            }catch(Exception e)
-            {
-                Console.WriteLine(e.Message);
-            }
+            data = client.OpenRead(url);
+
             if (data == null) return "";
             var reader = new StreamReader(data);
             var html = reader.ReadToEnd();

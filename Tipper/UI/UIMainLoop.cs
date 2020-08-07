@@ -3,16 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using AFLStatisticsService;
 using ArtificialNeuralNetwork;
 using ArtificialNeuralNetwork.DataManagement;
 using AustralianRulesFootball;
 using GeneticArtificialNeuralNetwork;
-using MongoDB.Bson;
-using MongoDB.Bson.Serialization;
 using Tipper.Betting;
 using Utilities;
+using Team = AustralianRulesFootball.Team;
 
 namespace Tipper.UI
 {
@@ -33,6 +31,9 @@ namespace Tipper.UI
                 {
                     case ("C"):
                         CompareSetupOptions();
+                        break;
+                    case ("E"):
+                        TipFullSeasonExtended();
                         break;
                     case ("F"):
                         TipFullSeason();
@@ -55,7 +56,7 @@ namespace Tipper.UI
                     case ("S"):
                         TipSpecific();
                         break;
-                    case ("T"):
+                    case ("Z"):
                         Testing();
                         break;
                     case ("?"):
@@ -69,6 +70,7 @@ namespace Tipper.UI
         public static void ListOptions()
         {
             Console.WriteLine("[C]ompare setup options, generate report");
+            Console.WriteLine("Tip with [E]xtended data");
             Console.WriteLine("Tip [F]ull season");
             Console.WriteLine("[G]enetic algorithm");
             Console.WriteLine("[L]ulu");
@@ -76,10 +78,81 @@ namespace Tipper.UI
             Console.WriteLine("[O]ptimise");
             Console.WriteLine("[Q]uit");
             Console.WriteLine("Tip [S]pecific");
-            Console.WriteLine("[T]esting");
+            Console.WriteLine("[Z] Testing");
             Console.WriteLine("[?] Show options");
         }
         #endregion
+
+        private static void TipFullSeasonExtended()
+        {
+            Console.WriteLine("Loading data...");
+            //Load tipper
+            var tipper = new Tipper();
+
+            //Load last completed 
+            var year = tipper.League.Seasons.Where(s => s.Rounds.Any()).OrderByDescending(s => s.Year).First().Year;
+
+            var completedRounds =
+                tipper.League.Seasons.Where(s => s.Rounds.Any())
+                    .OrderByDescending(s => s.Year)
+                    .First()
+                    .Rounds.Where(r => r.Matches.Count > 0 && r.Matches.All(m => m.TotalScore() > 0.1))
+                    .ToList();
+
+            var round = !completedRounds.Any() ? 0 : completedRounds.OrderByDescending(r => r.Number).First().Number;
+
+
+            Console.WriteLine("Make sure you've run AFL statistice service.");
+            Console.WriteLine("Last completed year:" + year);
+            Console.WriteLine("Last completed round:" + round);
+            //Tip
+            var predictions = SetUpTipper(tipper, year, round);
+
+            //Save Network
+            //var net = tipper.Net;
+            //var db = new MongoDb();
+            //db.UpdateNetworks(new List<Network>(){net});
+
+            /*var bson = tipper.Net.ToBson();
+            var net = BsonSerializer.Deserialize<Network>(bson);
+
+            //var str = Encoding.ASCII.GetString(bson);
+            //var bytes = Encoding.ASCII.GetBytes(str);
+
+            string str = Convert.ToBase64String(bson);
+            byte[] bytes = Convert.FromBase64String(str);
+
+            var net1 = BsonSerializer.Deserialize<Network>(bytes);*/
+
+
+            var rounds = predictions.Select(p => p.RoundNumber).Distinct();
+            foreach (var r in rounds)
+            {
+                Console.WriteLine("Tip Round {0} ...", r);
+                Console.WriteLine(tipper.ResultToStringAlt(predictions.Where(p => p.RoundNumber == r).ToList()));
+            }
+
+            var teams = predictions.Select(p => p.Home).Distinct();
+            var ladder = new List<LadderRow>();
+            foreach (var team in teams)
+            {
+                var row = new LadderRow();
+                row.team = team;
+                row.points = predictions.Count(p => p.IsWinningTeam(team)) * 4;
+                row.scoreFor = predictions.Sum(p => p.GetTeamScoreTotal(team));
+                row.scoreAgainst = predictions.Sum(p => p.GetOppositionScoreTotal(team));
+                ladder.Add(row);
+            }
+
+            Console.WriteLine("\nPredicted Ladder");
+            Console.WriteLine("Team  | Pts | %");
+            foreach (var row in ladder.OrderByDescending(r => r.points).ThenByDescending(r => r.scoreFor / r.scoreAgainst))
+            {
+
+                Console.WriteLine("{0, -5} | {1, -3} | {2:N1}", Util.GetTeams().Where(t => t.ApiName == row.team.ApiName).FirstOrDefault().Abbreviation, row.points, (row.scoreFor / row.scoreAgainst) * 100);
+            }
+
+        }
 
         #region Genetic Betting Algorithm
 
@@ -552,7 +625,7 @@ namespace Tipper.UI
         private static void TipFullSeason()
         {
             var loop = true;
-            const string options = "Tip [F]ull season, [T]est the alorithm used for tipping, or [B]oth?";
+            const string options = "Tip [F]ull season, [T]est the algorithm used for tipping, or [B]oth?";
             Console.WriteLine("Cool, I can tip the full season four you.");
             Console.WriteLine(options);
 
@@ -591,12 +664,14 @@ namespace Tipper.UI
 
             //Load last completed 
             var year = tipper.League.Seasons.Where(s => s.Rounds.Any()).OrderByDescending(s => s.Year).First().Year;
+
             var completedRounds =
                 tipper.League.Seasons.Where(s => s.Rounds.Any())
                     .OrderByDescending(s => s.Year)
                     .First()
-                    .Rounds.Where(r => r.Matches.All(m => m.TotalScore() > 0))
+                    .Rounds.Where(r => r.Matches.Count > 0 && r.Matches.All(m => m.TotalScore() > 0.1))
                     .ToList();
+
             var round = !completedRounds.Any() ? 0 : completedRounds.OrderByDescending(r => r.Number).First().Number;
 
 
@@ -607,28 +682,50 @@ namespace Tipper.UI
             var predictions = SetUpTipper(tipper, year, round);
 
             //Save Network
-            //var net = tipper.Net;
-            //var db = new MongoDb();
-            //db.UpdateNetworks(new List<Network>(){net});
-
-            /*var bson = tipper.Net.ToBson();
-            var net = BsonSerializer.Deserialize<Network>(bson);
-
-            //var str = Encoding.ASCII.GetString(bson);
-            //var bytes = Encoding.ASCII.GetBytes(str);
-
-            string str = Convert.ToBase64String(bson);
-            byte[] bytes = Convert.FromBase64String(str);
-
-            var net1 = BsonSerializer.Deserialize<Network>(bytes);*/
+            var net = tipper.Net;
+            var db = new MongoDb();
+            db.UpdateNetworks(new List<Network>(){net});
 
 
             var rounds = predictions.Select(p => p.RoundNumber).Distinct();
+
+
             foreach (var r in rounds)
             {
                 Console.WriteLine("Tip Round {0} ...", r);
-                Console.WriteLine(tipper.ResultToString(predictions.Where(p => p.RoundNumber == r).ToList()));
+                Console.WriteLine(tipper.ResultToStringAlt(predictions.Where(p => p.RoundNumber == r).ToList()));
             }
+
+            var completedMatches = completedRounds.SelectMany(r => r.Matches).Where(m => m.Date.Year == predictions.First().Date.Year);
+
+            var teams = predictions.Select(p => p.Home).Distinct();
+            var ladder = new List<LadderRow>();
+            foreach (var team in teams)
+            {
+                var row = new LadderRow();
+                row.team = team;
+                row.points = predictions.Count(p => p.IsWinningTeam(team))*4 + completedMatches.Count(m => m.IsWinningTeam(team)) * 4;
+                row.scoreFor = predictions.Sum(p => p.GetTeamScoreTotal(team)) + completedMatches.Sum(m => m.ScoreFor(team).Total());
+                row.scoreAgainst = predictions.Sum(p => p.GetOppositionScoreTotal(team)) + completedMatches.Sum(m => m.ScoreAgainst(team).Total());
+                ladder.Add(row);
+            }
+
+            Console.WriteLine("\nPredicted Ladder");
+            Console.WriteLine("Team  | Pts | %");
+            foreach (var row in ladder.OrderByDescending(r => r.points).ThenByDescending(r => r.scoreFor/r.scoreAgainst))
+            {
+                
+                Console.WriteLine("{0, -5} | {1, -3} | {2:N1}", Util.GetTeams().Where(t => t.ApiName == row.team.ApiName).FirstOrDefault().Abbreviation, row.points, (row.scoreFor/row.scoreAgainst)*100);
+            }
+
+        }
+
+        private class LadderRow
+        {
+            public Team team;
+            public int points;
+            public double scoreFor;
+            public double scoreAgainst;
         }
 
         private static void TestFullSeason()
@@ -665,6 +762,8 @@ namespace Tipper.UI
             }
             Console.WriteLine("Correct: {0}, Incorrect: {1}, Success rate: {2}", successes.Count(s => s), successes.Count(s => !s), (double)successes.Count(s => s) / (double)successes.Count);
         }
+
+
 
         private static List<PredictedMatch> SetUpTipper(Tipper tipper, int year, int round)//Names are getting stupid
         {

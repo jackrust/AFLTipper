@@ -61,6 +61,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\AFLAPI.cs" />
+    <Compile Include="API\FootyWireApi.cs" />
+    <Compile Include="API\WikipediaApi.cs" />
     <Compile Include="API\FinalSirenAPI.cs" />
     <Compile Include="API\AflStatisticsApi.cs" />
     <Compile Include="API\OddsCSV.cs" />

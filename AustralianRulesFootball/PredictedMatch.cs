@@ -29,6 +29,50 @@ namespace AustralianRulesFootball
             RoundNumber = roundNumber;
         }
 
+        public new bool IsWinningTeam(Team team)
+        {
+            if (!team.Equals(Home) && !team.Equals(Away))
+                return false;
+
+            if (Home.Equals(team))
+            {
+                return HomeTotal > AwayTotal;
+            }
+            if (Away.Equals(team))
+            {
+                return HomeTotal < AwayTotal;
+            }
+
+            return false;
+        }
+
+        public double GetOppositionScoreTotal(Team team)
+        {
+            if (Home.Equals(team))
+            {
+                return AwayTotal;
+            }
+            if (Away.Equals(team))
+            {
+                return HomeTotal;
+            }
+            return 0;
+        }
+
+        public double GetTeamScoreTotal(Team team)
+        {
+            if (Home.Equals(team))
+            {
+                return HomeTotal;
+            }
+            if (Away.Equals(team))
+            {
+                return AwayTotal;
+            }
+            return 0;
+        }
+
+
         public double Total()
         {
             return HomeTotal + AwayTotal;

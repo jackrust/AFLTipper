@@ -1,25 +1,26 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using AustralianRulesFootball;
+using System.Linq;
 using ScreenScraper;
 using Match = AustralianRulesFootball.Match;
 
 namespace AFLStatisticsService.API
 {
-    internal class AFLAPI : AflStatisticsApi
+    internal class WikipediaApi : AflStatisticsApi
     {
-        private const string Website = "http://www.afl.com.au/";
-        private const string Results = Website + "/fixture";
-        private const int ResultTableIndex = 1;
+        private const string Website = "https://en.wikipedia.org/wiki/";
+        private const int ResultTableIndex = 0;
 
         public override int GetNumRounds(int year)
         {
             var numRounds = 0;
             var parameters = new Dictionary<string, string>();
-            var page = WebsiteAPI.GetPage(Results, parameters);
-            var roundList = WebsiteAPI.SplitOn(page, "<select", "</select", "name=\"roundId\"")[0];
+            var results = Website + year + "_AFL_season";
+            var page = WebsiteAPI.GetPage(results, parameters);
+
+            var roundList = WebsiteAPI.SplitOn(page, "#Premiership_season", "</ul")[0];
 
             var r = new Regex("(Round) ([0-9])+");
             var m = r.Match(roundList);
@@ -35,13 +36,16 @@ namespace AFLStatisticsService.API
 
         public override Round GetRoundResults(int year, int roundNo)
         {
-            var isFinal = numHomeandAwayRounds[year] > roundNo;
-            var roundString = roundNo < 10 ? "0" + roundNo : "" + roundNo;
-            var parameters = new Dictionary<string, string> { { "roundId", "CD_R" + year + "014" + roundString } };
-            var page = WebsiteAPI.GetPage(Results, parameters);
-            var table = WebsiteAPI.SplitOn(page, "<table", "</table", "class=\"fancy-zebra fixture\"")[0];
+            var isFinal = numHomeandAwayRounds[year] < roundNo;
+            var parameters = new Dictionary<string, string>();
+            var results = Website + year + "_AFL_season";
+            var page = WebsiteAPI.GetPage(results, parameters);
+            var section = WebsiteAPI.SplitOn(page, "<span class=\"mw-headline\" id=\"Premiership_season\">Premiership season</span>", "<h2><span id=\"Win.2Floss_table\"></span><span class=\"mw-headline\" id=\"Win/loss_table\">Win/loss table</span>")[0];
+            var table = WebsiteAPI.SplitOn(section, "<span class=\"mw-headline\" id=\"Round_" + roundNo + "\">Round " + roundNo + "</span>", "</table")[0];
+
             var rows = WebsiteAPI.SplitOn(table, "<tr", "</tr", 4);
-            var dateReg = new Regex("(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), (January|February|March|April|May|June|July|August|September|October|November|December) ([0-9])+");
+            rows.RemoveAll(r => !r.Contains("vs.") && !r.Contains("def."));
+            var dateReg = new Regex("(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), ([0-9])+ (January|February|March|April|May|June|July|August|September|October|November|December) \\(([0-9])+:([0-9])+.*pm\\)");
             var matches = new List<Match>();
             var dateHold = "";
 
@@ -54,18 +58,16 @@ namespace AFLStatisticsService.API
                     var details = WebsiteAPI.SplitOn(rows[i], "<td", "</td", 4);
                     if (details.Count > 1)
                     {
-                        throw new Exception("AFLAPI doesn't load match statistics");
-
                         //Teams
-                        var teams = WebsiteAPI.SplitOn(details[0], "<span class=\"team\"", "</span", 19);
-                        var home = teams[0].TrimEnd('v').TrimEnd(' ');
-                        var away = teams[1];
+                        var cleaned = "";
+                        var homeouter = WebsiteAPI.SplitOn(details[1], ">", "/a>", 1)[0].Replace("<i>", "");
+                        var home = WebsiteAPI.SplitOn(homeouter, ">", "<", 1)[0];
+                        cleaned = details[3].Replace("style=\"font-weight: bold;\">", "").Replace("<i>", "");
+                        var away = WebsiteAPI.SplitOn(cleaned, ">", "</a>", 1)[0];
 
-                        //Time
-                        var ground = WebsiteAPI.SplitOn(details[1], "<a", "</a", "class=\"venue\"", 40)[0];
-                        
-                        //Time
-                        var time = WebsiteAPI.SplitOn(details[1], "<span class=\"time\"", "</span", 19)[0];
+                        //Ground
+                        var groundouter = WebsiteAPI.SplitOn(details[4].Replace("<i>", ""), ">", "/a>", 1)[0];
+                        var ground = WebsiteAPI.SplitOn(groundouter, ">", "<", 1)[0];
 
 
                         matches.Add(new Match(
@@ -80,7 +82,7 @@ namespace AFLStatisticsService.API
                             new Score(),
                             new Score(),
                             Util.GetGroundByName(ground),
-                            Util.StringToDate(dateHold + " " + time + " " + year.ToString())
+                            Util.StringToDate(dateHold.Replace("&#160;", "") + " " + year.ToString())
                             ));
                     }
                 }

@@ -16,7 +16,7 @@ namespace AFLStatisticsService
             var db = new MongoDb();
             var updateFromYear = DateTime.Now.Year;
             var loop = true;
-            const string options = "[U]pdate, [Q]uit, [?]Options";
+            const string options = "[B]oth update & extend, [E]xtend, [U]pdate, [Q]uit, [?]Options";
             Console.WriteLine("AFL Statistics Service");
             while (loop)
             {
@@ -25,6 +25,28 @@ namespace AFLStatisticsService
                 if (command == null) continue;
                 switch (command.ToUpper())
                 {
+                    case ("D"):
+                        Console.WriteLine("Deleting Season");
+                        db.DeleteSeason(2020);
+                        break;
+
+                    case ("B"):
+                        Console.WriteLine("Basic updating Matches");
+                        UpdateMatches(db);
+                        ExtendMatches(db);
+                        //TODO: Reinstate once Mongo works
+                        //Console.WriteLine("Updating Players");
+                        //UpdatePlayers(db, updateFromYear);
+                        break;
+
+                    case ("E"):
+                        Console.WriteLine("Extending Matches");
+                        ExtendMatches(db);
+                        //TODO: Reinstate once Mongo works
+                        //Console.WriteLine("Updating Players");
+                        //UpdatePlayers(db, updateFromYear);
+                        break;
+
                     case ("U"):
                         Console.WriteLine("Updating Matches");
                         UpdateMatches(db);
@@ -32,6 +54,7 @@ namespace AFLStatisticsService
                         //Console.WriteLine("Updating Players");
                         //UpdatePlayers(db, updateFromYear);
                         break;
+
                     case ("Q"):
                         loop = false;
                         break;
@@ -73,81 +96,56 @@ namespace AFLStatisticsService
             db.UpdatePlayerDocument(players.Select(p => p.Bsonify()).ToList());
         }*/
 
-        private static void UpdateMatches(MongoDb db)
+
+        private static Round GetLastCompletedRound(List<Season> seasons)
         {
-            Console.WriteLine("Beginning UpdateMatches");
             //What have I got?
-            var seasons = db.GetSeasons().ToList();
+            
             seasons = seasons.OrderBy(s => s.Year).ToList();
 
             var lastCompletedRound =
                 seasons.SelectMany(s => s.Rounds)
                     .Where(
                         r => r.Matches.All(m => m.HomeScore().Total() > Tolerance
-                                                || m.AwayScore().Total() > Tolerance))
+                                                || m.AwayScore().Total() > Tolerance)
+                        && r.Matches.Count > 0)
                     .OrderByDescending(r => r.Matches[0].Date)
                     .FirstOrDefault();
+
+            return lastCompletedRound;
+        }
+
+        private static void ExtendMatches(MongoDb db)
+        {
+            var seasons = db.GetSeasons().ToList();
+            var lastCompletedRound = GetLastCompletedRound(seasons);
             var year = lastCompletedRound == null ? StartingYear : lastCompletedRound.Year;
             var number = lastCompletedRound == null ? 0 : lastCompletedRound.Number;
+            Console.WriteLine("Extending from " + year + ", " + number);
+
             //add any new matches between last match and now
-            seasons = UpdateFrom(seasons, year, number + 1).ToList();
+            var api = new FootyWireApi();
+            seasons = api.UpdateFrom(seasons, year, number + 1).ToList();
+            seasons.RemoveAll(s => s.Rounds.Count == 0);
+            //update db
+            db.UpdateSeasons(seasons);
+        } 
+
+        private static void UpdateMatches(MongoDb db)
+        {
+            //What have I got?
+            var seasons = db.GetSeasons().ToList();
+            var lastCompletedRound = GetLastCompletedRound(seasons);
+            var year = lastCompletedRound == null ? StartingYear : lastCompletedRound.Year;
+            var number = lastCompletedRound == null ? 0 : lastCompletedRound.Number;
+            Console.WriteLine("Updating Matches " + year + ", " + number);
+
+            //add any new matches between last match and now
+            var api = new WikipediaApi();
+            seasons = api.UpdateFrom(seasons, year, number + 1).ToList();
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
             db.UpdateSeasons(seasons);
         }
-
-        private static List<Season> UpdateFrom(List<Season> seasons, int year, int number)
-        {
-            Console.WriteLine("Beginning UpdateFrom");
-            if(seasons.Count == 1)
-                seasons = new List<Season>();
-            var api = new FinalSirenApi();//new AFLAPI();//
-            Console.WriteLine(year + ", " + number);
-            var successful = true;
-            while (successful)
-            {
-                try
-                {
-                    var numRounds = api.GetNumRounds(year);
-                    for (var i = number; i <= numRounds; i++)
-                    {
-                        var round = api.GetRoundResults(year, i);
-                        if (seasons.All(s => s.Year != year))
-                        {
-                            seasons.Add(new Season(year, new List<Round>()));
-                        }
-
-                        if (seasons.First(s => s.Year == year).Rounds.Count >= i)
-                        {
-                            seasons.First(s => s.Year == year).Rounds[i - 1] = round;
-                        }
-                        else
-                        {
-                            seasons.First(s => s.Year == year).Rounds.Add(round);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    successful = false;
-                }
-                if (successful)
-                {
-                    //We're still getting fresh data so loop into next season:
-                    year++;
-                    number = 1;
-                    seasons.Add(new Season(year, new List<Round>()));
-                }
-            }
-            return seasons;
-        }
-
-        /*public static League Objectify(string str)
-        {
-            var ss = Stringy.SplitOn(Stringy.SplitOn(str, "seasons")[0], "season");
-            var seasons = ss.Select(Season.Objectify).ToList();
-            return new League(seasons);
-        }*/
     }
 }

@@ -127,9 +127,11 @@ namespace AustralianRulesFootball
 
         public static DateTime StringToDate(string datetime)
         {
-            //"Mar 30 (Fri 7:40pm) 2007"
-            string[] formats = { " dd/MMM/yyyy h:mm tt", " d /MMM/yyyy h:mm tt", " d /MMM/yyyy  ", " dd/MMM/yyyy  ", 
-                                   "dddd, MMMM dd h:mmtt yyyy", "MMM d (ddd h:mmtt) yyyy", "MMM d (ddd) yyyy" };
+            //"Mar 30 (Fri 7:40pm) 2007"  "Thu 19 Mar 7:40pm 2020"
+            string[] formats = { " dd/MMM/yyyy h:mm tt", " d /MMM/yyyy h:mm tt", " d /MMM/yyyy  ", " dd/MMM/yyyy  ",
+                                    "dddd, MMMM dd h:mmtt yyyy", "MMM d (ddd h:mmtt) yyyy", "MMM d (ddd) yyyy", 
+                                    "dddd, dd MMMM (h:mmtt) yyyy", "ddd dd MMM h:mmtt yyyy", "ddd d MMM h:mmtt yyyy", 
+                                    "dddd, d MMMM (h:mmtt) yyyy" };
             /*DateTime date;
             var remainder = datetime;
             var month = remainder.Substring(0, 3);

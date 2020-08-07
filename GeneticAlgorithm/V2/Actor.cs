@@ -9,7 +9,7 @@ namespace GeneticAlgorithm.V2
         public string Id;
         public List<Gene> Genes { get; set; }
         public int Generation { get; set; }
-        public double Error { get; set; }
+        public double Fitness { get; set; }
 
         public static List<Gene> CreateGenes(List<GeneDefinition> geneDefinitions)
         {

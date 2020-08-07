@@ -35,16 +35,17 @@ namespace GeneticAlgorithm.V2
             //Loop over generations
             for(int i = 0; i < Generations; i++)
             {
+                Console.WriteLine("Generation " + (i+1));
+
                 //test
                 for (int j = 0; j < actors.Count; j++)
                 {
-                    actors[j].Error = EvaluationCallbacks[i % EvaluationCallbacks.Count](actors[j].Genes.Select(g => g.Value).ToList());
+                    actors[j].Fitness = EvaluationCallbacks[i % EvaluationCallbacks.Count](actors[j].Genes.Select(g => g.Value).ToList());
                 }
                 //cull
-                actors.Sort((x, y) => x.Error.CompareTo(y.Error));
+                actors.Sort((x, y) => y.Fitness.CompareTo(x.Fitness));
                 //Console.WriteLine(DetailActor(actors[0]));
-                var count = actors.Count;
-                actors.RemoveRange(CorePopulation, count - CorePopulation);
+                actors.RemoveRange(CorePopulation, actors.Count - CorePopulation);
 
                 //repopulate
                 for (int j = 0; j < CorePopulation && (actors.Count < IdealPopulation); j++)
@@ -72,7 +73,7 @@ namespace GeneticAlgorithm.V2
         public static string DetailActor(Actor actor)
         {
             var genes = actor.Genes.Select(i => String.Format("{0:N2}", i.Value)).Aggregate((i, j) => i.ToString() + "," + j.ToString());
-            return String.Format("Generation:{0}, Error:{1:N2}, \nGenes:{2}\nId:{3}", actor.Generation, actor.Error, genes, actor.Id);
+            return String.Format("Generation:{0}, Error:{1:N2}, \nGenes:{2}\nId:{3}", actor.Generation, actor.Fitness, genes, actor.Id);
         }
     }
 }

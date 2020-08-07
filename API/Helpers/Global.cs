@@ -2,6 +2,6 @@
 {
     public class Global
     {
-        public static string NeuralNetworkId = "46cb0d16-5726-4617-9a3f-4ce3ed64d6a7";
+        public static string NeuralNetworkId = "7384d370-1eef-49d7-9e28-d348706c2b63";
     }
 }

@@ -25,7 +25,7 @@ namespace API.Logic
                     .First()
                     .Rounds.Where(r => r.Matches.All(m => m.TotalScore() > 0))
                     .ToList();
-            var round = 22;//TODO: this is temporary to test new API// !completedRounds.Any() ? 0 : completedRounds.OrderByDescending(r => r.Number).First().Number;
+            var round = !completedRounds.Any() ? 0 : completedRounds.OrderByDescending(r => r.Number).First().Number;
 
             //Load Network
             var network = db.GetNetworks().ToList();

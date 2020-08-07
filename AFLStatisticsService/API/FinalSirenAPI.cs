@@ -16,6 +16,7 @@ namespace AFLStatisticsService.API
         private const int MatchResultTableIndex = 2;
         private const int PlayerTableIndex = 1;
 
+
         public override int GetNumRounds(int year)
         {
             if (numHomeandAwayRounds.ContainsKey(year))
@@ -23,7 +24,6 @@ namespace AFLStatisticsService.API
                 return numHomeandAwayRounds[year];
             }
 
-            //TODO: Should probably store this in db to prevent double handling. Once it's true it's not changing
             var numRounds = 0;
             var parameters = new Dictionary<string, string> { { "SeasonID", year.ToString() }, { "Round", "1-1" } };
             var page = WebsiteAPI.GetPage(MatchResults, parameters);
