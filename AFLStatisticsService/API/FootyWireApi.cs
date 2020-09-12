@@ -1,8 +1,10 @@
 ﻿using System;
+using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using AustralianRulesFootball;
+using HtmlAgilityPack;
 using ScreenScraper;
 using Match = AustralianRulesFootball.Match;
 
@@ -37,69 +39,57 @@ namespace AFLStatisticsService.API
         {
             var isFinal = numHomeandAwayRounds[year] < roundNo;
             var rounds = numHomeandAwayRounds[year];
-            var parameters = new Dictionary<string, string>();
-            var results = Website + "/afl/footy/ft_match_list?year=" + year;
-            var page = WebsiteAPI.GetPage(results, parameters);
-            var table = WebsiteAPI.SplitOn(page, "<table ", "/table>")[5];
-            if (!table.Contains("Final"))
-            {
-                table = table + "Final";
-            }
-            var rowGroup = WebsiteAPI.SplitOn(table, "Round " + roundNo, (rounds <= roundNo) ? "Final" : "Round " + (roundNo + 1))[0];
+            var link = Website + "/afl/footy/ft_match_list?year=" + year;
 
-            var rows = WebsiteAPI.SplitOn(rowGroup, "<tr", "</tr", 4);
+            var web = new HtmlWeb();
+            var doc = web.Load(link);
+
+            var nodes = doc.DocumentNode.SelectNodes("//tr[td/a[@name='round_"+roundNo+"']]/following::tr");
+
+            var matchNodes = nodes.Skip(1).TakeWhile(n => n.InnerText != "" && !n.InnerText.Contains("BYE"));
+
+
             var dateReg = new Regex("(Sun|Mon|Tue|Wed|Thu|Fri|Sat) ([0-9])+ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ?(([0-9])+:([0-9])+.*pm)?");
             var matches = new List<Match>();
             var dateHold = "";
 
-            for (var i = ResultTableIndex; i < rows.Count; i++)
+            foreach (var node in matchNodes)
             {
-                var dateMatch = dateReg.Match(rows[i]);
+                var date = node.SelectSingleNode("td").InnerText;
+                var dateMatch = dateReg.Match(date);
                 if (dateMatch.Success) dateHold = dateMatch.ToString();
-                if (!string.IsNullOrEmpty(dateHold))
+
+                //Teams
+                var home = node.SelectSingleNode("td[2]").SelectSingleNode("a[1]").InnerText;
+                var away = node.SelectSingleNode("td[2]").SelectSingleNode("a[2]").InnerText;
+
+                //Ground
+                var ground = node.SelectSingleNode("td[3]").InnerText;
+
+                var match = new Match(
+                    Util.GetTeamByName(home),
+                    new Score(),
+                    new Score(),
+                    new Score(),
+                    new Score(),
+                    Util.GetTeamByName(away),
+                    new Score(),
+                    new Score(),
+                    new Score(),
+                    new Score(),
+                    Util.GetGroundByName(ground),
+                    Util.StringToDate(dateHold + " " + year)
+                );
+
+                var midTag = node.SelectSingleNode("td[5]").SelectSingleNode("a");
+                    
+                if (midTag != null)
                 {
-                    var details = WebsiteAPI.SplitOn(rows[i], "<td", "</td", 4);
-                    if (details.Count > 1)
-                    {
-                        //Teams
-                        var homeouter = WebsiteAPI.SplitOn(details[1], ">", "/a>", 1)[0];
-                        var awayouter = WebsiteAPI.SplitOn(details[1], ">", "/a>", 1)[1];
-                        var home = WebsiteAPI.SplitOn(homeouter, ">", "<", 1)[0];
-                        var away = WebsiteAPI.SplitOn(awayouter, ">", "<", 1)[0];
-
-                        //Ground
-                        var ground = details[2].Substring(13);
-
-                        //Scores
-                        //"class=\"data\" align=\"center\"><a href=\"ft_match_statistics?mid=9928\">105-81</a>"
-                        //var scoreLink = "https://www.footywire.com/afl/footy/" + WebsiteAPI.SplitOn(details[4], "href=\"", "\">", 1)[0];
-
-
-                        var match = new Match(
-                            Util.GetTeamByName(home),
-                            new Score(),
-                            new Score(),
-                            new Score(),
-                            new Score(),
-                            Util.GetTeamByName(away),
-                            new Score(),
-                            new Score(),
-                            new Score(),
-                            new Score(),
-                            Util.GetGroundByName(ground),
-                            Util.StringToDate(dateHold + " " + year)
-                        );
-
-                        if (details[4].Contains("<a"))
-                        {
-                            var midReg = new Regex("mid=([0-9])+");
-                            var mid = midReg.Match(details[4]).ToString().Substring(4);
-                            ExtendMatch(match, mid);
-                        }
-
-                        matches.Add(match);
-                    }
+                    var mid = midTag.GetAttributes("href").First().Value.Replace("ft_match_statistics?mid=", "");
+                    ExtendMatch(match, mid);
                 }
+
+                matches.Add(match);
             }
             return new Round(Convert.ToInt32(year), roundNo, isFinal, matches);
         }

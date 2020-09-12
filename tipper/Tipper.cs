@@ -176,15 +176,51 @@ namespace Tipper
             var strings = new List<string>();
             foreach (var m in matches)
             {
-                strings.Add(String.Format("{0,-9}|{1, -6}|{2, -9}|{3, -6}",
-                        m.Home.Mascot, Printlayer(new[]
+                strings.Add(String.Format("{0,-5}|{1, -6}|{2, -5}|{3, -6}",
+                    Util.GetTeams().Where(t => t.ApiName == m.Home.ApiName).FirstOrDefault().Abbreviation, Printlayer(new[]
                                       {
                                           m.HomeTotal,//, Numbery.NormalisationMethod.Asymptotic),
-                                      }), m.Away.Mascot,
+                                      }), Util.GetTeams().Where(t => t.ApiName == m.Away.ApiName).FirstOrDefault().Abbreviation,
                                       Printlayer(new[]
                                       {
                                           m.AwayTotal//, Numbery.NormalisationMethod.Asymptotic),
                                       })));
+            }
+            return string.Join("\n", strings.ToArray());
+        }
+
+        public string ResultToStringAlt(List<PredictedMatch> matches)
+        {
+            var strings = new List<string>();
+            foreach (var m in matches)
+            {
+                strings.Add(String.Format("{0,-5} {1, -6}|{2, -5} {3, -6}",
+                    Util.GetTeams().Where(t => t.ApiName == m.Home.ApiName).FirstOrDefault().Abbreviation, Printlayer(new[]
+                    {
+                        Math.Round(m.HomeTotal),//, Numbery.NormalisationMethod.Asymptotic),
+                    }).TrimEnd('0').TrimEnd('.'), Util.GetTeams().Where(t => t.ApiName == m.Away.ApiName).FirstOrDefault().Abbreviation,
+                    Printlayer(new[]
+                    {
+                        Math.Round(m.AwayTotal)//, Numbery.NormalisationMethod.Asymptotic),
+                    }).TrimEnd('0').TrimEnd('.')));
+            }
+            return string.Join("\n", strings.ToArray());
+        }
+
+        public string ResultToStringTweet(List<PredictedMatch> matches)
+        {
+            var strings = new List<string>();
+            foreach (var m in matches)
+            {
+                strings.Add(String.Format("{0,-4} {1, -3} - {2, -4} {3, -3}",
+                    Util.GetTeams().Where(t => t.ApiName == m.Home.ApiName).FirstOrDefault().Abbreviation, Printlayer(new[]
+                    {
+                        Math.Round(m.HomeTotal),
+                    }).TrimEnd('0').TrimEnd('.'), Util.GetTeams().Where(t => t.ApiName == m.Away.ApiName).FirstOrDefault().Abbreviation,
+                    Printlayer(new[]
+                    {
+                        Math.Round(m.AwayTotal)
+                    }).TrimEnd('0').TrimEnd('.')));
             }
             return string.Join("\n", strings.ToArray());
         }

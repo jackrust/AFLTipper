@@ -14,7 +14,6 @@ namespace AFLStatisticsService
         static void Main()
         {
             var db = new MongoDb();
-            var updateFromYear = DateTime.Now.Year;
             var loop = true;
             const string options = "[B]oth update & extend, [E]xtend, [U]pdate, [Q]uit, [?]Options";
             Console.WriteLine("AFL Statistics Service");
@@ -27,11 +26,11 @@ namespace AFLStatisticsService
                 {
                     case ("D"):
                         Console.WriteLine("Deleting Season");
-                        db.DeleteSeason(2020);
+                        //db.DeleteSeason(2020);
                         break;
 
                     case ("B"):
-                        Console.WriteLine("Basic updating Matches");
+                        Console.WriteLine("Both update & extend");
                         UpdateMatches(db);
                         ExtendMatches(db);
                         //TODO: Reinstate once Mongo works
@@ -97,10 +96,9 @@ namespace AFLStatisticsService
         }*/
 
 
-        private static Round GetLastCompletedRound(List<Season> seasons)
+        private static RoundUid GetLastCompletedRoundUid(List<Season> seasons)
         {
             //What have I got?
-            
             seasons = seasons.OrderBy(s => s.Year).ToList();
 
             var lastCompletedRound =
@@ -112,20 +110,21 @@ namespace AFLStatisticsService
                     .OrderByDescending(r => r.Matches[0].Date)
                     .FirstOrDefault();
 
-            return lastCompletedRound;
+            var roundUid = new RoundUid();
+            roundUid.Year = lastCompletedRound == null ? StartingYear : lastCompletedRound.Year;
+            roundUid.Number = lastCompletedRound == null ? 0 : lastCompletedRound.Number;
+            return roundUid;
         }
 
         private static void ExtendMatches(MongoDb db)
         {
             var seasons = db.GetSeasons().ToList();
-            var lastCompletedRound = GetLastCompletedRound(seasons);
-            var year = lastCompletedRound == null ? StartingYear : lastCompletedRound.Year;
-            var number = lastCompletedRound == null ? 0 : lastCompletedRound.Number;
-            Console.WriteLine("Extending from " + year + ", " + number);
+            var roundUid = GetLastCompletedRoundUid(seasons);
+            Console.WriteLine("Extending from " + roundUid.Year + ", " + roundUid.Number);
 
             //add any new matches between last match and now
             var api = new FootyWireApi();
-            seasons = api.UpdateFrom(seasons, year, number + 1).ToList();
+            seasons = api.UpdateFrom(seasons, roundUid.Year, roundUid.Number + 1).ToList();
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
             db.UpdateSeasons(seasons);
@@ -135,14 +134,12 @@ namespace AFLStatisticsService
         {
             //What have I got?
             var seasons = db.GetSeasons().ToList();
-            var lastCompletedRound = GetLastCompletedRound(seasons);
-            var year = lastCompletedRound == null ? StartingYear : lastCompletedRound.Year;
-            var number = lastCompletedRound == null ? 0 : lastCompletedRound.Number;
-            Console.WriteLine("Updating Matches " + year + ", " + number);
+            var roundUid = GetLastCompletedRoundUid(seasons);
+            Console.WriteLine("Updating Matches " + roundUid.Year + ", " + roundUid.Number);
 
             //add any new matches between last match and now
             var api = new WikipediaApi();
-            seasons = api.UpdateFrom(seasons, year, number + 1).ToList();
+            seasons = api.UpdateFrom(seasons, roundUid.Year, roundUid.Number + 1).ToList();
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
             db.UpdateSeasons(seasons);

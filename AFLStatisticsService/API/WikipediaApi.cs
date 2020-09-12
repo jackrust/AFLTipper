@@ -5,13 +5,14 @@ using AustralianRulesFootball;
 using System.Linq;
 using ScreenScraper;
 using Match = AustralianRulesFootball.Match;
+using HtmlAgilityPack;
+using System.Data;
 
 namespace AFLStatisticsService.API
 {
     internal class WikipediaApi : AflStatisticsApi
     {
         private const string Website = "https://en.wikipedia.org/wiki/";
-        private const int ResultTableIndex = 0;
 
         public override int GetNumRounds(int year)
         {
@@ -37,55 +38,48 @@ namespace AFLStatisticsService.API
         public override Round GetRoundResults(int year, int roundNo)
         {
             var isFinal = numHomeandAwayRounds[year] < roundNo;
-            var parameters = new Dictionary<string, string>();
-            var results = Website + year + "_AFL_season";
-            var page = WebsiteAPI.GetPage(results, parameters);
-            var section = WebsiteAPI.SplitOn(page, "<span class=\"mw-headline\" id=\"Premiership_season\">Premiership season</span>", "<h2><span id=\"Win.2Floss_table\"></span><span class=\"mw-headline\" id=\"Win/loss_table\">Win/loss table</span>")[0];
-            var table = WebsiteAPI.SplitOn(section, "<span class=\"mw-headline\" id=\"Round_" + roundNo + "\">Round " + roundNo + "</span>", "</table")[0];
+            var link = Website + year + "_AFL_season";
 
-            var rows = WebsiteAPI.SplitOn(table, "<tr", "</tr", 4);
-            rows.RemoveAll(r => !r.Contains("vs.") && !r.Contains("def."));
+            var web = new HtmlWeb();
+            var doc = web.Load(link);
+
+            var nodes = doc.DocumentNode.SelectNodes("//table[tbody/tr/th[text()='Round " + roundNo + "\n' or contains(text(),'Round " + roundNo + " (')]]/tbody/tr[not(@style)]")
+                .Where(n => n.InnerText.Contains("vs.") || n.InnerText.Contains("def.")).ToList();
+
+
             var dateReg = new Regex("(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), ([0-9])+ (January|February|March|April|May|June|July|August|September|October|November|December) \\(([0-9])+:([0-9])+.*pm\\)");
             var matches = new List<Match>();
             var dateHold = "";
 
-            for (var i = ResultTableIndex; i < rows.Count; i++)
+            foreach (var node in nodes)
             {
-                var dateMatch = dateReg.Match(rows[i]);
+                var date = node.SelectSingleNode("td").InnerText;
+                var dateMatch = dateReg.Match(date);
                 if (dateMatch.Success) dateHold = dateMatch.ToString();
-                if (!string.IsNullOrEmpty(dateHold))
-                {
-                    var details = WebsiteAPI.SplitOn(rows[i], "<td", "</td", 4);
-                    if (details.Count > 1)
-                    {
-                        //Teams
-                        var cleaned = "";
-                        var homeouter = WebsiteAPI.SplitOn(details[1], ">", "/a>", 1)[0].Replace("<i>", "");
-                        var home = WebsiteAPI.SplitOn(homeouter, ">", "<", 1)[0];
-                        cleaned = details[3].Replace("style=\"font-weight: bold;\">", "").Replace("<i>", "");
-                        var away = WebsiteAPI.SplitOn(cleaned, ">", "</a>", 1)[0];
+                    var teams = node.SelectSingleNode("td[2]");
 
-                        //Ground
-                        var groundouter = WebsiteAPI.SplitOn(details[4].Replace("<i>", ""), ">", "/a>", 1)[0];
-                        var ground = WebsiteAPI.SplitOn(groundouter, ">", "<", 1)[0];
+                //Teams
+                var home = node.SelectSingleNode("td[2]").SelectSingleNode("a").InnerText;
+                var away = node.SelectSingleNode("td[4]").SelectSingleNode("a").InnerText;
+
+                //Ground
+                var ground = node.SelectSingleNode("td[5]").SelectSingleNode("a").InnerText;
 
 
-                        matches.Add(new Match(
-                            Util.GetTeamByName(home),
-                            new Score(),
-                            new Score(),
-                            new Score(),
-                            new Score(),
-                            Util.GetTeamByName(away),
-                            new Score(),
-                            new Score(),
-                            new Score(),
-                            new Score(),
-                            Util.GetGroundByName(ground),
-                            Util.StringToDate(dateHold.Replace("&#160;", "") + " " + year.ToString())
-                            ));
-                    }
-                }
+                matches.Add(new Match(
+                    Util.GetTeamByName(home),
+                    new Score(),
+                    new Score(),
+                    new Score(),
+                    new Score(),
+                    Util.GetTeamByName(away),
+                    new Score(),
+                    new Score(),
+                    new Score(),
+                    new Score(),
+                    Util.GetGroundByName(ground),
+                    Util.StringToDate(dateHold.Replace("&#160;", "") + " " + year.ToString())
+                    ));
             }
             return new Round(Convert.ToInt32(year), roundNo, isFinal, matches);
         }

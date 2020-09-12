@@ -52,8 +52,6 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\H
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\bin\Debug\HtmlAgilityPack.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\obj\Debug\tipper.exe
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\ALFTipper\tipper\obj\Debug\tipper.pdb
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\Tipper.csprojAssemblyReference.cache
-C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\Tipper.csproj.CoreCompileInputs.cache
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\tipper.exe.config
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\tipper.exe
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\tipper.pdb
@@ -94,6 +92,11 @@ C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\S
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.Genetic.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.xml
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\AForge.Math.xml
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\Tipper.csprojAssemblyReference.cache
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\Tipper.csproj.CoreCompileInputs.cache
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\Tipper.csproj.CopyComplete
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\tipper.exe
 C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\obj\Debug\tipper.pdb
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\HtmlAgilityPack.dll
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\HtmlAgilityPack.pdb
+C:\Users\Jack\Documents\Visual Studio 2012\Projects\AFLTipper\tipper\bin\Debug\HtmlAgilityPack.xml

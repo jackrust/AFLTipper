@@ -56,6 +56,9 @@ namespace Tipper.UI
                     case ("S"):
                         TipSpecific();
                         break;
+                    case ("T"):
+                        TwitterTipNextRound();
+                        break;
                     case ("Z"):
                         Testing();
                         break;
@@ -798,6 +801,39 @@ namespace Tipper.UI
                 predictions.AddRange(tipper.PredictWinners(r.Year, r.Number, interpretation));
             }
             return predictions;
+        }
+        #endregion
+
+        #region Twitter Tip Next Round
+        private static void TwitterTipNextRound()
+        {
+            Console.WriteLine("Loading data...");
+            //Load tipper
+            var tipper = new Tipper();
+
+            //Load last completed 
+            var year = tipper.League.Seasons.Where(s => s.Rounds.Any()).OrderByDescending(s => s.Year).First().Year;
+
+            var completedRounds =
+                tipper.League.Seasons.Where(s => s.Rounds.Any())
+                    .OrderByDescending(s => s.Year)
+                    .First()
+                    .Rounds.Where(r => r.Matches.Count > 0 && r.Matches.All(m => m.TotalScore() > 0.1))
+                    .ToList();
+
+            var round = !completedRounds.Any() ? 0 : completedRounds.OrderByDescending(r => r.Number).First().Number;
+
+            Console.WriteLine("Tipping: {0}, Round {1}", year, round);
+            //Tip
+            var predictions = SetUpTipper(tipper, year, round);
+            var nextRound = predictions.Select(p => p.RoundNumber).Distinct().First();
+
+            var message = "Round " + nextRound + ":\n";
+            message += tipper.ResultToStringTweet(predictions.Where(p => p.RoundNumber == nextRound).ToList());
+
+            var twitterHelper = new TwitterHelper();
+            twitterHelper.SendTweet(message);
+            Console.WriteLine("Tweeted successfully");
         }
         #endregion
 

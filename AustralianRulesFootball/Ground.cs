@@ -79,7 +79,7 @@ namespace AustralianRulesFootball
         
         //NorthernTerritory
         public static Ground Tio = new Ground("TIO", new List<string> { "TIO Stadium", "Marrara" }, new List<string> { }, State.NorthernTerritory, new GeographicCoordinate(-12.3992, 130.8872));
-        public static Ground Ttp = new Ground("TTP", new List<string> { "TIO Trager Park", "TIO Traeger Park", "Traeger Park", "TP" }, new List<string> { }, State.NorthernTerritory, new GeographicCoordinate(-23.7090, 133.8751));
+        public static Ground Ttp = new Ground("TTP", new List<string> { "TIO Trager Park", "TIO Traeger Park", "TIO Traegar Park", "Traeger Park", "TP" }, new List<string> { }, State.NorthernTerritory, new GeographicCoordinate(-23.7090, 133.8751));
         
         //Queensland
         public static Ground Cs = new Ground("CS", new List<string> { "Cazaly's Stadium", "Cazaly�s Stadium" }, new List<string> { }, State.Queensland, new GeographicCoordinate(-16.9358, 145.7492));

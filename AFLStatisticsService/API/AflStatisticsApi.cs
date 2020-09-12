@@ -9,7 +9,7 @@ namespace AFLStatisticsService.API
     {
         protected static readonly Dictionary<int, int> numHomeandAwayRounds = new Dictionary<int, int>
         {
-            {2020, 12},
+            {2020, 18},
             {2019, 23},
             {2018, 23},
             {2017, 23},    
@@ -72,6 +72,7 @@ namespace AFLStatisticsService.API
                 catch (System.Exception e)
                 {
                     Console.WriteLine(e.Message);
+                    Console.WriteLine(e.StackTrace);
                     successful = false;
                 }
                 if (successful)

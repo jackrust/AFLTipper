@@ -5,6 +5,12 @@ using Utilities;
 
 namespace AustralianRulesFootball
 {
+    public struct RoundUid
+    {
+        public int Year;
+        public int Number;
+    }
+
     public class Round : RoundShell
     {
         public override int GetHashCode()

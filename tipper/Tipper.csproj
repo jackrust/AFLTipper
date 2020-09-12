@@ -85,6 +85,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Tipper.cs" />
+    <Compile Include="TwitterHelper.cs" />
     <Compile Include="UI\UIHelpers.cs" />
     <Compile Include="UI\UIMainLoop.cs" />
     <Compile Include="UI\UIOptimizerLoop.cs" />
