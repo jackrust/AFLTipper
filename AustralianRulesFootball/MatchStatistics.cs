@@ -19,5 +19,11 @@ namespace AustralianRulesFootball
         public int Tackles { get; set; }
         public int FreesFor { get; set; }
         public int FreesAgainst { get; set; }
+        public int RushedBehinds { get; set; }
+        //2010+
+        public int Clearances { get; set; }
+        public int Clangers { get; set; }
+        public int Rebound50s { get; set; }
+        public int Inside50s { get; set; }
     }
 }

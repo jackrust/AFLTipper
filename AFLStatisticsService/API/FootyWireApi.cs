@@ -2,6 +2,7 @@
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using AustralianRulesFootball;
 using HtmlAgilityPack;
@@ -87,6 +88,7 @@ namespace AFLStatisticsService.API
                 {
                     var mid = midTag.GetAttributes("href").First().Value.Replace("ft_match_statistics?mid=", "");
                     ExtendMatch(match, mid);
+                    AppendMatchStatistics(match, mid);
                 }
 
                 matches.Add(match);
@@ -98,26 +100,28 @@ namespace AFLStatisticsService.API
         {
             var NUM_QUARTERS = 4;
             var QUARTER_SKIP = 1;
-            var matchParameters = new Dictionary<string, string>();
-            matchParameters.Add("mid", mid);
-            var matchUrl = Website + "/afl/footy/ft_match_statistics";
-            var matchPage = WebsiteAPI.GetPage(matchUrl, matchParameters);
-            var scores = WebsiteAPI.SplitOn(matchPage, "id=\"matchscoretable", "/table>")[0];
-            var rows = WebsiteAPI.SplitOn(scores, "<tr", "/tr>");
+            var link = Website + "/afl/footy/ft_match_statistics?mid=" + mid;
+            var web = new HtmlWeb();
+            var doc = web.Load(link);
+
+            var nodes = doc.DocumentNode.SelectNodes("//table[@id='matchscoretable']//tr");
             
-            for (int j = 1; j < rows.Count; j++)
+            for (int j = 1; j < nodes.Count(); j++)
             {
-                var quarters = WebsiteAPI.SplitOn(rows[j], "<td", "\n");
-                var team = Util.GetTeamByName(quarters[0].Split('>')[2].Split('<')[0]);
+                var quarters = nodes[j].SelectNodes("td");
+                
+                var team = Util.GetTeamByName(quarters[0].InnerText);
 
                 var goals = new List<int>();
                 var points = new List<int>();
 
                 for (int i = QUARTER_SKIP; i < NUM_QUARTERS + QUARTER_SKIP; i++)
                 {
-                    var scoreparts = quarters[i].Split('>')[1].Split('.');
+                
+                    var scoreparts = quarters[i].InnerText.Split('.');
                     goals.Add(Int32.Parse(scoreparts[0])-goals.Sum());
                     points.Add(Int32.Parse(scoreparts[1]) - points.Sum());
+                    
                     if (match.Home.Equals(team))
                     {
                         
@@ -129,29 +133,139 @@ namespace AFLStatisticsService.API
                         match.Quarters[i - QUARTER_SKIP].AwayScore =
                             new Score(goals[i - QUARTER_SKIP], points[i - QUARTER_SKIP]);
                     }
+                
                 }
             }
+        }
 
-            var statsTable = WebsiteAPI.SplitOn(matchPage, "Head to Head", "/table>")[1];
-            var statsRows = WebsiteAPI.SplitOn(statsTable, "<tr", "/tr>");
-            var teams = WebsiteAPI.SplitOn(statsRows[0], "<td", "/td>");
-            var leftTeam = Util.GetTeamByName(teams[1].Split('>')[1].Split('<')[0]);
-            var rightTeam = Util.GetTeamByName(teams[3].Split('>')[1].Split('<')[0]);
+        public void AppendMatchStatistics(Match match, string mid)
+        {
+            var link = Website + "/afl/footy/ft_match_statistics?mid=" + mid;
+            var web = new HtmlWeb();
+            var doc = web.Load(link);
 
-            var kicks = "";
-            var handballs = "";
-            var disposals = "";
-            var marks = "";
-            var tackles = "";
-            var hitouts = "";
-            var freesfor = "";
-            var freesagainst = "";
-            var rushedbehinds = "";
+            var nodes = doc.DocumentNode.SelectNodes("//table[tr/td[contains(text(),'Head to Head')]]//tr");
 
-            var clearences = "";
-            var clangers = "";
-            var rebound50 = "";
-            var inside50 = "";
+            if (match.HomeStats is null)
+                match.HomeStats = new MatchStatistics();
+            if (match.AwayStats is null)
+                match.AwayStats = new MatchStatistics();
+
+            foreach (var row in nodes.Skip(2))
+            {
+                if (row.SelectNodes("td")[0].InnerText == "" || row.SelectNodes("td")[0].InnerText.Contains("%"))
+                {
+                    continue;
+                }
+                var left = Double.Parse(row.SelectNodes("td")[0].InnerText);
+                var type = row.SelectNodes("td")[1].InnerText;
+                var right = Double.Parse(row.SelectNodes("td")[2].InnerText);
+
+                switch (type)
+                {
+                    case "Kicks":
+                        match.HomeStats.Kicks = (int)Math.Round(left);
+                        match.AwayStats.Kicks = (int)Math.Round(right);
+                        break;
+                    case "Handballs":
+                        match.HomeStats.Handballs = (int)Math.Round(left);
+                        match.AwayStats.Handballs = (int)Math.Round(right);
+                        break;
+                    case "Marks":
+                        match.HomeStats.Marks = (int)Math.Round(left);
+                        match.AwayStats.Marks = (int)Math.Round(right);
+                        break;
+                    case "Tackles":
+                        match.HomeStats.Tackles = (int)Math.Round(left);
+                        match.AwayStats.Tackles = (int)Math.Round(right);
+                        break;
+                    case "Hitouts":
+                        match.HomeStats.HitOuts = (int)Math.Round(left);
+                        match.AwayStats.HitOuts = (int)Math.Round(right);
+                        break;
+                    case "Frees For":
+                        match.HomeStats.FreesFor = (int)Math.Round(left);
+                        match.AwayStats.FreesFor = (int)Math.Round(right);
+                        break;
+                    case "Frees Against":
+                        match.HomeStats.FreesAgainst = (int)Math.Round(left);
+                        match.AwayStats.FreesAgainst = (int)Math.Round(right);
+                        break;
+                    case "Rushed Behinds":
+                        match.HomeStats.RushedBehinds = (int)Math.Round(left);
+                        match.AwayStats.RushedBehinds = (int)Math.Round(right);
+                        break;
+                    case "Clearances":
+                        match.HomeStats.Clearances = (int)Math.Round(left);
+                        match.AwayStats.Clearances = (int)Math.Round(right);
+                        break;
+                    case "Clangers":
+                        match.HomeStats.Clangers = (int)Math.Round(left);
+                        match.AwayStats.Clangers = (int)Math.Round(right);
+                        break;
+                    case "Rebound 50s":
+                        match.HomeStats.Rebound50s = (int)Math.Round(left);
+                        match.AwayStats.Rebound50s = (int)Math.Round(right);
+                        break;
+                    case "Inside 50s":
+                        match.HomeStats.Inside50s = (int)Math.Round(left);
+                        match.AwayStats.Inside50s = (int)Math.Round(right);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        public void AppendMatchStatisticstoResults(Round round)
+        {
+            var year = round.Year;
+            var roundNo = round.Number;
+            var isFinal = numHomeandAwayRounds[year] < roundNo;
+            var rounds = numHomeandAwayRounds[year];
+            var link = Website + "/afl/footy/ft_match_list?year=" + year;
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+            var web = new HtmlWeb();
+            var doc = web.Load(link);
+
+            var nodes = doc.DocumentNode.SelectNodes("//tr[td/a[@name='round_" + roundNo + "']]/following::tr");
+
+            var matchNodes = nodes.Skip(1).TakeWhile(n => n.InnerText != "" && !n.InnerText.Contains("BYE"));
+
+            foreach (var node in matchNodes)
+            {
+                //Teams
+                var home = node.SelectSingleNode("td[2]").SelectSingleNode("a[1]").InnerText;
+                var away = node.SelectSingleNode("td[2]").SelectSingleNode("a[2]").InnerText;
+                var homeTeam = Team.LoadByName(home);
+                var awayTeam = Team.LoadByName(away);
+                /*
+                var tempTeam = round.Matches[7].Away;
+                var tempPlayerMatches = round.Matches[7].AwayPlayerMatches;
+                var tempStats = round.Matches[7].AwayStats;
+
+
+                round.Matches[7].Away = round.Matches[7].Home;
+                round.Matches[7].AwayPlayerMatches = round.Matches[7].HomePlayerMatches;
+                round.Matches[7].AwayStats = round.Matches[7].HomeStats;
+
+                round.Matches[7].Home = tempTeam;
+                round.Matches[7].HomePlayerMatches = tempPlayerMatches;
+                round.Matches[7].HomeStats = tempStats;
+                */
+
+                var match = round.Matches.First(m => m.Home.Names.Contains(homeTeam.Region) && m.Away.Names.Contains(awayTeam.Region));
+
+                var midTag = node.SelectSingleNode("td[5]").SelectSingleNode("a");
+
+                if (midTag != null)
+                {
+                    var mid = midTag.GetAttributes("href").First().Value.Replace("ft_match_statistics?mid=", "");
+                    AppendMatchStatistics(match, mid);
+                }
+            }
         }
 
         public override List<Player> GetAllPlayers(int year)

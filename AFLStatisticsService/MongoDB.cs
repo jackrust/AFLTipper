@@ -31,7 +31,6 @@ namespace AFLStatisticsService
         }
 
         #region Seasons
-
         public IEnumerable<Season> GetSeasons()
         {
             var client = new MongoClient(_mongoDbConnectionString);

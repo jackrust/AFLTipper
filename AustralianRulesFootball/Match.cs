@@ -46,6 +46,8 @@ namespace AustralianRulesFootball
             //TODO: should these always be set?
             HomePlayerMatches = new List<PlayerMatch>();
             AwayPlayerMatches = new List<PlayerMatch>();
+            HomeStats = new MatchStatistics();
+            AwayStats = new MatchStatistics();
         }
 
         

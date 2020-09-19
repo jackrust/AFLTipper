@@ -24,6 +24,10 @@ namespace AFLStatisticsService
                 if (command == null) continue;
                 switch (command.ToUpper())
                 {
+                    case ("A"):
+                        AppendMatchStatistics(db);
+                        break;
+
                     case ("D"):
                         Console.WriteLine("Deleting Season");
                         //db.DeleteSeason(2020);
@@ -114,6 +118,35 @@ namespace AFLStatisticsService
             roundUid.Year = lastCompletedRound == null ? StartingYear : lastCompletedRound.Year;
             roundUid.Number = lastCompletedRound == null ? 0 : lastCompletedRound.Number;
             return roundUid;
+        }
+
+        private static void AppendMatchStatistics(MongoDb db)
+        {
+            var seasons = db.GetSeasons().ToList();
+            //var roundUid = GetLastCompletedRoundUid(seasons);
+            var roundUid = new RoundUid() { Year = StartingYear, Number = 0 };
+            Console.WriteLine("Appending from " + roundUid.Year + ", " + roundUid.Number);
+
+            //add any new matches between last match and now
+            var api = new FootyWireApi();
+            foreach (var round in seasons.SelectMany(s => s.Rounds))
+            {
+                if (round.Year >= 2010)
+                {
+                    if (round.Matches.Where(m => m.HomeStats is null || m.AwayStats is null || m.HomeStats.Clearances == 0 || m.AwayStats.Clearances == 0).Count() > 0)
+                    {
+                        api.AppendMatchStatisticstoResults(round);
+                    }
+                }
+                else
+                {
+                    if (round.Matches.Where(m => m.HomeStats.Kicks == 0 || m.AwayStats.Kicks == 0).Count() > 0)
+                        api.AppendMatchStatisticstoResults(round);
+                }
+            }
+            seasons.RemoveAll(s => s.Rounds.Count == 0);
+            //update db
+            db.UpdateSeasons(seasons);
         }
 
         private static void ExtendMatches(MongoDb db)

@@ -66,9 +66,7 @@
     <Compile Include="API\AFLAPI.cs" />
     <Compile Include="API\FootyWireApi.cs" />
     <Compile Include="API\WikipediaApi.cs" />
-    <Compile Include="API\FinalSirenAPI.cs" />
     <Compile Include="API\AflStatisticsApi.cs" />
-    <Compile Include="API\OddsCSV.cs" />
     <Compile Include="MongoDB.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
