@@ -8,6 +8,7 @@ using AustralianRulesFootball;
 using MongoDB.Driver;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using Cricket;
 
 namespace AFLStatisticsService
 {
@@ -15,10 +16,12 @@ namespace AFLStatisticsService
     {
         //C:\Program Files\MongoDB\Server\3.6\bin\mongod.exe;
         public static readonly string LocalConnectionString = "mongodb://localhost/Seasons";
-        public static readonly string LocalDatabaseName = "afl";
+        public static readonly string LocalDatabaseName_AFL = "afl";
+        public static readonly string LocalDatabaseName_BBL = "bbl";
         public static readonly string RemoteDatabaseName = "appharbor_qzz6l02h";
         private readonly string _mongoDbConnectionString;
-        private readonly string _databaseName;
+        private readonly string _databaseName_AFL;
+        private readonly string _databaseName_BBL;
 
         public MongoDb()
         {
@@ -27,7 +30,8 @@ namespace AFLStatisticsService
             _mongoDbConnectionString = ConfigurationManager.AppSettings.Get("MONGOHQ_URL") ??
                                       ConfigurationManager.AppSettings.Get("MONGOLAB_URI") ??
                                       LocalConnectionString;
-            _databaseName = _mongoDbConnectionString == LocalConnectionString ? LocalDatabaseName : RemoteDatabaseName;
+            _databaseName_AFL = _mongoDbConnectionString == LocalConnectionString ? LocalDatabaseName_AFL : RemoteDatabaseName;
+            _databaseName_BBL = _mongoDbConnectionString == LocalConnectionString ? LocalDatabaseName_AFL : RemoteDatabaseName;
         }
 
         #region Seasons
@@ -35,8 +39,18 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Season>("Seasons");
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Season>("Seasons");
             var nullFilter = new FilterDefinitionBuilder<Season>().Empty;
+            var results = databaseSeasons.Find(nullFilter).ToList();
+            return results;
+        }
+
+        public IEnumerable<BBLSeason> GetBBLSeasons()
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_BBL).GetCollection<BBLSeason>("BBLSeasons");
+            var nullFilter = new FilterDefinitionBuilder<BBLSeason>().Empty;
             var results = databaseSeasons.Find(nullFilter).ToList();
             return results;
         }
@@ -45,7 +59,7 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Season>("Seasons");
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Season>("Seasons");
 
             try
             {
@@ -76,11 +90,46 @@ namespace AFLStatisticsService
             }
         }
 
+        public void UpdateBBLSeasons(List<BBLSeason> seasons)
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_BBL).GetCollection<BBLSeason>("BBLSeasons");
+
+            try
+            {
+                //session.StartTransaction();
+                foreach (var s in seasons)
+                {
+                    var nullFilter = new FilterDefinitionBuilder<BBLSeason>().Empty;
+                    var results = databaseSeasons.Find(nullFilter).ToList();
+
+                    if (results.Any(dbs => dbs.Year == s.Year))
+                    {
+                        var filter = new BsonDocument("Year", s.Year);
+                        databaseSeasons.DeleteOne(filter);
+                        databaseSeasons.InsertOne(s);
+                    }
+                    else
+                    {
+                        databaseSeasons.InsertOne(s);
+                    }
+                }
+
+                //session.CommitTransaction();
+            }
+            catch (Exception e)
+            {
+                //session.AbortTransaction();
+                throw;
+            }
+        }
+
         public void DeleteSeason(int year)
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Season>("Seasons");
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Season>("Seasons");
 
             try
             {
@@ -104,7 +153,7 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Network>("Networks");
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Network>("Networks");
             var nullFilter = new FilterDefinitionBuilder<Network>().Empty;
             var results = databaseSeasons.Find(nullFilter).ToList();
             return results;
@@ -114,7 +163,7 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseNetworks = session.Client.GetDatabase(_databaseName).GetCollection<Network>("Networks");
+            var databaseNetworks = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Network>("Networks");
 
             try
             {
@@ -148,7 +197,7 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseNetworks = session.Client.GetDatabase(_databaseName).GetCollection<Network>("Networks");
+            var databaseNetworks = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Network>("Networks");
 
             try
             {
@@ -170,7 +219,7 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseSeasons = session.Client.GetDatabase(_databaseName).GetCollection<Data>("DataInterpretation");
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Data>("DataInterpretation");
             var nullFilter = new FilterDefinitionBuilder<Data>().Empty;
             var results = databaseSeasons.Find(nullFilter).ToList();
             return results;
@@ -180,7 +229,7 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseNetworks = session.Client.GetDatabase(_databaseName).GetCollection<Data>("DataInterpretation");
+            var databaseNetworks = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Data>("DataInterpretation");
 
             try
             {
@@ -214,7 +263,7 @@ namespace AFLStatisticsService
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
-            var databaseNetworks = session.Client.GetDatabase(_databaseName).GetCollection<Data>("DataInterpretation");
+            var databaseNetworks = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Data>("DataInterpretation");
 
             try
             {

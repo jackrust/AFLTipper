@@ -50,15 +50,20 @@ namespace AFLStatisticsService.API
             {
                 try
                 {
+                    if (seasons.All(s => s.Year != year))
+                    {
+                        seasons.Add(new Season(year, new List<Round>()));
+                    }
+
                     var numRounds = GetNumRounds(year);
+
+                    if(numRounds == 0)
+                    {
+                        successful = false;
+                    }
                     for (var i = number; i <= numRounds; i++)
                     {
-                        var round = GetRoundResults(year, i);
-                        if (seasons.All(s => s.Year != year))
-                        {
-                            seasons.Add(new Season(year, new List<Round>()));
-                        }
-
+                        var round = GetRoundResultsHomeAndAway(year, i);
                         if (seasons.First(s => s.Year == year).Rounds.Count >= i)
                         {
                             seasons.First(s => s.Year == year).Rounds[i - 1] = round;
@@ -68,8 +73,23 @@ namespace AFLStatisticsService.API
                             seasons.First(s => s.Year == year).Rounds.Add(round);
                         }
                     }
+
+                    var finals = GetRoundResultsFinals(year);
+                    var finalNumber = 0;
+                    foreach (var r in finals)
+                    {
+                        finalNumber++;
+                        if (seasons.First(s => s.Year == year).Rounds.Count >= (numRounds+finalNumber))
+                        {
+                            seasons.First(s => s.Year == year).Rounds[(numRounds + finalNumber) - 1] = r;
+                        }
+                        else
+                        {
+                            seasons.First(s => s.Year == year).Rounds.Add(r);
+                        }
+                    }
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                     Console.WriteLine(e.StackTrace);
@@ -90,7 +110,8 @@ namespace AFLStatisticsService.API
 
         public abstract int GetNumRounds(int year);
 
-        public abstract Round GetRoundResults(int year, int roundNo);
+        public abstract Round GetRoundResultsHomeAndAway(int year, int roundNo);
+        public abstract List<Round> GetRoundResultsFinals(int year);
 
         public abstract List<Player> GetAllPlayers(int year);
     }

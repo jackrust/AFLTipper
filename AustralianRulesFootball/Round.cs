@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Utilities;
@@ -9,8 +10,9 @@ namespace AustralianRulesFootball
     {
         public int Year;
         public int Number;
+        public bool IsFinal;
     }
-
+    [BsonIgnoreExtraElements]
     public class Round : RoundShell
     {
         public override int GetHashCode()
@@ -19,7 +21,6 @@ namespace AustralianRulesFootball
         }
 
         public List<Match> Matches;
-        public bool IsFinal { get; set; }
 
         public Round() : this(0, 0, false, new List<Match>()) { }
 

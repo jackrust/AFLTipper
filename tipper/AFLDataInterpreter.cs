@@ -83,7 +83,7 @@ namespace Tipper
             {
                 if(term > 0)
                     input.AddRange(ExtractTeamScoreInputSet(m, history, term, ExtractInputSetForScore));
-            }
+            }//12
 
             //Scores By Ground
             if (interpretation.Count < 2)
@@ -92,7 +92,7 @@ namespace Tipper
             {
                 if (term > 0)
                     input.AddRange(ExtractGroundScoreInputSet(m, history, term, ExtractInputSetForScore));
-            }
+            }//24
 
             //Scores By State longerTerm
             if (interpretation.Count < 3)
@@ -101,7 +101,7 @@ namespace Tipper
             {
                 if (term > 0)
                     input.AddRange(ExtractStateScoreInputSet(m, history, term, ExtractInputSetForScore));
-            }
+            }//36
 
             //Scores by Day
             if (interpretation.Count < 4)
@@ -110,7 +110,7 @@ namespace Tipper
             {
                 if (term > 0)
                     input.AddRange(ExtractDayScoreInputSet(m, history, term, ExtractInputSetForScore));
-            }
+            }//48
 
             //Recent Shared Opponents
             if (interpretation.Count < 5)
@@ -119,27 +119,82 @@ namespace Tipper
             {
                 if (term > 0)
                     input.AddRange(ExtractSharedOpponentScoreSet(m, history, term, ExtractInputSetForScore));
-            }
+            }//60
 
             //Scores by quality of recent Opponents
             if (interpretation.Count < 6)
                 return input;
-            foreach (var term in interpretation[4])
+            foreach (var term in interpretation[5])
             {
                 if (term > 0)
                     input.AddRange(ExtractQualityOfRecentOpponentScoreSet(m, history, term, ExtractInputSetForOppositionScore));
-            }
+            }//72
 
             //Outcome focus
             //Wins By Team
-            if (interpretation.Count < 1)
+            if (interpretation.Count < 7)
                 return input;
-            foreach (var term in interpretation[0])
+            foreach (var term in interpretation[6])
             {
                 if (term > 0)
                     input.AddRange(ExtractTeamWinInputSet(m, history, term, ExtractInputSetForWin));
-            }
-            
+            }//60
+
+            //Match stats
+            //Kicks
+            if (interpretation.Count < 8)
+                return input;
+            foreach (var term in interpretation[7])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractKicksInputSet(m, history, term));
+            }//164
+
+            //Handballs
+            if (interpretation.Count < 9)
+                return input;
+            foreach (var term in interpretation[8])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractHandballsInputSet(m, history, term));
+            }//240
+
+            //Marks
+            if (interpretation.Count < 10)
+                return input;
+            foreach (var term in interpretation[9])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractMarksInputSet(m, history, term));
+            }//318
+
+            //Hitouts
+            if (interpretation.Count < 11)
+                return input;
+            foreach (var term in interpretation[10])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractHitoutsInputSet(m, history, term));
+            }//396
+
+            //Tackles
+            if (interpretation.Count < 12)
+                return input;
+            foreach (var term in interpretation[11])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractTacklesInputSet(m, history, term));
+            }//474
+
+            //Frees
+            if (interpretation.Count < 13)
+                return input;
+            foreach (var term in interpretation[12])
+            {
+                if (term > 0)
+                    input.AddRange(ExtractFreesInputSet(m, history, term));
+            }//630
+
             return input;
         }
 
@@ -267,6 +322,248 @@ namespace Tipper
             return extractor(term, recentHomeRecentOpponentMatches, recentAwayRecentOpponentMatches);
         }
 
+        /*private IEnumerable<double> ExtractKicksInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).Kicks, MatchStatistics.MIN_KICKS, MatchStatistics.MAX_KICKS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ht.Count(); i++)
+                ht.Insert(0, 0.0);
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).Kicks, MatchStatistics.MIN_KICKS, MatchStatistics.MAX_KICKS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < at.Count(); i++)
+                at.Insert(0, 0.0);
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).Kicks, MatchStatistics.MIN_KICKS, MatchStatistics.MAX_KICKS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ho.Count(); i++)
+                ho.Insert(0, 0.0);
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).Kicks, MatchStatistics.MIN_KICKS, MatchStatistics.MAX_KICKS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ao.Count(); i++)
+                ao.Insert(0, 0.0);
+            inputSet.AddRange(ht);
+            inputSet.AddRange(at);
+            inputSet.AddRange(ho);
+            inputSet.AddRange(ao);
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractHandballsInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).Handballs, MatchStatistics.MIN_HANDBALLS, MatchStatistics.MAX_HANDBALLS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ht.Count(); i++)
+                ht.Insert(0, 0.0);
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).Handballs, MatchStatistics.MIN_HANDBALLS, MatchStatistics.MAX_HANDBALLS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < at.Count(); i++)
+                at.Insert(0, 0.0);
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).Handballs, MatchStatistics.MIN_HANDBALLS, MatchStatistics.MAX_HANDBALLS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ho.Count(); i++)
+                ho.Insert(0, 0.0);
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).Handballs, MatchStatistics.MIN_HANDBALLS, MatchStatistics.MAX_HANDBALLS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ao.Count(); i++)
+                ao.Insert(0, 0.0);
+            inputSet.AddRange(ht);
+            inputSet.AddRange(at);
+            inputSet.AddRange(ho);
+            inputSet.AddRange(ao);
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractMarksInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).Marks, MatchStatistics.MIN_MARKS, MatchStatistics.MAX_MARKS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ht.Count(); i++)
+                ht.Insert(0, 0.0);
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).Marks, MatchStatistics.MIN_MARKS, MatchStatistics.MAX_MARKS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < at.Count(); i++)
+                at.Insert(0, 0.0);
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).Marks, MatchStatistics.MIN_MARKS, MatchStatistics.MAX_MARKS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ho.Count(); i++)
+                ho.Insert(0, 0.0);
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).Marks, MatchStatistics.MIN_MARKS, MatchStatistics.MAX_MARKS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ao.Count(); i++)
+                ao.Insert(0, 0.0);
+            inputSet.AddRange(ht);
+            inputSet.AddRange(at);
+            inputSet.AddRange(ho);
+            inputSet.AddRange(ao);
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractHitoutsInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).HitOuts, MatchStatistics.MIN_HITOUTS, MatchStatistics.MAX_HITOUTS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ht.Count(); i++)
+                ht.Insert(0, 0.0);
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).HitOuts, MatchStatistics.MIN_HITOUTS, MatchStatistics.MAX_HITOUTS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < at.Count(); i++)
+                at.Insert(0, 0.0);
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).HitOuts, MatchStatistics.MIN_HITOUTS, MatchStatistics.MAX_HITOUTS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ho.Count(); i++)
+                ho.Insert(0, 0.0);
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).HitOuts, MatchStatistics.MIN_HITOUTS, MatchStatistics.MAX_HITOUTS, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ao.Count(); i++)
+                ao.Insert(0, 0.0);
+            inputSet.AddRange(ht);
+            inputSet.AddRange(at);
+            inputSet.AddRange(ho);
+            inputSet.AddRange(ao);
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractTacklesInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).Tackles, MatchStatistics.MIN_TACKLES, MatchStatistics.MAX_TACKLES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ht.Count(); i++)
+                ht.Insert(0, 0.0);
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).Tackles, MatchStatistics.MIN_TACKLES, MatchStatistics.MAX_TACKLES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < at.Count(); i++)
+                at.Insert(0, 0.0);
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).Tackles, MatchStatistics.MIN_TACKLES, MatchStatistics.MAX_TACKLES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ho.Count(); i++)
+                ho.Insert(0, 0.0);
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).Tackles, MatchStatistics.MIN_TACKLES, MatchStatistics.MAX_TACKLES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ao.Count(); i++)
+                ao.Insert(0, 0.0);
+            inputSet.AddRange(ht);
+            inputSet.AddRange(at);
+            inputSet.AddRange(ho);
+            inputSet.AddRange(ao);
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractFreesInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            //Fors
+            var htf = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).FreesFor, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < htf.Count(); i++)
+                htf.Insert(0, 0.0);
+            var atf = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).FreesFor, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < atf.Count(); i++)
+                atf.Insert(0, 0.0);
+            var hof = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).FreesFor, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < hof.Count(); i++)
+                hof.Insert(0, 0.0);
+            var aof = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).FreesFor, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < aof.Count(); i++)
+                aof.Insert(0, 0.0);
+            //Against
+            var hta = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).FreesAgainst, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < hta.Count(); i++)
+                hta.Insert(0, 0.0);
+            var ata = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).FreesAgainst, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < ata.Count(); i++)
+                ata.Insert(0, 0.0);
+            var hoa = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).FreesAgainst, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < hoa.Count(); i++)
+                hoa.Insert(0, 0.0);
+            var aoa = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).FreesAgainst, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0)).ToList();
+            for (var i = 0; i < aoa.Count(); i++)
+                aoa.Insert(0, 0.0);
+            inputSet.AddRange(htf);
+            inputSet.AddRange(atf);
+            inputSet.AddRange(hof);
+            inputSet.AddRange(aof);
+            inputSet.AddRange(hta);
+            inputSet.AddRange(ata);
+            inputSet.AddRange(hoa);
+            inputSet.AddRange(aoa);
+            return inputSet;
+        }*/
+        private IEnumerable<double> ExtractKicksInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).Kicks, MatchStatistics.MIN_KICKS, MatchStatistics.MAX_KICKS, 0.0, 1.0));
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).Kicks, MatchStatistics.MIN_KICKS, MatchStatistics.MAX_KICKS, 0.0, 1.0));
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).Kicks, MatchStatistics.MIN_KICKS, MatchStatistics.MAX_KICKS, 0.0, 1.0));
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).Kicks, MatchStatistics.MIN_KICKS, MatchStatistics.MAX_KICKS, 0.0, 1.0));
+            inputSet.Add(ht.Count() == 0 ? 0.5 : ht.Average());
+            inputSet.Add(at.Count() == 0 ? 0.5 : at.Average());
+            inputSet.Add(ho.Count() == 0 ? 0.5 : ho.Average());
+            inputSet.Add(ao.Count() == 0 ? 0.5 : ao.Average());
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractHandballsInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).Handballs, MatchStatistics.MIN_HANDBALLS, MatchStatistics.MAX_HANDBALLS, 0.0, 1.0));
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).Handballs, MatchStatistics.MIN_HANDBALLS, MatchStatistics.MAX_HANDBALLS, 0.0, 1.0));
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).Handballs, MatchStatistics.MIN_HANDBALLS, MatchStatistics.MAX_HANDBALLS, 0.0, 1.0));
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).Handballs, MatchStatistics.MIN_HANDBALLS, MatchStatistics.MAX_HANDBALLS, 0.0, 1.0));
+            inputSet.Add(ht.Count() == 0 ? 0.5 : ht.Average());
+            inputSet.Add(at.Count() == 0 ? 0.5 : at.Average());
+            inputSet.Add(ho.Count() == 0 ? 0.5 : ho.Average());
+            inputSet.Add(ao.Count() == 0 ? 0.5 : ao.Average());
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractMarksInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).Marks, MatchStatistics.MIN_MARKS, MatchStatistics.MAX_MARKS, 0.0, 1.0));
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).Marks, MatchStatistics.MIN_MARKS, MatchStatistics.MAX_MARKS, 0.0, 1.0));
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).Marks, MatchStatistics.MIN_MARKS, MatchStatistics.MAX_MARKS, 0.0, 1.0));
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).Marks, MatchStatistics.MIN_MARKS, MatchStatistics.MAX_MARKS, 0.0, 1.0));
+            inputSet.Add(ht.Count() == 0 ? 0.5 : ht.Average());
+            inputSet.Add(at.Count() == 0 ? 0.5 : at.Average());
+            inputSet.Add(ho.Count() == 0 ? 0.5 : ho.Average());
+            inputSet.Add(ao.Count() == 0 ? 0.5 : ao.Average());
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractHitoutsInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).HitOuts, MatchStatistics.MIN_HITOUTS, MatchStatistics.MAX_HITOUTS, 0.0, 1.0));
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).HitOuts, MatchStatistics.MIN_HITOUTS, MatchStatistics.MAX_HITOUTS, 0.0, 1.0));
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).HitOuts, MatchStatistics.MIN_HITOUTS, MatchStatistics.MAX_HITOUTS, 0.0, 1.0));
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).HitOuts, MatchStatistics.MIN_HITOUTS, MatchStatistics.MAX_HITOUTS, 0.0, 1.0));
+            inputSet.Add(ht.Count() == 0 ? 0.5 : ht.Average());
+            inputSet.Add(at.Count() == 0 ? 0.5 : at.Average());
+            inputSet.Add(ho.Count() == 0 ? 0.5 : ho.Average());
+            inputSet.Add(ao.Count() == 0 ? 0.5 : ao.Average());
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractTacklesInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).Tackles, MatchStatistics.MIN_TACKLES, MatchStatistics.MAX_TACKLES, 0.0, 1.0));
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).Tackles, MatchStatistics.MIN_TACKLES, MatchStatistics.MAX_TACKLES, 0.0, 1.0));
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).Tackles, MatchStatistics.MIN_TACKLES, MatchStatistics.MAX_TACKLES, 0.0, 1.0));
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).Tackles, MatchStatistics.MIN_TACKLES, MatchStatistics.MAX_TACKLES, 0.0, 1.0));
+            inputSet.Add(ht.Count() == 0 ? 0.5 : ht.Average());
+            inputSet.Add(at.Count() == 0 ? 0.5 : at.Average());
+            inputSet.Add(ho.Count() == 0 ? 0.5 : ho.Average());
+            inputSet.Add(ao.Count() == 0 ? 0.5 : ao.Average());
+            return inputSet;
+        }
+
+        private IEnumerable<double> ExtractFreesInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            //Fors
+            var htf = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).FreesFor, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0));
+            var atf = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).FreesFor, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0));
+            var hof = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).FreesFor, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0));
+            var aof = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).FreesFor, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0));
+            var hta = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Home).FreesAgainst, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0));
+            var ata = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamStats(m.Away).FreesAgainst, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0));
+            var hoa = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Home).FreesAgainst, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0));
+            var aoa = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetOppositionStats(m.Away).FreesAgainst, MatchStatistics.MIN_FREES, MatchStatistics.MAX_FREES, 0.0, 1.0));
+            inputSet.Add(htf.Count() == 0 ? 0.5 : htf.Average());
+            inputSet.Add(atf.Count() == 0 ? 0.5 : atf.Average());
+            inputSet.Add(hof.Count() == 0 ? 0.5 : hof.Average());
+            inputSet.Add(aof.Count() == 0 ? 0.5 : aof.Average());
+            inputSet.Add(hta.Count() == 0 ? 0.5 : hta.Average());
+            inputSet.Add(ata.Count() == 0 ? 0.5 : ata.Average());
+            inputSet.Add(hoa.Count() == 0 ? 0.5 : hoa.Average());
+            inputSet.Add(aoa.Count() == 0 ? 0.5 : aoa.Average());
+            return inputSet;
+        }
+
         protected abstract IEnumerable<double> ExtractInputSetForScore(Match m, List<Match> matches, int term,
             Func<Match, bool> homeWherePredicate, Func<Match, bool> awayWherePredicate);
 
@@ -293,6 +590,9 @@ namespace Tipper
                     .OrderByDescending(x => x.Date)
                     .Take(takeLength)
                     .Count());
+            //TODO: confirm or remove
+            //Attempting to reduce the impact of missing data by massaging 0's into 0.5s
+            //return max == 0 ? 0.5 : Numbery.Normalise(value, max);
             return Numbery.Normalise(value, max);
         }
 

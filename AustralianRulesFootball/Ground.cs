@@ -94,7 +94,7 @@ namespace AustralianRulesFootball
         
         //Tasmania
         public static Ground Au = new Ground("AU", new List<string> { "Aurora Stadium", "York Park", "University of Tasmania", "University of Tasmania Stadium" }, new List<string> { "US" }, State.Tasmania, new GeographicCoordinate(-41.4258, 147.1389));
-        public static Ground Ba = new Ground("BA", new List<string> {"Bludstone Arena", "Blundstone Arena"}, new List<string> {}, State.Tasmania, new GeographicCoordinate(-42.877699, 147.373535));
+        public static Ground Ba = new Ground("BA", new List<string> {"Bludstone Arena", "Blundstone Arena", "Bludstone", "Blundstone" }, new List<string> {}, State.Tasmania, new GeographicCoordinate(-42.877699, 147.373535));
         public static Ground Nh = new Ground("NH", new List<string> {"North Hobart"}, new List<string> {}, State.Tasmania, new GeographicCoordinate(-42.867778, 147.315833));
         
         //Victoria
@@ -114,7 +114,7 @@ namespace AustralianRulesFootball
         
         //WesternAustralia
         public static Ground Ps = new Ground("PS", new List<string> { "Patersons Stadium", "Subiaco Oval", "Domain Stadium", "DS" }, new List<string> { }, State.WesternAustralia, new GeographicCoordinate(-31.9444, 115.8300));
-        public static Ground Waca = new Ground("WACA", new List<string> {"W.A.C.A", "W.A.C.A."}, new List<string> {}, State.WesternAustralia, new GeographicCoordinate(-31.9600, 115.8797));
+        public static Ground Waca = new Ground("WACA", new List<string> {"W.A.C.A", "W.A.C.A.", "WACA Ground"}, new List<string> {}, State.WesternAustralia, new GeographicCoordinate(-31.9600, 115.8797));
         public static Ground Os = new Ground("OS", new List<string> { "Optus Stadium", "Perth Stadium" }, new List<string> { }, State.WesternAustralia, new GeographicCoordinate(-31.9513567, 115.888865));
 
         //North Island

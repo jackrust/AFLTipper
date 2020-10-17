@@ -4,17 +4,25 @@
     {
         public int Year;
         public int Number;
+        public bool IsFinal;
 
         public RoundShell()
         {
             Number = 0;
             Year = 0;
-        }
+            IsFinal = false;
+    }
 
-        public RoundShell(int year, int number)
+        public RoundShell(int year, int number, bool isFinal)
         {
             Number = number;
             Year = year;
+            IsFinal = isFinal;
+        }
+
+        public int EffectiveId()
+        {
+            return (Year * 1000) + (IsFinal ? 100 : 0) + (Number);
         }
 
         public bool Equals(RoundShell other)
@@ -27,12 +35,12 @@
 
         public static RoundShell operator +(RoundShell r, int i)
         {
-            return new RoundShell(r.Year, r.Number + i);
+            return new RoundShell(r.Year, r.Number + i, r.IsFinal);
         }
 
         public static RoundShell operator -(RoundShell r, int i)
         {
-            return new RoundShell(r.Year, r.Number - i);
+            return new RoundShell(r.Year, r.Number - i, r.IsFinal);
         }
     }
 }

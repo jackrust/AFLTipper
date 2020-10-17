@@ -15,6 +15,7 @@ namespace Tipper
         public static int NumOutputs = 4;
         public static int DefaultHiddens = 5;
         public League League;
+        public List<Cricket.BBLSeason> BBLSeasons;
         public Network Net;
 
         public Tipper()
@@ -23,20 +24,21 @@ namespace Tipper
             League = new League();
             //TODO:REMOVE
             League.Seasons = db.GetSeasons().Where(x => x.Year >= 2003).OrderBy(x => x.Year).ToList();
-           /* var playerStats = db.ReadPlayerDocument().ToList();
-            foreach (var season in League.Seasons)
-            {
-                foreach (var round in season.Rounds)
-                {
-                    foreach (var match in round.Matches)
-                    {
-                        match.HomePlayerMatches = playerStats.SelectMany(x => x.History).Where(
-                                        h =>
-                                           h.Year == season.Year && h.RoundNo == round.Number &&
-                                            match.Away.Equals(Util.GetTeamByName(h.Against))).ToList();
-                    }
-                }
-            }*/
+            BBLSeasons = db.GetBBLSeasons().ToList();
+            /* var playerStats = db.ReadPlayerDocument().ToList();
+             foreach (var season in League.Seasons)
+             {
+                 foreach (var round in season.Rounds)
+                 {
+                     foreach (var match in round.Matches)
+                     {
+                         match.HomePlayerMatches = playerStats.SelectMany(x => x.History).Where(
+                                         h =>
+                                            h.Year == season.Year && h.RoundNo == round.Number &&
+                                             match.Away.Equals(Util.GetTeamByName(h.Against))).ToList();
+                     }
+                 }
+             }*/
             Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
         }
 
@@ -45,11 +47,11 @@ namespace Tipper
             Net = new Network(inputs, hiddens, outputs);
         }
 
-        public Data GetMatchDataFromLeagueBetween(int fromYear, int fromRound, DateTime date)
+        public Data GetMatchDataFromLeagueBetween(RoundShell fromRoundShell, DateTime date)
         {
             Refresh(NumInputs, new List<int>() { DefaultHiddens }, NumOutputs);
             var round = GetRoundFromDate(date);
-            return GetMatchDataFromLeagueBetween(fromYear, fromRound, date.Year, round.Number);
+            return GetMatchDataFromLeagueBetween(fromRoundShell, round);
         }
 
         private Round GetRoundFromDate(DateTime date)
@@ -63,18 +65,18 @@ namespace Tipper
             return round;
         }
 
-        public Data GetMatchDataFromLeagueBetween(int fromYear, int fromRound, int toYear, int toRound, List<List<int>> interpretation = null)
+        public Data GetMatchDataFromLeagueBetween(RoundShell fromRoundShell, RoundShell toRoundShell, List<List<int>> interpretation = null)
         {
-            return GetMatchDataBetween(League.Seasons, fromYear, fromRound, toYear, toRound, interpretation);
+            return GetMatchDataBetween(League.Seasons, fromRoundShell, toRoundShell, interpretation);
         }
         
-        public static Data GetMatchDataBetween(List<Season> seasons, int fromYear, int fromRound, int toYear, int toRound, List<List<int>> interpretation = null)
+        public static Data GetMatchDataBetween(List<Season> seasons, RoundShell fromRoundShell, RoundShell toRoundShell, List<List<int>> interpretation = null)
         {
             var data = new Data();
             //TODO: It's a little messy to new this up here
             var league = new League(seasons);
-            var rounds = league.GetRounds(0, 0, toYear, toRound).Where(x => x.Matches.Count > 0).ToList();
-            var matches = rounds.Where(r => (r.Year == fromYear && r.Number >= fromRound) || (r.Year > fromYear))
+            var rounds = league.GetRounds(0, 0, toRoundShell.Year, toRoundShell.Number).Where(x => x.Matches.Count > 0).ToList();
+            var matches = rounds.Where(r => (r.EffectiveId() > fromRoundShell.EffectiveId()))
                 .SelectMany(r => r.Matches);
             foreach (var m in matches)
             {
@@ -152,12 +154,12 @@ namespace Tipper
             return results;
         }
 
-        public List<PredictedMatch> PredictWinners(int year, int round, List<List<int>> interpretation = null)
+        public List<PredictedMatch> PredictWinners(int year, int round, bool isFinal, List<List<int>> interpretation = null)
         {
             var predictions = new List<PredictedMatch>();
             var rounds = League.GetRounds(0, 0, year, round).Where(x => x.Matches.Count > 0).ToList();
 
-            foreach (var m in rounds.Where(r => (r.Year == year && r.Number == round)).SelectMany(r => r.Matches))
+            foreach (var m in rounds.Where(r => (r.Year == year && r.Number == round && r.IsFinal)).SelectMany(r => r.Matches))
             {
                 var history =
                     rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).OrderBy(h => h.Date).ToList();

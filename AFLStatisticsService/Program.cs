@@ -16,6 +16,7 @@ namespace AFLStatisticsService
             var db = new MongoDb();
             var loop = true;
             const string options = "[B]oth update & extend, [E]xtend, [U]pdate, [Q]uit, [?]Options";
+
             Console.WriteLine("AFL Statistics Service");
             while (loop)
             {
@@ -34,9 +35,8 @@ namespace AFLStatisticsService
                         break;
 
                     case ("B"):
-                        Console.WriteLine("Both update & extend");
-                        UpdateMatches(db);
-                        ExtendMatches(db);
+                        Console.WriteLine("Updating BBL Matches");
+                        ExtendBBLMatches(db);
                         //TODO: Reinstate once Mongo works
                         //Console.WriteLine("Updating Players");
                         //UpdatePlayers(db, updateFromYear);
@@ -151,6 +151,7 @@ namespace AFLStatisticsService
 
         private static void ExtendMatches(MongoDb db)
         {
+            //AFL
             var seasons = db.GetSeasons().ToList();
             var roundUid = GetLastCompletedRoundUid(seasons);
             Console.WriteLine("Extending from " + roundUid.Year + ", " + roundUid.Number);
@@ -161,6 +162,22 @@ namespace AFLStatisticsService
             seasons.RemoveAll(s => s.Rounds.Count == 0);
             //update db
             db.UpdateSeasons(seasons);
+        }
+
+        private static void ExtendBBLMatches(MongoDb db)
+        {
+            //BBL
+            var seasons = db.GetBBLSeasons().ToList();
+
+            //var year = GetLastCompletedMatch(seasons);
+            Console.WriteLine("Extending from " + 2011);
+
+            //add any new matches between last match and now
+            var api = new MyKhelAPI();
+            seasons = api.UpdateFrom(2011, seasons).ToList();
+            seasons.RemoveAll(s => s.Matches.Count == 0);
+            //update db*/
+            db.UpdateBBLSeasons(seasons);
         } 
 
         private static void UpdateMatches(MongoDb db)

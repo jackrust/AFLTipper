@@ -86,6 +86,7 @@
     </Compile>
     <Compile Include="Tipper.cs" />
     <Compile Include="TwitterHelper.cs" />
+    <Compile Include="UI\UIBBL.cs" />
     <Compile Include="UI\UIHelpers.cs" />
     <Compile Include="UI\UIMainLoop.cs" />
     <Compile Include="UI\UIOptimizerLoop.cs" />
@@ -295,6 +296,10 @@
     <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
       <Project>{61fbb7c9-f3a6-4972-81e1-6a5be0a176e3}</Project>
       <Name>AustralianRulesFootball</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cricket\Cricket.csproj">
+      <Project>{db12fa18-3bab-40ad-9a8d-fe43892acc99}</Project>
+      <Name>Cricket</Name>
     </ProjectReference>
     <ProjectReference Include="..\GeneticAlgorithm\GeneticAlgorithm.csproj">
       <Project>{75B276CE-0BDD-42F4-93DA-B87BE576BE61}</Project>

@@ -35,7 +35,7 @@ namespace AFLStatisticsService.API
             return numRounds;
         }
 
-        public override Round GetRoundResults(int year, int roundNo)
+        public override Round GetRoundResultsHomeAndAway(int year, int roundNo)
         {
             var isFinal = numHomeandAwayRounds[year] < roundNo;
             var link = Website + year + "_AFL_season";
@@ -92,6 +92,11 @@ namespace AFLStatisticsService.API
         public List<Player> GetAllPlayers()
         {
             return new List<Player>();
+        }
+
+        public override List<Round> GetRoundResultsFinals(int year)
+        {
+            throw new NotImplementedException();
         }
     }
 }
