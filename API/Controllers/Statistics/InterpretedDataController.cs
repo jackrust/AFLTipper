@@ -68,7 +68,10 @@ namespace API.Controllers.Statistics
             //If we can't find anything then we must be up to date
             if(first == null)
                 return;
-            var newData = Tipper.Tipper.GetMatchDataBetween(seasons, first.Year, first.Number, last.Year, last.Number, AFLDataInterpreter.Interpretations.BespokeLegacyInterpretation);
+
+            var from = new AustralianRulesFootball.RoundShell(first.Year, first.Number, first.IsFinal);
+            var to = new AustralianRulesFootball.RoundShell(last.Year, last.Number, last.IsFinal);
+            var newData = Tipper.Tipper.GetMatchDataBetween(seasons, from, to, AFLDataInterpreter.Interpretations.BespokeLegacyInterpretation);
             //Check just in case
             if(newData.DataPoints.Select(p => ((Tuple<DateTime, string>)p.Reference).Item1).OrderBy(d => d).First() > lastDate)
                 Console.WriteLine("Some new date is earlier that an old date");

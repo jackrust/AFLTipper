@@ -9,6 +9,7 @@ namespace AFLStatisticsService.API
     {
         protected static readonly Dictionary<int, int> numHomeandAwayRounds = new Dictionary<int, int>
         {
+            {2021, 23},
             {2020, 18},
             {2019, 23},
             {2018, 23},
@@ -41,10 +42,15 @@ namespace AFLStatisticsService.API
             {1991, 24},
         };
 
-        public List<Season> UpdateFrom(List<Season> seasons, int year, int number)
+        public List<Season> UpdateFrom(List<Season> seasons, RoundUid roundUid)
         {
             if (seasons.Count == 1)
                 seasons = new List<Season>();
+            var number = roundUid.Number;
+            var year = roundUid.Year;
+            if (roundUid.IsFinal)
+                number = numHomeandAwayRounds[year];
+
             var successful = true;
             while (successful)
             {

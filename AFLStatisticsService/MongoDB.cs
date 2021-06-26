@@ -55,6 +55,16 @@ namespace AFLStatisticsService
             return results;
         }
 
+        public IEnumerable<BBLSeason> GetWBBLSeasons()
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_BBL).GetCollection<BBLSeason>("WBBLSeasons");
+            var nullFilter = new FilterDefinitionBuilder<BBLSeason>().Empty;
+            var results = databaseSeasons.Find(nullFilter).ToList();
+            return results;
+        }
+
         public void UpdateSeasons(List<Season> seasons)
         {
             var client = new MongoClient(_mongoDbConnectionString);
@@ -125,11 +135,68 @@ namespace AFLStatisticsService
             }
         }
 
+        public void UpdateWBBLSeasons(List<BBLSeason> seasons)
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_BBL).GetCollection<BBLSeason>("WBBLSeasons");
+
+            try
+            {
+                //session.StartTransaction();
+                foreach (var s in seasons)
+                {
+                    var nullFilter = new FilterDefinitionBuilder<BBLSeason>().Empty;
+                    var results = databaseSeasons.Find(nullFilter).ToList();
+
+                    if (results.Any(dbs => dbs.Year == s.Year))
+                    {
+                        var filter = new BsonDocument("Year", s.Year);
+                        databaseSeasons.DeleteOne(filter);
+                        databaseSeasons.InsertOne(s);
+                    }
+                    else
+                    {
+                        databaseSeasons.InsertOne(s);
+                    }
+                }
+
+                //session.CommitTransaction();
+            }
+            catch (Exception e)
+            {
+                //session.AbortTransaction();
+                throw;
+            }
+        }
+
         public void DeleteSeason(int year)
         {
             var client = new MongoClient(_mongoDbConnectionString);
             var session = client.StartSession();
             var databaseSeasons = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Season>("Seasons");
+
+            try
+            {
+                session.StartTransaction();
+
+                var filter = new BsonDocument("Year", year);
+                databaseSeasons.DeleteOne(filter);
+
+                session.CommitTransaction();
+            }
+            catch (Exception e)
+            {
+                session.AbortTransaction();
+                throw;
+            }
+        }
+
+        public void DeleteWBBLSeason(int year)
+        {
+            var client = new MongoClient(_mongoDbConnectionString);
+            var session = client.StartSession();
+            var databaseSeasons = session.Client.GetDatabase(_databaseName_AFL).GetCollection<Season>("WBBLSeasons");
 
             try
             {

@@ -9,6 +9,8 @@ namespace AustralianRulesFootball
     public class MatchStatistics : Entity
     {
         //Min-max taken from 2000-2020
+        public static int MIN_SHOTS = 0;//123-295
+        public static int MAX_SHOTS = 60;
         public static int MIN_KICKS = 120;//123-295
         public static int MAX_KICKS = 300;
         public static int MIN_HANDBALLS = 50;//58-297

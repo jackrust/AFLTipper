@@ -62,7 +62,14 @@ namespace AFLStatisticsService.API
             var link = Website + "/afl/footy/ft_match_list?year=" + year;
 
             var web = new HtmlWeb();
-            var doc = web.Load(link);
+            HtmlDocument doc;
+            try
+            {
+                doc = web.Load(link);
+            }catch(Exception e)
+            {
+                return new List<Round>();
+            }
 
             //var nodes = doc.DocumentNode.SelectNodes("//tr[td[@class='tbtitle' and (contains(text(),'Qualifying Final') or contains(text(),'Elimination Final') or contains(text(),'Semi Final') or contains(text(),'Preliminary Final') or contains(text(),'Grand Final'))]]/following::tr");
             var finals = new List<Round>();

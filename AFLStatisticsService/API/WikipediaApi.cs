@@ -44,7 +44,7 @@ namespace AFLStatisticsService.API
             var doc = web.Load(link);
 
             var nodes = doc.DocumentNode.SelectNodes("//table[tbody/tr/th[text()='Round " + roundNo + "\n' or contains(text(),'Round " + roundNo + " (')]]/tbody/tr[not(@style)]")
-                .Where(n => n.InnerText.Contains("vs.") || n.InnerText.Contains("def.")).ToList();
+                .Where(n => n.InnerText.Contains("\nvs.\n") || n.InnerText.Contains("\ndef.\n") || n.InnerText.Contains("\ndef. by\n")).ToList();
 
 
             var dateReg = new Regex("(Sunday|Monday|Tuesday|Wednesday|Thursday|Friday|Saturday), ([0-9])+ (January|February|March|April|May|June|July|August|September|October|November|December) \\(([0-9])+:([0-9])+.*pm\\)");
@@ -55,8 +55,9 @@ namespace AFLStatisticsService.API
             {
                 var date = node.SelectSingleNode("td").InnerText;
                 var dateMatch = dateReg.Match(date);
-                if (dateMatch.Success) dateHold = dateMatch.ToString();
-                    var teams = node.SelectSingleNode("td[2]");
+                if (dateMatch.Success) 
+                    dateHold = dateMatch.ToString();
+                var teams = node.SelectSingleNode("td[2]");
 
                 //Teams
                 var home = node.SelectSingleNode("td[2]").SelectSingleNode("a").InnerText;
@@ -96,7 +97,8 @@ namespace AFLStatisticsService.API
 
         public override List<Round> GetRoundResultsFinals(int year)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return new List<Round>();
         }
     }
 }

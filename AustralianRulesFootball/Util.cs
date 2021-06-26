@@ -47,7 +47,10 @@ namespace AustralianRulesFootball
             var grounds = new List<Ground>
             {
                 Ground.A,
+                Ground.Abf,
+                Ground.Ac,
                 Ground.Ao,
+                Ground.Ao2,
                 Ground.P,
                 Ground.Anz,
                 Ground.As,
@@ -55,12 +58,17 @@ namespace AustralianRulesFootball
                 Ground.Bisp,
                 Ground.Ba,
                 Ground.Bs,
+                Ground.Ch,
                 Ground.Cs,
+                Ground.Do,
                 Ground.Es,
                 Ground.Eu,
                 Ground.G,
+                Ground.H,
+                Ground.Ho,
                 Ground.Jo,
                 Ground.Jss,
+                Ground.Kto,
                 Ground.Lo,
                 Ground.Lho,
                 Ground.Mclp,
@@ -77,8 +85,11 @@ namespace AustralianRulesFootball
                 Ground.Scg,
                 Ground.Tio,
                 Ground.Ttp,
+                Ground.Tsr,
+                Ground.Uo1,
                 Ground.V,
                 Ground.Waca,
+                Ground.W,
                 Ground.Ws,
                 Ground.Wo,
                 Ground.Wh
@@ -128,9 +139,10 @@ namespace AustralianRulesFootball
         public static DateTime StringToDate(string datetime)
         {
             string[] formats = { " dd/MMM/yyyy h:mm tt", " d /MMM/yyyy h:mm tt", " d /MMM/yyyy  ", " dd/MMM/yyyy  ",
-                                    "dddd, MMMM dd h:mmtt yyyy", "MMM d (ddd h:mmtt) yyyy", "MMM d (ddd) yyyy", 
-                                    "dddd, dd MMMM (h:mmtt) yyyy", "ddd dd MMM h:mmtt yyyy", "ddd d MMM h:mmtt yyyy", 
-                                    "dddd, d MMMM (h:mmtt) yyyy",  "dd MMM yyyy, ddd - h:mm tt"};
+                                    "dddd, MMMM dd h:mmtt yyyy", "MMM d (ddd h:mmtt) yyyy", "MMM d (ddd) yyyy",
+                                    "dddd, dd MMMM (h:mmtt) yyyy", "ddd dd MMM h:mmtt yyyy", "ddd d MMM h:mmtt yyyy",
+                                    "dddd, d MMMM (h:mmtt) yyyy",  "dd MMM yyyy, ddd - h:mm tt", "dd MMMM H:mm yyyy", 
+                                    "d MMMM H:mm yyyy"};
 
             DateTime date;
             var dateString = datetime.Trim();

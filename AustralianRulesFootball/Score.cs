@@ -40,6 +40,10 @@ namespace AustralianRulesFootball
         {
             return (6 * Goals) + Points;
         }
+        public double Shots()
+        {
+            return Goals + Points;
+        }
 
         public static Score operator +(Score s1, Score s2)
         {

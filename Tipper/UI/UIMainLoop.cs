@@ -559,11 +559,26 @@ namespace Tipper.UI
                 : (int)args[14] == 2 ? new List<int> { 25, 31, 37 }
                 : new List<int> { 1, 3, 5, 9, 13, 17, 25, 31, 37 };
 
-            List<List<int>> interpretation = new List<List<int>>
+            /*List<List<int>> interpretation = new List<List<int>>
             {
                 interpretationTeamScore, interpretationGroundScore, interpretationStateScore, interpretationDayScore, interpretationSharedScore, 
                 interpretationTeamShots, interpretationGroundShots, interpretationStateShots, interpretationDayShots, interpretationSharedShots
-            };
+            };*/
+            DataInterpretation interpretation = new DataInterpretation(
+            new List<DataInterpretationRule>
+            {
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_TEAM, interpretationTeamScore),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_GROUND, interpretationGroundScore),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_STATE, interpretationStateScore),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_DAY, interpretationDayScore),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_SHARED_OPPONENTS, interpretationSharedScore)/*,
+                new DataInterpretationRule("Shots By Team", interpretationTeamShots),
+                new DataInterpretationRule("Shots By Ground", interpretationGroundShots),
+                new DataInterpretationRule("Shots By State", interpretationStateShots),
+                new DataInterpretationRule("Shots By Day", interpretationDayShots),
+                new DataInterpretationRule("Shots By Recent Shared Opponents", interpretationSharedShots)*/
+            });
+
             var tipper = new Tipper();
 
             var stopWatch = new Stopwatch();
@@ -801,9 +816,18 @@ namespace Tipper.UI
             var interpretationFrees = new List<int>() { 5 };
             */
 
-            List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay,
+            /*List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay,
                 interpretationShared};//, interpretationQuality, interpretationWins, interpretationKicks, interpretationHandballs, interpretationMarks, interpretationHitouts, interpretationTackles, interpretationFrees};
-
+            */
+            DataInterpretation interpretation = new DataInterpretation(
+            new List<DataInterpretationRule>
+            {
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_TEAM, interpretationTeam),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_GROUND, interpretationGround),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_STATE, interpretationState),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_DAY, interpretationDay),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_SHARED_OPPONENTS, interpretationShared)
+            });
 
             var fromRoundShell = new RoundShell(roundShell.Year - 10, 0, false);
             var trainingData = tipper.GetMatchDataFromLeagueBetween(fromRoundShell, roundShell, interpretation);
@@ -833,7 +857,7 @@ namespace Tipper.UI
         #endregion
 
         #region Twitter Tip Next Round
-        private static void TwitterTipNextRound()
+        public static void TwitterTipNextRound()
         {
             Console.WriteLine("Loading data...");
             //Load tipper
@@ -856,22 +880,22 @@ namespace Tipper.UI
                     .OrderByDescending(s => s.Year)
                     .First()
                     .Rounds.Where(r => r.Matches.Count > 0 && r.Matches.Where(m => m.TotalScore() < 0.1).Count() > 0)
-                    .OrderByDescending(r => r.EffectiveId())
+                    .OrderBy(r => r.EffectiveId())
                     .First();
 
-            Console.WriteLine("Tipping: {0}, Round {1}", nextIncompletRound.Year, nextIncompletRound.Number);
+            Console.WriteLine("Tipping: {0}, " + (nextIncompletRound.IsFinal? "Finals ":"") + " Round {1}", nextIncompletRound.Year, nextIncompletRound.Number);
             //Tip
             var predictions = SetUpTipper(tipper, round);
 
-            var message ="";
-            var nextRound = completedRounds.OrderByDescending(r => r.EffectiveId()).First();
+            var message = "";
+
             if (nextIncompletRound.IsFinal)
                 message = "Finals week " + nextIncompletRound.Number + ":\n";
             else
                 message = "Round " + nextIncompletRound.Number + ":\n";
 
             message += tipper.ResultToStringTweet(predictions.Where(p => p.RoundNumber == nextIncompletRound.Number).ToList());
-
+            Console.WriteLine(message);
             var twitterHelper = new TwitterHelper();
             twitterHelper.SendTweet(message);
             Console.WriteLine("Tweeted successfully");
@@ -879,50 +903,127 @@ namespace Tipper.UI
         #endregion
 
         //TippBBLSeason
-        #region Twitter Tip Next Round
+        #region Twitter Tip Season
         private static void TippBBLSeason()
         {
             Console.WriteLine("Loading data...");
-            /*
+            
             //Load tipper
             var tipper = new Tipper();
 
             //Load last completed 
-            var year = tipper.League.Seasons.Where(s => s.Rounds.Any()).OrderByDescending(s => s.Year).First().Year;
+            var year = tipper.BBLSeasons.Where(s => s.Matches.Any()).OrderByDescending(s => s.Year).First().Year;
+            var matches = tipper.BBLSeasons.SelectMany(x => x.Matches).ToList();
+            matches.AddRange(tipper.WBBLSeasons.SelectMany(x => x.Matches).ToList());
+            var completeMatches = matches.Where(m => m.HomeScore.Runs > 0 || m.AwayScore.Runs > 0 || m.Abandoned);
+            var nextIncompletMatch = matches.Where(m => m.HomeScore.Runs == 0 && m.AwayScore.Runs == 0).OrderBy(m => m.EffectiveID()).First();
 
-            var completedRounds =
-                tipper.League.Seasons.Where(s => s.Rounds.Any())
-                    .OrderByDescending(s => s.Year)
-                    .First()
-                    .Rounds.Where(r => r.Matches.Count > 0 && r.Matches.All(m => m.TotalScore() > 0.1))
-                    .ToList();
+            Console.WriteLine("Tipping: {0}, Match {1}", nextIncompletMatch.Date.Year, nextIncompletMatch.Number);
 
-            var round = !completedRounds.Any() ? new RoundShell(year, 0, false) : completedRounds.OrderByDescending(r => r.IsFinal).ThenByDescending(r => r.Number).First();
+            var trainFromID = 201300;
+            var testFromID = 201900;
 
-            var nextIncompletRound =
-                tipper.League.Seasons.Where(s => s.Rounds.Any() && s.Year >= year)
-                    .OrderByDescending(s => s.Year)
-                    .First()
-                    .Rounds.Where(r => r.Matches.Count > 0 && r.Matches.Where(m => m.TotalScore() < 0.1).Count() > 0)
-                    .OrderByDescending(r => r.EffectiveId())
-                    .First();
-
-            Console.WriteLine("Tipping: {0}, Round {1}", nextIncompletRound.Year, nextIncompletRound.Number);
             //Tip
-            var predictions = SetUpTipper(tipper, round);
+            var trainingData = tipper.GetMatchDataBetween(trainFromID, testFromID);
+
+            //Create Network
+            tipper.Net = Network.CreateNetwork(trainingData, 1, 3, TrainingAlgorithmFactory.TrainingAlgorithmType.HoldBestInvestigate);
+            tipper.Net.MaxEpochs = 250;
+            Console.WriteLine("Training network (" + tipper.Net.Id + ")...");
+
+            //Train Network
+            tipper.Net.Train(trainingData.Inputs(), trainingData.Outputs());
+            var str = tipper.Net.Print();
+
+            //Print results
+            Console.WriteLine("Tip BBL from {0}...", testFromID);
+            var predictions = new List<Cricket.PredictedMatch>();
+
+            foreach (var r in tipper.BBLSeasons.SelectMany(s => s.Matches).Where(m => m.EffectiveID() >= testFromID).OrderBy(x => x.EffectiveID()).ToList())
+            {
+                predictions.AddRange(tipper.PredictBBLWinners(r.Date.Year, r.Number));
+            }
+
+            Console.WriteLine("Tip WBBL from {0}...", testFromID);
+            foreach (var r in tipper.WBBLSeasons.SelectMany(s => s.Matches).Where(m => m.EffectiveID() >= testFromID).OrderBy(x => x.EffectiveID()).ToList())
+            {
+                predictions.AddRange(tipper.PredictBBLWinners(r.Date.Year, r.Number));
+            }
 
             var message = "";
-            var nextRound = completedRounds.OrderByDescending(r => r.EffectiveId()).First();
-            if (nextIncompletRound.IsFinal)
-                message = "Finals week " + nextIncompletRound.Number + ":\n";
-            else
-                message = "Round " + nextIncompletRound.Number + ":\n";
+            var nextMatch = completeMatches.OrderByDescending(m => m.EffectiveID()).First();
+             message = "Round " + nextIncompletMatch.Number + ":\n";
 
-            message += tipper.ResultToStringTweet(predictions.Where(p => p.RoundNumber == nextIncompletRound.Number).ToList());
+            var success = 0.0;
+            var failure = 0.0;
+            var draws = 0.0;
 
-            var twitterHelper = new TwitterHelper();
-            twitterHelper.SendTweet(message);
-            Console.WriteLine("Tweeted successfully");*/
+            foreach (var p in predictions)
+            {
+                var result = "";
+                var m = matches.Where(x => x.EffectiveID() == p.EffectiveID()).First();
+                if ((m.HomeWin() && p.HomeWin()) || (m.AwayWin() && p.AwayWin()))
+                {
+                    success++;
+                    result = "Success";
+                }
+                else if (m.Abandoned || (m.Tie()))
+                {
+                    draws++;
+                    result = "Draw";
+                }
+                else
+                {
+                    failure++;
+                    result = "Failure";
+                }
+
+                Console.WriteLine("{0}| {1,9}: {2,6:P2} - {3,9}: {4,6:P2} ({5,3}-{6,3}) {7}", p.EffectiveID(), p.Home.Names[1], p.HomeProbability, p.Away.Names[1], p.AwayProbability, m.HomeScore.Runs, m.AwayScore.Runs, result);
+            }
+            Console.WriteLine("Success: {0,10} Failure: {1,10} Draws: {2,12}", success, failure, draws);
+            Console.WriteLine("Success: {0,10:P2}", (success/(success+failure+draws)));
+
+
+            //Optimizing
+            var optimizer = new Optimizer();
+            optimizer.LowerLimitLayers = 1;
+            optimizer.UpperLimitLayers = 3;
+            optimizer.LowerLimitNeuronsInLayer = 1;
+            optimizer.UpperLimitNeuronsInLayer = 5;
+            optimizer.LowerLimitEpochs = 250;
+            optimizer.UpperLimitEpochs = 1250;
+            optimizer.EpochsStep = 500;
+            optimizer.TrainingTestingDataDelineationCallbacks = new List<Func<Data, Tuple<Data, Data>>>()
+            {
+                DataCallback
+            };
+            var dataFrom = 201300;
+            var dataTo = 202100;
+
+            //Tip
+            var data = tipper.GetMatchDataBetween(dataFrom, dataTo);
+
+            var output = optimizer.Optimize(data, UIHelpers.SuccessConditionTotal, UIHelpers.Deconvert);
+            Console.WriteLine(output);
+            //Console.WriteLine(tipper.Net.Print());
+            //var twitterHelper = new TwitterHelper();
+            //twitterHelper.SendTweet(message);
+            //Console.WriteLine("Tweeted successfully");
+        }
+
+        private static Tuple<Data, Data> DataCallback(Data data)
+        {
+            //scenario is irrelevant here
+            var training = new Data();
+            var testing = new Data();
+
+            var count = data.DataPoints.Count;
+            training.DataPoints = data.DataPoints.GetRange(0, (int)Math.Floor(count * 0.75));
+            training.SuccessCondition = data.SuccessCondition;
+            testing.DataPoints = data.DataPoints.GetRange((int)Math.Floor(count * 0.75), (int)Math.Floor(count * 0.25));
+            testing.SuccessCondition = data.SuccessCondition;
+
+            return new Tuple<Data, Data>(training, testing);
         }
         #endregion
 
@@ -938,7 +1039,16 @@ namespace Tipper.UI
             var interpretationState = new List<int> { 1, 3, 5 };
             var interpretationDay = new List<int> { 25, 31, 37 };
             var interpretationShared = new List<int> { 25, 31, 37 };
-            List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
+            //List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay, interpretationShared };
+            DataInterpretation interpretation = new DataInterpretation(
+            new List<DataInterpretationRule>
+            {
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_TEAM, interpretationTeam),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_GROUND, interpretationGround),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_STATE, interpretationState),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_DAY, interpretationDay),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_SHARED_OPPONENTS, interpretationShared)
+            });
             var trainingData = tipper.GetMatchDataFromLeagueBetween(new RoundShell(2008, 0, false), new RoundShell(2017, 0, false), interpretation);
 
             Console.WriteLine("Training network..");
@@ -1076,12 +1186,12 @@ namespace Tipper.UI
 
             //Load last completed 
             var year = 2017;//tipper.League.Seasons.Where(s => s.Rounds.Any()).OrderByDescending(s => s.Year).First().Year;
-            var completedRounds =
+            /*var completedRounds =
                 tipper.League.Seasons.Where(s => s.Rounds.Any())
                     .OrderByDescending(s => s.Year)
                     .First()
                     .Rounds.Where(r => r.Matches.All(m => m.TotalScore() > 0))
-                    .ToList();
+                    .ToList();*/
             var round = 0;// = !completedRounds.Any() ? 0 : completedRounds.OrderByDescending(r => r.Number).First().Number;
 
 
@@ -1097,19 +1207,39 @@ namespace Tipper.UI
             var interpretationDay = new List<int> { 1, 2, 3, 5, 8 };
             var interpretationShared = new List<int> { 1, 2, 3, 5, 8 };
             //Extension
-            /*var interpretationQuality = new List<int>();
+            var interpretationQuality = new List<int>();
             var interpretationWins = new List<int>();
+            var interpretationScores = new List<int>() { 1, 5 };
             var interpretationKicks = new List<int>() { 1, 5 };
             var interpretationHandballs = new List<int>() { 1, 5 };
             var interpretationMarks = new List<int>() { 1, 5 };
             var interpretationHitouts = new List<int>() { 1, 5 };
             var interpretationTackles = new List<int>() { 1, 5 };
-            var interpretationFrees = new List<int>() { 1, 5 };*/
+            var interpretationFrees = new List<int>() { 1, 5 };
 
 
-            List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay,
-                interpretationShared};//, interpretationQuality, interpretationWins, interpretationKicks, interpretationHandballs, interpretationMarks,
-                //interpretationHitouts, interpretationTackles, interpretationFrees};
+            /*List<List<int>> interpretation = new List<List<int>> { interpretationTeam, interpretationGround, interpretationState, interpretationDay,
+                interpretationShared, interpretationQuality, interpretationWins, interpretationKicks, interpretationScores, interpretationHandballs, interpretationMarks,
+                interpretationHitouts, interpretationTackles, interpretationFrees};*/
+            DataInterpretation interpretation = new DataInterpretation(
+            new List<DataInterpretationRule>
+            {
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_TEAM, interpretationTeam),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_GROUND, interpretationGround),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_STATE, interpretationState),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_DAY, interpretationDay),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_SHARED_OPPONENTS, interpretationShared),
+                /*new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_QUALITY_OF_OPPONENTS, interpretationQuality),
+                new DataInterpretationRule(DataInterpretationRuleType.WINS, interpretationWins),
+                new DataInterpretationRule(DataInterpretationRuleType.KICKS, interpretationKicks),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORING_SHOTS, interpretationScores),
+                new DataInterpretationRule(DataInterpretationRuleType.HANDBALLS, interpretationHandballs),
+                new DataInterpretationRule(DataInterpretationRuleType.MARKS, interpretationMarks),
+                new DataInterpretationRule(DataInterpretationRuleType.HITOUTS, interpretationHitouts),
+                new DataInterpretationRule(DataInterpretationRuleType.TACKLES, interpretationTackles),
+                new DataInterpretationRule(DataInterpretationRuleType.FREES, interpretationFrees)*/
+            });
+
             var trainingData = tipper.GetMatchDataFromLeagueBetween(new RoundShell(2012, 0, false), new RoundShell(2017, 0, false), interpretation);
             var testinggData = tipper.GetMatchDataFromLeagueBetween(new RoundShell(2017, 0, false), new RoundShell(2020, 0, false), interpretation);
             trainingData.SuccessCondition = UIHelpers.SuccessConditionTotalPrint;

@@ -29,7 +29,13 @@ namespace ScreenScraper
 
             var client = new WebClient();
             Stream data = null;
-            data = client.OpenRead(url);
+            try
+            {
+                data = client.OpenRead(url);
+            }catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
 
             if (data == null) return "";
             var reader = new StreamReader(data);

@@ -40,7 +40,7 @@ namespace API.Logic
             foreach (var r in tipper.League.Seasons.Where(s => s.Year == year).SelectMany(s => s.Rounds).Where(r => r.Number > round).ToList())
             {
                 //If Interpretation change network will need to change too
-                predictions.AddRange(tipper.PredictWinners(r.Year, r.Number, AFLDataInterpreter.Interpretations.BespokeApiInterpretation));
+                predictions.AddRange(tipper.PredictWinners(r.Year, r.Number, r.IsFinal, AFLDataInterpreter.Interpretations.BespokeApiInterpretation));
             }
             return predictions;
         }

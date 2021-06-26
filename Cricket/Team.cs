@@ -16,6 +16,12 @@ namespace Cricket
         {
             return Teams.First(t => t.Names.Any(n => n.Equals(name.Trim(), StringComparison.InvariantCultureIgnoreCase)));
         }
+
+        public bool Equals(Team other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            return ReferenceEquals(this, other) || this.Id == other.Id;
+        }
         #endregion
 
         #region teams

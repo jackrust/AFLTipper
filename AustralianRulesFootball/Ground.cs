@@ -71,17 +71,23 @@ namespace AustralianRulesFootball
         public static Ground Bs = new Ground("BS", new List<string> {"Bruce Stadium"}, new List<string> {}, State.AustralianCapitalTerritory, new GeographicCoordinate(-35.2500, 149.1028));
         public static Ground Sto = new Ground("STO", new List<string> { "UNSW Canberra Oval", "Manuka Oval", "Manuka", "MO", "StarTrack Oval", "StarTrack Ovak", "StarTrack Oval Canberra" }, new List<string> { }, State.AustralianCapitalTerritory, new GeographicCoordinate(-35.318056, 149.134722));
         
-        //NewSouthWales
+        //New South Wales
         public static Ground Anz = new Ground("ANZ", new List<string> { "ANZ Stadium", "Stadium Australia", "Telstra Stadium" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.8472, 151.0633));
-        public static Ground Bisp = new Ground("BISP", new List<string> { "Blacktown ISP", "Blacktown Park" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.76944444, 150.85916667));
+        public static Ground Bisp = new Ground("BISP", new List<string> { "Blacktown ISP", "Blacktown Park", "Blacktown International Sportspark" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.76944444, 150.85916667));
+        public static Ground Ch = new Ground("CH?", new List<string> { "C.ex Coffs International Stadium" }, new List<string> { "Coffs"}, State.NewSouthWales, new GeographicCoordinate(-30.323102, 153.0923863));
+        public static Ground Do = new Ground("DO", new List<string> { "Drummoyne Oval" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.8509351, 151.1478424));
+        public static Ground H = new Ground("H", new List<string> { "Hurstville Oval" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.9602082, 151.0965356));
+        public static Ground Ho = new Ground("HO", new List<string> { "Howell Oval" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.7598756, 150.6842115));
         public static Ground Scg = new Ground("SCG", new List<string> { "Sydney Cricket Ground" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.8917, 151.2247));
         public static Ground Sss = new Ground("SSS", new List<string> { "Sydney Showground Stadium", "GIANTS Stadium" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.8433183, 151.0667875));
-        
+        public static Ground Uo1 = new Ground("UO1", new List<string> { "University Oval No.1" }, new List<string> { }, State.NewSouthWales, new GeographicCoordinate(-33.8879007, 151.182927));
+
         //NorthernTerritory
         public static Ground Tio = new Ground("TIO", new List<string> { "TIO Stadium", "Marrara" }, new List<string> { }, State.NorthernTerritory, new GeographicCoordinate(-12.3992, 130.8872));
-        public static Ground Ttp = new Ground("TTP", new List<string> { "TIO Trager Park", "TIO Traeger Park", "TIO Traegar Park", "Traeger Park", "TP" }, new List<string> { }, State.NorthernTerritory, new GeographicCoordinate(-23.7090, 133.8751));
-        
+        public static Ground Ttp = new Ground("TTP", new List<string> { "TIO Trager Park", "TIO Traeger Park", "TIO Traegar Park", "Traeger Park", "Traegar Park", "TP" }, new List<string> { }, State.NorthernTerritory, new GeographicCoordinate(-23.7090, 133.8751));
+
         //Queensland
+        public static Ground Abf = new Ground("ABF", new List<string> { "Allan Border Field" }, new List<string> { }, State.Queensland, new GeographicCoordinate(-27.4349811, 153.0437294));
         public static Ground Cs = new Ground("CS", new List<string> { "Cazaly's Stadium", "Cazaly�s Stadium" }, new List<string> { }, State.Queensland, new GeographicCoordinate(-16.9358, 145.7492));
         public static Ground G = new Ground("G", new List<string> { "The Gabba", "Gabba" }, new List<string> { }, State.Queensland, new GeographicCoordinate(-27.4858, 153.0381));
         public static Ground Ms = new Ground("MS", new List<string> { "Metricon Stadium", "Carrara", "Laver Oval", "Gold Coast Stadium" }, new List<string> { }, State.Queensland, new GeographicCoordinate(28.0064, 153.3672));
@@ -91,14 +97,17 @@ namespace AustralianRulesFootball
         //SouthAustralia
         public static Ground A = new Ground("A", new List<string> { "AAMI Stadium", "Football Park" }, new List<string> { }, State.SouthAustralia, new GeographicCoordinate(-34.8800, 138.4956));
         public static Ground Ao = new Ground("AO", new List<string> {"Adelaide Oval"}, new List<string> {}, State.SouthAustralia, new GeographicCoordinate(-34.9156, 138.5961));
-        
+        public static Ground Ao2 = new Ground("AO2", new List<string> { "Adelaide Oval No.2" }, new List<string> { }, State.SouthAustralia, new GeographicCoordinate(-34.9133727, 138.593246));
+
         //Tasmania
-        public static Ground Au = new Ground("AU", new List<string> { "Aurora Stadium", "York Park", "University of Tasmania", "University of Tasmania Stadium" }, new List<string> { "US" }, State.Tasmania, new GeographicCoordinate(-41.4258, 147.1389));
+        public static Ground Au = new Ground("AU", new List<string> { "Aurora Stadium", "York Park", "University of Tasmania", "University of Tasmania Stadium", "UTAS Stadium" }, new List<string> { "US" }, State.Tasmania, new GeographicCoordinate(-41.4258, 147.1389));
         public static Ground Ba = new Ground("BA", new List<string> {"Bludstone Arena", "Blundstone Arena", "Bludstone", "Blundstone" }, new List<string> {}, State.Tasmania, new GeographicCoordinate(-42.877699, 147.373535));
-        public static Ground Nh = new Ground("NH", new List<string> {"North Hobart"}, new List<string> {}, State.Tasmania, new GeographicCoordinate(-42.867778, 147.315833));
-        
+        public static Ground Kto = new Ground("KTO", new List<string> { "Kingston Twin Ovals" }, new List<string> {}, State.Tasmania, new GeographicCoordinate(-42.9750492, 147.2845009));
+        public static Ground Nh = new Ground("NH", new List<string> { "North Hobart" }, new List<string> { }, State.Tasmania, new GeographicCoordinate(-42.867778, 147.315833));
+
         //Victoria
         public static Ground P = new Ground("P", new List<string> {"AFL Park", "Waverly Park"}, new List<string> {}, State.Victoria, new GeographicCoordinate(-37.925556, 145.188611));
+        public static Ground Ac = new Ground("AC", new List<string> { "Aquinas College" }, new List<string> { }, State.Victoria, new GeographicCoordinate(-37.8227984, 145.2345181));
         public static Ground As = new Ground("AS", new List<string> {"Arden Street"}, new List<string> {}, State.Victoria, new GeographicCoordinate(-37.7992, 144.9411));
         public static Ground Es = new Ground("ES", new List<string> { "Etihad Stadium", "Colonial Stadium", "Telstra Dome", "Marvel Stadium" }, new List<string> { }, State.Victoria, new GeographicCoordinate(-37.8164, 144.9475));
         public static Ground Eu = new Ground("EU", new List<string> { "Mars Stadium", "Eureka Stadium", "Northern Oval #1", "AUSTAR" }, new List<string> { }, State.Victoria, new GeographicCoordinate(-37.539322, 143.848102));
@@ -108,7 +117,9 @@ namespace AustralianRulesFootball
         public static Ground Mclp = new Ground("MSLP", new List<string> {"MC Labour Park", "Optus Oval", "Princes Park", "Visy Park", "Ikon Park"}, new List<string> {}, State.Victoria, new GeographicCoordinate(-37.783889, 144.961667));
         public static Ground Mcg = new Ground("MCG", new List<string> {"Melbourne Cricket Ground"}, new List<string> {}, State.Victoria, new GeographicCoordinate(-37.8200, 144.9833));
         public static Ground Ss = new Ground("SS", new List<string> { "GMHBA Stadium", "Simonds Stadium", "Skilled Stadium", "Shell Stadium", "Kardinia Park"}, new List<string> {}, State.Victoria, new GeographicCoordinate(-38.1581, 144.3547));
+        public static Ground Tsr = new Ground("TSR", new List<string> { "Ted Summerton Reserve" }, new List<string> { }, State.Victoria, new GeographicCoordinate(-38.1827404, 146.2569033));
         public static Ground V = new Ground("V", new List<string> {"Victoria Park"}, new List<string> {}, State.Victoria, new GeographicCoordinate(-37.798333, 144.996389));
+        public static Ground W = new Ground("W", new List<string> { "Waverley Oval" }, new List<string> { }, State.Victoria, new GeographicCoordinate(-37.8781733, 145.0667358));
         public static Ground Wo = new Ground("WO", new List<string> {"Whitten Oval"}, new List<string> {}, State.Victoria, new GeographicCoordinate(-37.7992, 144.8867));
         public static Ground Wh = new Ground("WH", new List<string> {"Windy Hill"}, new List<string> {}, State.Victoria, new GeographicCoordinate(-37.751944, 144.919722));
         

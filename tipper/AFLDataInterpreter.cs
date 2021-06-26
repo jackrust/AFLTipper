@@ -12,11 +12,8 @@ namespace Tipper
         public int DataExpiryDays = 720;
 
         #region inperpretations
-        public struct InterpretationSubsets
-        {
-            public static List<int> DefaultInterpretationSubset = new List<int> { 1, 5, 11, 19, 29 };
-        }
 
+        /*
         public struct Interpretations
         {
             //If Interpretation change network will need to change too
@@ -41,23 +38,44 @@ namespace Tipper
 
             public static List<List<int>> DefaultInterpretation = new List<List<int>>
             {
-                InterpretationSubsets.DefaultInterpretationSubset,
-                InterpretationSubsets.DefaultInterpretationSubset,
-                InterpretationSubsets.DefaultInterpretationSubset,
-                InterpretationSubsets.DefaultInterpretationSubset,
-                InterpretationSubsets.DefaultInterpretationSubset,
-                InterpretationSubsets.DefaultInterpretationSubset
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 },
+                new List<int> { 1, 5, 11, 19, 29 }
             };
-        }
+        }*/
+
+        public static DataInterpretation BespokeLegacyInterpretation = new DataInterpretation(
+            new List<DataInterpretationRule>
+            {
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_TEAM, new List<int> {1, 8, 21}),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_GROUND, new List<int> {1, 8, 21}),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_STATE, new List<int> {1, 8, 21}),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_DAY, new List<int> {1, 8, 21}),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_SHARED_OPPONENTS, new List<int> {1, 8, 21})
+            });
+
+        public static DataInterpretation DefaultDataInterpretation = new DataInterpretation(
+            new List<DataInterpretationRule>
+            {
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_TEAM, new List<int> { 1, 5, 11, 19, 29 }),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_GROUND, new List<int> { 1, 5, 11, 19, 29 }),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_STATE, new List<int> { 1, 5, 11, 19, 29 }),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_DAY, new List<int> { 1, 5, 11, 19, 29 }),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_SHARED_OPPONENTS, new List<int> { 1, 5, 11, 19, 29 }),
+                new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_QUALITY_OF_OPPONENTS, new List<int> { 1, 5, 11, 19, 29 })
+            });
         #endregion
 
         #region DataPoint
         public DataPoint BuildDataPoint(List<Match> history, Match m)
         {
-            return BuildDataPoint(history, m, Interpretations.DefaultInterpretation);
+            return BuildDataPoint(history, m, DefaultDataInterpretation);
         }
 
-        public DataPoint BuildDataPoint(List<Match> history, Match m, List<List<int>> inputInpertretation)
+        public DataPoint BuildDataPoint(List<Match> history, Match m, DataInterpretation inputInpertretation)
         {
             var datapoint = new DataPoint
             {
@@ -70,130 +88,107 @@ namespace Tipper
         #endregion
 
         #region Inputs
-        public List<double> BuildInputs(List<Match> history, Match m, List<List<int>> interpretation)
+        public List<double> BuildInputs(List<Match> history, Match m, DataInterpretation interpretation)
         {
             var input = new List<double>();
-            
-            //V1 - measure by Score
 
             //Scores By Team
-            if (interpretation.Count < 1)
-                return input;
-            foreach (var term in interpretation[0])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.SCORES_BY_TEAM).SelectMany(r => r.Periods))
             {
                 if(term > 0)
                     input.AddRange(ExtractTeamScoreInputSet(m, history, term, ExtractInputSetForScore));
-            }//12
+            }
 
             //Scores By Ground
-            if (interpretation.Count < 2)
-                return input;
-            foreach (var term in interpretation[1])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.SCORES_BY_GROUND).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractGroundScoreInputSet(m, history, term, ExtractInputSetForScore));
-            }//24
+            }
 
             //Scores By State longerTerm
-            if (interpretation.Count < 3)
-                return input;
-            foreach (var term in interpretation[2])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.SCORES_BY_STATE).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractStateScoreInputSet(m, history, term, ExtractInputSetForScore));
-            }//36
+            }
 
             //Scores by Day
-            if (interpretation.Count < 4)
-                return input;
-            foreach (var term in interpretation[3])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.SCORES_BY_DAY).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractDayScoreInputSet(m, history, term, ExtractInputSetForScore));
-            }//48
+            }
 
             //Recent Shared Opponents
-            if (interpretation.Count < 5)
-                return input;
-            foreach (var term in interpretation[4])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.SCORES_BY_SHARED_OPPONENTS).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractSharedOpponentScoreSet(m, history, term, ExtractInputSetForScore));
-            }//60
+            }
 
             //Scores by quality of recent Opponents
-            if (interpretation.Count < 6)
-                return input;
-            foreach (var term in interpretation[5])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.SCORES_BY_QUALITY_OF_OPPONENTS).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractQualityOfRecentOpponentScoreSet(m, history, term, ExtractInputSetForOppositionScore));
-            }//72
+            }
 
-            //Outcome focus
             //Wins By Team
-            if (interpretation.Count < 7)
-                return input;
-            foreach (var term in interpretation[6])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.WINS).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractTeamWinInputSet(m, history, term, ExtractInputSetForWin));
-            }//60
+            }
 
-            //Match stats
+            //Scoring shots
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.SCORING_SHOTS).SelectMany(r => r.Periods))
+            {
+                if (term > 0)
+                    input.AddRange(ExtractScoresInputSet(m, history, term));
+            }
+
             //Kicks
-            if (interpretation.Count < 8)
-                return input;
-            foreach (var term in interpretation[7])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.KICKS).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractKicksInputSet(m, history, term));
-            }//164
+            }
 
             //Handballs
-            if (interpretation.Count < 9)
-                return input;
-            foreach (var term in interpretation[8])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.HANDBALLS).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractHandballsInputSet(m, history, term));
-            }//240
+            }
 
             //Marks
-            if (interpretation.Count < 10)
-                return input;
-            foreach (var term in interpretation[9])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.MARKS).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractMarksInputSet(m, history, term));
-            }//318
+            }
 
             //Hitouts
-            if (interpretation.Count < 11)
-                return input;
-            foreach (var term in interpretation[10])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.HITOUTS).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractHitoutsInputSet(m, history, term));
-            }//396
+            }
 
             //Tackles
-            if (interpretation.Count < 12)
-                return input;
-            foreach (var term in interpretation[11])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.TACKLES).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractTacklesInputSet(m, history, term));
-            }//474
+            }
 
             //Frees
-            if (interpretation.Count < 13)
-                return input;
-            foreach (var term in interpretation[12])
+            foreach (var term in interpretation.Rules.Where(r => r.Type == DataInterpretationRuleType.FREES).SelectMany(r => r.Periods))
             {
                 if (term > 0)
                     input.AddRange(ExtractFreesInputSet(m, history, term));
-            }//630
+            }
 
             return input;
         }
@@ -471,6 +466,21 @@ namespace Tipper
             inputSet.AddRange(aoa);
             return inputSet;
         }*/
+
+        private IEnumerable<double> ExtractScoresInputSet(Match m, List<Match> matches, int term)
+        {
+            var inputSet = new List<double>();
+            var ht = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamScore(m.Home).Shots(), MatchStatistics.MIN_SHOTS, MatchStatistics.MAX_SHOTS, 0.0, 1.0));
+            var at = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamScore(m.Away).Shots(), MatchStatistics.MIN_SHOTS, MatchStatistics.MAX_SHOTS, 0.0, 1.0));
+            var ho = matches.Where(x => x.HasTeam(m.Home) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamScore(m.Home).Shots(), MatchStatistics.MIN_SHOTS, MatchStatistics.MAX_SHOTS, 0.0, 1.0));
+            var ao = matches.Where(x => x.HasTeam(m.Away) && x.Date < m.Date).OrderByDescending(x => x.Date).Take(term).Select(x => Numbery.Normalise(x.GetTeamScore(m.Away).Shots(), MatchStatistics.MIN_SHOTS, MatchStatistics.MAX_SHOTS, 0.0, 1.0));
+            inputSet.Add(ht.Count() == 0 ? 0.5 : ht.Average());
+            inputSet.Add(at.Count() == 0 ? 0.5 : at.Average());
+            inputSet.Add(ho.Count() == 0 ? 0.5 : ho.Average());
+            inputSet.Add(ao.Count() == 0 ? 0.5 : ao.Average());
+            return inputSet;
+        }
+
         private IEnumerable<double> ExtractKicksInputSet(Match m, List<Match> matches, int term)
         {
             var inputSet = new List<double>();

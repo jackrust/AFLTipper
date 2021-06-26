@@ -4,14 +4,15 @@ using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace AFLStatisticsService.API
 {
-    class MyKhelAPI
+    class WikipediaWBBLAPI
     {
-        private int FirstYear = 2011;
+        private int FirstYear = 2015;
 
         internal List<BBLSeason> UpdateFrom(int year, List<BBLSeason> seasons)
         {
@@ -19,15 +20,13 @@ namespace AFLStatisticsService.API
             if (seasons.Count <= 1)
                 seasons = new List<BBLSeason>();
 
-            var SeasonUrls = GetSeasonUrls();
-
             for (var i = year; i <= DateTime.Now.Year; i++)
             {
-                var url = SeasonUrls.Where(u => u.Contains(i + "-" + (i -2000 + 1))).FirstOrDefault();
+                var url = "https://en.wikipedia.org/wiki/" + year + "–" + (year + 1).ToString().Replace("20", "") + "_Women%27s_Big_Bash_League_season";
                 var season = new BBLSeason();
                 if (url != null)
                 {
-                    season = GetSeason(url);
+                    season = GetSeason(url, i);
 
                     seasons.RemoveAll(s => s.Year == i);
 
@@ -39,51 +38,42 @@ namespace AFLStatisticsService.API
             return seasons;
         }
 
-        private List<string> GetSeasonUrls()
-        {
-            var link = @"https://www.mykhel.com/cricket/big-bash-league-2011-12-schedule-results-s9954/";
-            var web = new HtmlWeb();
-            var doc = web.Load(link);
-            var nodes = doc.DocumentNode.SelectNodes("//select[@id='non-opta-season']/option");
-            return nodes.Select(n => n.Attributes["value"].Value).ToList();
-        }
-
-        private BBLSeason GetSeason(string url)
+        private BBLSeason GetSeason(string url, int year)
         {
             var season = new BBLSeason();
-            var link = "https://www.mykhel.com/" + url;
+            ServicePointManager.Expect100Continue = true;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
             var web = new HtmlWeb();
-            var doc = web.Load(link);
-            var nodes = doc.DocumentNode.SelectNodes("//tr[contains(@class,'result')]");
+            var doc = web.Load(url);
+            var nodes = doc.DocumentNode.SelectNodes("//div[contains(@style,'width: 100%; clear:both')]");
+            var newYear = false;
+            var dateYear = year;
 
             foreach(var node in nodes)
             {
                 var match = new Cricket.Match();
-                var segments = node.SelectSingleNode("td").SelectSingleNode("table").SelectSingleNode("tbody").SelectSingleNode("tr").SelectNodes("td");
-                var dateText = segments[0].SelectNodes("div")[0].InnerText;
-                var groundText = segments[0].SelectNodes("div")[1].InnerText;
-                var roundText = segments[0].InnerText.Replace(dateText, "").Replace(groundText, "");
-
-                var number = 0;
-                switch (roundText)
+                var segments = node.SelectNodes("table");//.SelectSingleNode("tbody").SelectSingleNode("tr").SelectSingleNode("td").SelectSingleNode("div");
+                var dateText = segments[0].SelectSingleNode("tbody").SelectSingleNode("tr").SelectSingleNode("td").SelectSingleNode("div").GetDirectInnerText().Replace("()", "").Trim();
+                if(dateText.Contains("January") && !newYear)
                 {
-                    case ("Final 1,  "):
-                        number = 3;
-                        break;
+                    newYear = true;
+                    dateYear++;
                 }
-                match.Number = number;
+                dateText += " " + dateYear;
+                var resultText = segments[2].SelectSingleNode("tbody").SelectSingleNode("tr").SelectSingleNode("td").SelectSingleNode("div").SelectSingleNode("b").GetDirectInnerText();
+                var groundText = segments[2].SelectSingleNode("tbody").SelectSingleNode("tr").SelectSingleNode("td").SelectSingleNode("div").SelectSingleNode("small").SelectNodes("a")[0].InnerText;
+
                 match.Date = Util.StringToDate(dateText);
                 match.Ground = Util.GetGroundByName(groundText.Trim().Split(',')[0]);
 
-
-                var home = segments[1].SelectNodes("div")[0].SelectNodes("span")[0].InnerText.Trim();
-                var away = segments[1].SelectNodes("div")[1].SelectNodes("span")[0].InnerText.Trim();
+                var home = segments[1].SelectSingleNode("tbody").SelectSingleNode("tr").SelectNodes("td")[0].SelectSingleNode("div").SelectSingleNode("b").SelectSingleNode("a").InnerText;
+                var away = segments[1].SelectSingleNode("tbody").SelectSingleNode("tr").SelectNodes("td")[2].SelectSingleNode("div").SelectSingleNode("b").SelectSingleNode("a").InnerText;
                 match.Home = Cricket.Team.FindByName(home);
                 match.Away = Cricket.Team.FindByName(away);
 
-                var resultText = segments[2].InnerText;
+                
 
-                if (segments[2].InnerHtml.Contains("No Result"))
+                if (resultText.Contains("No Result"))
                 {
                     match.HomeScore = new MatchScore();
                     match.AwayScore = new MatchScore();
@@ -92,8 +82,8 @@ namespace AFLStatisticsService.API
                 }
                 else
                 {
-                    match.HomeScore = MatchScore.Str2ScoreEnglish(segments[1].SelectNodes("div")[0].SelectNodes("span")[1].InnerText.Trim());
-                    match.AwayScore = MatchScore.Str2ScoreEnglish(segments[1].SelectNodes("div")[1].SelectNodes("span")[1].InnerText.Trim());
+                    match.HomeScore = MatchScore.Str2ScoreAustralian(segments[1].SelectSingleNode("tbody").SelectSingleNode("tr").SelectNodes("td")[0].SelectSingleNode("div").GetDirectInnerText().Trim());
+                    match.AwayScore = MatchScore.Str2ScoreAustralian(segments[1].SelectSingleNode("tbody").SelectSingleNode("tr").SelectNodes("td")[2].SelectSingleNode("div").GetDirectInnerText().Trim());
 
 
 
@@ -106,7 +96,7 @@ namespace AFLStatisticsService.API
                         match.Result.Victor = Victor.Draw;
 
                     var margin = resultText.Replace(match.Home.Names[2], "").Replace(match.Away.Names[2], "").Replace("won by", "").Replace("runs", "").Replace("wickets", "").Replace("(D/L)", "").Replace("(DLS)", "").Trim();
-
+                    margin = margin.Split('(')[0];
                     if (resultText.Contains("runs"))
                         match.Result.MarginByRuns = Int32.Parse(margin);
                     if (resultText.Contains("wickets"))

@@ -16,6 +16,7 @@ namespace Tipper
         public static int DefaultHiddens = 5;
         public League League;
         public List<Cricket.BBLSeason> BBLSeasons;
+        public List<Cricket.BBLSeason> WBBLSeasons;
         public Network Net;
 
         public Tipper()
@@ -25,6 +26,7 @@ namespace Tipper
             //TODO:REMOVE
             League.Seasons = db.GetSeasons().Where(x => x.Year >= 2003).OrderBy(x => x.Year).ToList();
             BBLSeasons = db.GetBBLSeasons().ToList();
+            WBBLSeasons = db.GetWBBLSeasons().ToList();
             /* var playerStats = db.ReadPlayerDocument().ToList();
              foreach (var season in League.Seasons)
              {
@@ -65,12 +67,12 @@ namespace Tipper
             return round;
         }
 
-        public Data GetMatchDataFromLeagueBetween(RoundShell fromRoundShell, RoundShell toRoundShell, List<List<int>> interpretation = null)
+        public Data GetMatchDataFromLeagueBetween(RoundShell fromRoundShell, RoundShell toRoundShell, DataInterpretation interpretation = null)
         {
             return GetMatchDataBetween(League.Seasons, fromRoundShell, toRoundShell, interpretation);
         }
         
-        public static Data GetMatchDataBetween(List<Season> seasons, RoundShell fromRoundShell, RoundShell toRoundShell, List<List<int>> interpretation = null)
+        public static Data GetMatchDataBetween(List<Season> seasons, RoundShell fromRoundShell, RoundShell toRoundShell, DataInterpretation interpretation = null)
         {
             var data = new Data();
             //TODO: It's a little messy to new this up here
@@ -154,13 +156,14 @@ namespace Tipper
             return results;
         }
 
-        public List<PredictedMatch> PredictWinners(int year, int round, bool isFinal, List<List<int>> interpretation = null)
+        public List<PredictedMatch> PredictWinners(int year, int round, bool isFinal, DataInterpretation interpretation = null)
         {
             var predictions = new List<PredictedMatch>();
             var rounds = League.GetRounds(0, 0, year, round).Where(x => x.Matches.Count > 0).ToList();
 
-            foreach (var m in rounds.Where(r => (r.Year == year && r.Number == round && r.IsFinal)).SelectMany(r => r.Matches))
+            foreach (var m in rounds.Where(r => r.Year == year && r.Number == round && r.IsFinal == isFinal).SelectMany(r => r.Matches))
             {
+                //TODO: Are we ordering in the right direction?
                 var history =
                     rounds.Where(r => !r.Matches.Any(rm => rm.Date >= m.Date)).SelectMany(r => r.Matches).OrderBy(h => h.Date).ToList();
 
@@ -264,10 +267,10 @@ namespace Tipper
             return data;
         }
 
-        public static List<double> BuildInputs(List<Match> history, Match m, List<List<int>> interpretation = null)
+        public static List<double> BuildInputs(List<Match> history, Match m, DataInterpretation interpretation = null)
         {
             if (interpretation == null)
-                interpretation = AFLDataInterpreter.Interpretations.BespokeLegacyInterpretation;
+                interpretation = AFLDataInterpreter.BespokeLegacyInterpretation;
 
             var input = AFLDataInterpreterTotal.New().BuildInputs(history, m, interpretation);
             return input;
@@ -278,5 +281,60 @@ namespace Tipper
             var result = vals.Aggregate("", (current, t) => current + String.Format("{0:N1}|", t));
             return result.TrimEnd(' ').TrimEnd('|') + "";
         }
+
+        //BBL
+        #region BBL
+        public Data GetMatchDataBetween(int fromID, int toID, List<List<int>> interpretation = null)
+        {
+            var matches = BBLSeasons.SelectMany(x => x.Matches).ToList();
+            var data = new Data();
+            foreach (var m in matches.Where(m => m.EffectiveID() >= fromID && m.EffectiveID() <= toID))
+            {
+                var dataPoint = new DataPoint();
+                var history =
+                    matches.Where(x => x.EffectiveID() < m.EffectiveID()).ToList();
+                dataPoint.Inputs = (BuildInputs(history, m, interpretation));
+                dataPoint.Outputs = (new List<double>()
+                {
+                    //m.Tie() ? 0.5 : (m.HomeWin() ? 1 : 0),
+                    //m.Tie() ? 0.5 : (m.AwayWin() ? 1 : 0)
+                    m.HomeWinningness(),
+                    m.AwayWinningness(),
+                });
+                dataPoint.Reference = m.EffectiveID();
+                //Console.WriteLine("({0:p2}, {1:p2}) {2} {3}", dataPoint.Outputs[0], dataPoint.Outputs[1], m.HomeWin(), m.AwayWin());
+                data.DataPoints.Add(dataPoint);
+            }
+            return data;
+        }
+
+        public static List<double> BuildInputs(List<Cricket.Match> history, Cricket.Match m, List<List<int>> interpretation = null)
+        {
+            if (interpretation == null)
+                interpretation = BBLDataInterpreter.Interpretations.Default;
+
+            var input = BBLDataInterpreterWin.New().BuildInputs(history, m, interpretation);
+            return input;
+        }
+
+        public List<Cricket.PredictedMatch> PredictBBLWinners(int year, int number, List<List<int>> interpretation = null)
+        {
+            var predictions = new List<Cricket.PredictedMatch>();
+            var matches = BBLSeasons.SelectMany(s => s.Matches).Where(m => (m.Date.Year == year && m.Number == number));
+
+            foreach (var m in matches)
+            {
+                var history =
+                    BBLSeasons.SelectMany(s => s.Matches).Where(x => x.EffectiveID() < m.EffectiveID()).OrderBy(h => h.EffectiveID()).ToList();
+
+                var test = BuildInputs(history, m, interpretation);
+
+                var result = Net.Run(test);
+
+                predictions.Add(new Cricket.PredictedMatch(m.Home, m.Away, m.Ground, m.Date, number, result[0], result[1]));
+            }
+            return predictions;
+        }
+        #endregion
     }
 }

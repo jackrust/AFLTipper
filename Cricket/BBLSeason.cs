@@ -14,7 +14,7 @@ namespace Cricket
         public int Year; //Start year
         public List<Match> Matches;
 
-        public BBLSeason()
+        public BBLSeason():base()
         {
             Year = 0;
             Matches = new List<Match>();
