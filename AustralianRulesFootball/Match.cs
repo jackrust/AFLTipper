@@ -174,6 +174,32 @@ namespace AustralianRulesFootball
             return new Score();
         }
 
+        public MatchStatistics GetOppositionStats(Team team)
+        {
+            if (Home.Equals(team))
+            {
+                return AwayStats;
+            }
+            if (Away.Equals(team))
+            {
+                return HomeStats;
+            }
+            return new MatchStatistics();
+        }
+
+        public MatchStatistics GetTeamStats(Team team)
+        {
+            if (Home.Equals(team))
+            {
+                return HomeStats;
+            }
+            if (Away.Equals(team))
+            {
+                return AwayStats;
+            }
+            return new MatchStatistics();
+        }
+
         public bool Equals(Match other)
         {
             return Date.Equals(other.Date) && Home.Equals(other.Home) && Away.Equals(other.Away) &&

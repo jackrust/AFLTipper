@@ -33,7 +33,7 @@ namespace AFLStatisticsService.API
             return numRounds;
         }
 
-        public override Round GetRoundResults(int year, int roundNo)
+        public override Round GetRoundResultsHomeAndAway(int year, int roundNo)
         {
             var isFinal = numHomeandAwayRounds[year] > roundNo;
             var roundString = roundNo < 10 ? "0" + roundNo : "" + roundNo;
@@ -96,6 +96,11 @@ namespace AFLStatisticsService.API
         public List<Player> GetAllPlayers()
         {
             return new List<Player>();
+        }
+
+        public override List<Round> GetRoundResultsFinals(int year)
+        {
+            throw new NotImplementedException();
         }
     }
 }

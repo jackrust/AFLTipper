@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ArtificialNeuralNetwork;
 using ArtificialNeuralNetwork.DataManagement;
+using AustralianRulesFootball;
 
 namespace Tipper.UI
 {
@@ -66,7 +67,7 @@ namespace Tipper.UI
 
 
             Console.WriteLine("Loading data...");
-            var data = tipper.GetMatchDataFromLeagueBetween(2005, 0, 2019, 0);
+            var data = tipper.GetMatchDataFromLeagueBetween(new RoundShell(2005, 0, false), new RoundShell(2019, 0, false));
 
             var count = 0;
             foreach (var dataPoint in data.DataPoints)
@@ -199,19 +200,19 @@ namespace Tipper.UI
                         {
                             foreach (var five in optimizationDataSetFive)
                             {
-
-                                var interperetation = new List<List<int>>
-                                {
-                                    one,
-                                    two,
-                                    three,
-                                    four,
-                                    five
-                                };
-                                if (interperetation.Sum(i => i.Sum()) > 0)
+                                var interpretation = new DataInterpretation(
+                                    new List<DataInterpretationRule>
+                                    {
+                                        new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_TEAM, one),
+                                        new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_GROUND, two),
+                                        new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_STATE, three),
+                                        new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_DAY, four),
+                                        new DataInterpretationRule(DataInterpretationRuleType.SCORES_BY_SHARED_OPPONENTS, five)
+                                    });
+                                if (interpretation.Rules.Sum(i => i.Periods.Sum()) > 0)
                                 {
                                     Console.WriteLine("Loading data...");
-                                    var data = tipper.GetMatchDataFromLeagueBetween(2003, 0, 2019, 0, interperetation);
+                                    var data = tipper.GetMatchDataFromLeagueBetween(new RoundShell(2003, 0, false), new RoundShell(2019, 0, false), interpretation);
                                     Console.WriteLine("Optimizing...{0}-{1}-{2}-{3}-{4}", one[0], two[0], three[0],
                                         four[0],
                                         five[0]);

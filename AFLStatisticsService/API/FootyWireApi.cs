@@ -22,7 +22,15 @@ namespace AFLStatisticsService.API
             var numRounds = 0;
             var parameters = new Dictionary<string, string>();
             var results = Website + "/afl/footy/ft_match_list?year=" + year;
-            var page = WebsiteAPI.GetPage(results, parameters);
+            var page = "";
+            try
+            {
+                page = WebsiteAPI.GetPage(results, parameters);
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("No round data for year " + year);
+            }
 
             var r = new Regex("(Round) ([0-9])+");
             var m = r.Match(page);
@@ -36,20 +44,81 @@ namespace AFLStatisticsService.API
             return numRounds;
         }
 
-        public override Round GetRoundResults(int year, int roundNo)
+        public override Round GetRoundResultsHomeAndAway(int year, int roundNo)
         {
-            var isFinal = numHomeandAwayRounds[year] < roundNo;
-            var rounds = numHomeandAwayRounds[year];
             var link = Website + "/afl/footy/ft_match_list?year=" + year;
 
             var web = new HtmlWeb();
             var doc = web.Load(link);
 
-            var nodes = doc.DocumentNode.SelectNodes("//tr[td/a[@name='round_"+roundNo+"']]/following::tr");
-
+            var nodes = doc.DocumentNode.SelectNodes("//tr[td/a[@name='round_" + roundNo + "']]/following::tr");
             var matchNodes = nodes.Skip(1).TakeWhile(n => n.InnerText != "" && !n.InnerText.Contains("BYE"));
+            var matches = GetRoundResults(matchNodes, year);
+            return new Round(Convert.ToInt32(year), roundNo, false, matches);
+        }
 
+        public override List<Round> GetRoundResultsFinals(int year)
+        {
+            var link = Website + "/afl/footy/ft_match_list?year=" + year;
 
+            var web = new HtmlWeb();
+            HtmlDocument doc;
+            try
+            {
+                doc = web.Load(link);
+            }catch(Exception e)
+            {
+                return new List<Round>();
+            }
+
+            //var nodes = doc.DocumentNode.SelectNodes("//tr[td[@class='tbtitle' and (contains(text(),'Qualifying Final') or contains(text(),'Elimination Final') or contains(text(),'Semi Final') or contains(text(),'Preliminary Final') or contains(text(),'Grand Final'))]]/following::tr");
+            var finals = new List<Round>();
+
+            //Finals Week 1 - Elimination and Qualifying
+            var fw1Nodes = doc.DocumentNode.SelectNodes("//tr[td[@class='tbtitle' and (contains(.,'Qualifying Final') or contains(.,'Elimination Final'))]]/following::tr");
+            if (fw1Nodes != null)
+            {
+                var fw1MatchNodes = fw1Nodes.Skip(1)
+                    .TakeWhile(n => !n.InnerText.Contains("AFL Fixture") && !n.InnerText.Contains("Semi Final"))
+                    .Where(n => n.InnerText != "" && !n.InnerText.Contains("Final") && !n.InnerText.Contains("Venue"));
+                var fw1Matches = GetRoundResults(fw1MatchNodes, year);
+                finals.Add(new Round(Convert.ToInt32(year), 1, true, fw1Matches));
+            }
+
+            //Finals Week 2 - Semi Final
+            var fw2Nodes = doc.DocumentNode.SelectNodes("//tr[td[@class='tbtitle' and (contains(text(),'Semi Final'))]]/following::tr");
+            if (fw2Nodes != null)
+            {
+                var fw2MatchNodes = fw2Nodes.Skip(1)
+                    .TakeWhile(n => n.InnerText != "" && !n.InnerText.Contains("Preliminary Final"));
+                var fw2Matches = GetRoundResults(fw2MatchNodes, year);
+                finals.Add(new Round(Convert.ToInt32(year), 2, true, fw2Matches));
+            }
+
+            //Finals Week 3 - Preliminary Final
+            var fw3Nodes = doc.DocumentNode.SelectNodes("//tr[td[@class='tbtitle' and (contains(text(),'Preliminary Final'))]]/following::tr");
+            if (fw3Nodes != null)
+            {
+                var fw3MatchNodes = fw3Nodes.Skip(1)
+                    .TakeWhile(n => n.InnerText != "" && !n.InnerText.Contains("Grand Final"));
+                var fw3Matches = GetRoundResults(fw3MatchNodes, year);
+                finals.Add(new Round(Convert.ToInt32(year), 3, true, fw3Matches));
+            }
+
+            //Finals Week 4 - Grand Final
+            var fw4Nodes = doc.DocumentNode.SelectNodes("//tr[td[@class='tbtitle' and (contains(text(),'Grand Final'))]]/following::tr");
+            if (fw4Nodes != null)
+            {
+                var fw4MatchNodes = fw4Nodes.Skip(1).TakeWhile(n => n.InnerText != "");
+                var fw4Matches = GetRoundResults(fw4MatchNodes, year);
+                finals.Add(new Round(Convert.ToInt32(year), 4, true, fw4Matches));
+            }
+
+            return finals;// new Round(Convert.ToInt32(year), roundNo, false, matches);
+        }
+
+        public List<Match> GetRoundResults(IEnumerable<HtmlNode> matchNodes, int year)
+        {
             var dateReg = new Regex("(Sun|Mon|Tue|Wed|Thu|Fri|Sat) ([0-9])+ (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ?(([0-9])+:([0-9])+.*pm)?");
             var matches = new List<Match>();
             var dateHold = "";
@@ -93,7 +162,7 @@ namespace AFLStatisticsService.API
 
                 matches.Add(match);
             }
-            return new Round(Convert.ToInt32(year), roundNo, isFinal, matches);
+            return matches;
         }
 
         public void ExtendMatch(Match match, string mid)

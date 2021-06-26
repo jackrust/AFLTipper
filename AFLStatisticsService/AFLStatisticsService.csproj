@@ -64,12 +64,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="API\AFLAPI.cs" />
+    <Compile Include="API\FinalSirenAPI.cs" />
     <Compile Include="API\FootyWireApi.cs" />
+    <Compile Include="API\WikipediaWBBLAPI.cs" />
+    <Compile Include="API\MyKhelAPI.cs" />
     <Compile Include="API\WikipediaApi.cs" />
     <Compile Include="API\AflStatisticsApi.cs" />
     <Compile Include="MongoDB.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StatisticsServiceUI.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -83,6 +87,10 @@
     <ProjectReference Include="..\AustralianRulesFootball\AustralianRulesFootball.csproj">
       <Project>{61FBB7C9-F3A6-4972-81E1-6A5BE0A176E3}</Project>
       <Name>AustralianRulesFootball</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Cricket\Cricket.csproj">
+      <Project>{db12fa18-3bab-40ad-9a8d-fe43892acc99}</Project>
+      <Name>Cricket</Name>
     </ProjectReference>
     <ProjectReference Include="..\ScreenScraper\ScreenScraper.csproj">
       <Project>{2B080B6A-FC97-4952-8416-5E79E0B9717E}</Project>
